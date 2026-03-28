@@ -23,37 +23,63 @@ from intentkit.wallets.privy import (
 from intentkit.wallets.privy import (
     get_wallet_signer as get_privy_signer,
 )
+from intentkit.wallets.xian import (
+    get_wallet_provider as get_xian_wallet_provider,
+)
+from intentkit.wallets.xian import (
+    get_wallet_signer as get_xian_signer,
+)
 
 if TYPE_CHECKING:
     from intentkit.models.agent import Agent
     from intentkit.wallets.cdp import CdpWalletProvider
     from intentkit.wallets.native import NativeWalletProvider
     from intentkit.wallets.privy import SafeWalletProvider
+    from intentkit.wallets.xian import XianWalletProvider
 
 logger = logging.getLogger(__name__)
 
 WalletProviderType: TypeAlias = (
-    "CdpWalletProvider | NativeWalletProvider | SafeWalletProvider"
+    "CdpWalletProvider | NativeWalletProvider | SafeWalletProvider | XianWalletProvider"
 )
-WalletSignerType = (
-    Any  # Can be EvmLocalAccount, NativeWalletSigner, or PrivyWalletSigner
-)
+WalletSignerType = Any  # Can be EVM, Privy, or Xian signer implementations.
 
 
 async def _get_agent_wallet_data(agent: "Agent", wallet_type: str) -> dict[str, Any]:
     from intentkit.models.agent_data import AgentData
 
     agent_data = await AgentData.get(agent.id)
-    if wallet_type == "native":
-        data_field = agent_data.native_wallet_data
-        not_initialized_error = "NativeWalletNotInitialized"
-        corrupted_error = "NativeWalletDataCorrupted"
-        data_label = "native wallet data"
-    else:
-        data_field = agent_data.privy_wallet_data
-        not_initialized_error = "PrivyWalletNotInitialized"
-        corrupted_error = "PrivyWalletDataCorrupted"
-        data_label = "wallet data"
+    data_fields = {
+        "native": (
+            "native_wallet_data",
+            "NativeWalletNotInitialized",
+            "NativeWalletDataCorrupted",
+            "native wallet data",
+        ),
+        "privy": (
+            "privy_wallet_data",
+            "PrivyWalletNotInitialized",
+            "PrivyWalletDataCorrupted",
+            "wallet data",
+        ),
+        "xian": (
+            "xian_wallet_data",
+            "XianWalletNotInitialized",
+            "XianWalletDataCorrupted",
+            "xian wallet data",
+        ),
+    }
+    if wallet_type not in data_fields:
+        raise IntentKitAPIError(
+            500,
+            "UnsupportedWalletDataType",
+            f"Unsupported wallet data type '{wallet_type}'.",
+        )
+
+    data_field_name, not_initialized_error, corrupted_error, data_label = data_fields[
+        wallet_type
+    ]
+    data_field = getattr(agent_data, data_field_name, None)
 
     if not data_field:
         raise IntentKitAPIError(
@@ -85,6 +111,10 @@ async def get_wallet_provider(agent: "Agent") -> WalletProviderType:
         privy_data = await _get_agent_wallet_data(agent, "privy")
         return get_privy_provider(privy_data)
 
+    elif agent.wallet_provider == "xian":
+        xian_data = await _get_agent_wallet_data(agent, "xian")
+        return get_xian_wallet_provider(xian_data)
+
     elif agent.wallet_provider == "readonly":
         raise IntentKitAPIError(
             400,
@@ -97,7 +127,7 @@ async def get_wallet_provider(agent: "Agent") -> WalletProviderType:
             400,
             "NoWalletConfigured",
             "This agent does not have a wallet configured. "
-            "Please set wallet_provider to 'cdp', 'native', 'safe', or 'privy' in the agent configuration.",
+            "Please set wallet_provider to 'cdp', 'native', 'safe', 'privy', or 'xian' in the agent configuration.",
         )
 
     else:
@@ -105,7 +135,7 @@ async def get_wallet_provider(agent: "Agent") -> WalletProviderType:
             400,
             "UnsupportedWalletProvider",
             f"Wallet provider '{agent.wallet_provider}' is not supported for on-chain operations. "
-            "Supported providers are: 'cdp', 'native', 'safe', 'privy'.",
+            "Supported providers are: 'cdp', 'native', 'safe', 'privy', 'xian'.",
         )
 
 
@@ -124,6 +154,10 @@ async def get_wallet_signer(agent: "Agent") -> WalletSignerType:
         privy_data = await _get_agent_wallet_data(agent, "privy")
         return get_privy_signer(privy_data)
 
+    elif agent.wallet_provider == "xian":
+        xian_data = await _get_agent_wallet_data(agent, "xian")
+        return get_xian_signer(xian_data)
+
     elif agent.wallet_provider == "readonly":
         raise IntentKitAPIError(
             400,
@@ -136,7 +170,7 @@ async def get_wallet_signer(agent: "Agent") -> WalletSignerType:
             400,
             "NoWalletConfigured",
             "This agent does not have a wallet configured. "
-            "Please set wallet_provider to 'cdp', 'native', 'safe', or 'privy' in the agent configuration.",
+            "Please set wallet_provider to 'cdp', 'native', 'safe', 'privy', or 'xian' in the agent configuration.",
         )
 
     else:
@@ -144,7 +178,7 @@ async def get_wallet_signer(agent: "Agent") -> WalletSignerType:
             400,
             "UnsupportedWalletProvider",
             f"Wallet provider '{agent.wallet_provider}' is not supported for signing. "
-            "Supported providers are: 'cdp', 'native', 'safe', 'privy'.",
+            "Supported providers are: 'cdp', 'native', 'safe', 'privy', 'xian'.",
         )
 
 

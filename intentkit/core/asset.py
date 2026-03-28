@@ -19,8 +19,12 @@ from intentkit.models.agent import Agent, AgentTable
 from intentkit.models.agent_data import AgentData
 from intentkit.utils.error import IntentKitAPIError
 from intentkit.wallets.web3 import get_async_web3_client
+from intentkit.wallets.xian import get_wallet_provider as get_xian_wallet_provider
+from intentkit.wallets.xian_networks import get_xian_price_config, is_xian_network
 
 logger = logging.getLogger(__name__)
+
+JUPITER_PRICE_API_URL = "https://api.jup.ag/price/v3"
 
 # USDC contract addresses for different networks
 USDC_ADDRESSES = {
@@ -145,17 +149,111 @@ async def _get_wallet_net_worth(wallet_address: str, network_id: str | None) -> 
         return "0"
 
 
+def _decimal_to_string(value: Decimal) -> str:
+    rendered = format(value, "f")
+    if "." in rendered:
+        rendered = rendered.rstrip("0").rstrip(".")
+    return rendered or "0"
+
+
+async def _get_solana_jupiter_price_usd(solana_mint: str) -> Decimal | None:
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                JUPITER_PRICE_API_URL,
+                params={"ids": solana_mint},
+                timeout=30.0,
+            )
+            response.raise_for_status()
+            payload = response.json()
+    except Exception as exc:  # pragma: no cover - log path only
+        logger.error(
+            "Error getting Jupiter USD price for Solana mint %s: %s",
+            solana_mint,
+            exc,
+        )
+        return None
+
+    result_data = payload
+    if "data" in payload and isinstance(payload["data"], dict):
+        result_data = payload["data"]
+
+    token_data = result_data.get(solana_mint)
+    if not isinstance(token_data, dict) or token_data.get("usdPrice") is None:
+        return None
+
+    try:
+        return Decimal(str(token_data["usdPrice"]))
+    except Exception as exc:  # pragma: no cover - log path only
+        logger.error(
+            "Invalid Jupiter USD price for Solana mint %s: %s",
+            solana_mint,
+            exc,
+        )
+        return None
+
+
+async def _get_xian_net_worth(
+    network_id: str | None,
+    native_balance: Decimal | None,
+) -> str:
+    if not network_id or native_balance is None or native_balance <= 0:
+        return "0"
+
+    try:
+        price_config = get_xian_price_config(network_id)
+    except Exception as exc:  # pragma: no cover - log path only
+        logger.error("Error loading Xian price config for %s: %s", network_id, exc)
+        return "0"
+
+    if price_config.strategy == "none":
+        return "0"
+
+    usd_price: Decimal | None = None
+    if price_config.strategy == "fixed_usd":
+        usd_price = price_config.fixed_usd
+    elif (
+        price_config.strategy == "solana_jupiter"
+        and price_config.solana_mint is not None
+    ):
+        usd_price = await _get_solana_jupiter_price_usd(price_config.solana_mint)
+
+    if usd_price is None:
+        return "0"
+
+    return _decimal_to_string(native_balance * usd_price)
+
+
 async def build_assets_list(
-    agent: Agent, agent_data: AgentData, web3_client: AsyncWeb3
+    agent: Agent, agent_data: AgentData, web3_client: AsyncWeb3 | None
 ) -> list[Asset]:
     """Build the assets list based on network conditions and agent configuration."""
     assets: list[Asset] = []
+    network_id: str | None = agent.network_id
 
-    if not agent_data or not agent_data.evm_wallet_address:
+    if (
+        network_id
+        and is_xian_network(network_id)
+        and agent_data.xian_wallet_address
+        and agent_data.xian_wallet_data
+    ):
+        provider = get_xian_wallet_provider(json.loads(agent_data.xian_wallet_data))
+        balance = await provider.get_balance(
+            token="currency",
+            address=agent_data.xian_wallet_address,
+        )
+        assets.append(
+            Asset(
+                symbol=provider.native_token_symbol,
+                balance=Decimal(str(balance)),
+            )
+        )
+        return assets
+
+    if not agent_data or not agent_data.evm_wallet_address or web3_client is None:
         return assets
 
     wallet_address = agent_data.evm_wallet_address
-    network_id: str | None = agent.network_id
 
     # ETH is always included
     eth_balance = await _get_eth_balance(web3_client, wallet_address)
@@ -206,8 +304,29 @@ async def agent_asset(agent_id: str) -> AgentAssets:
         return cached_assets
 
     agent_data = await AgentData.get(agent_id)
-    if not agent_data or not agent_data.evm_wallet_address:
+    evm_wallet_address = getattr(agent_data, "evm_wallet_address", None)
+    xian_wallet_address = getattr(agent_data, "xian_wallet_address", None)
+    is_xian_agent = bool(
+        agent_data
+        and xian_wallet_address
+        and agent.network_id
+        and is_xian_network(agent.network_id)
+    )
+
+    if not agent_data or (not evm_wallet_address and not is_xian_agent):
         assets_result = AgentAssets(net_worth="0", tokens=[])
+    elif is_xian_agent:
+        try:
+            tokens = await build_assets_list(agent, agent_data, None)
+            native_balance = tokens[0].balance if tokens else None
+            net_worth = await _get_xian_net_worth(agent.network_id, native_balance)
+            assets_result = AgentAssets(net_worth=net_worth, tokens=tokens)
+        except IntentKitAPIError:
+            raise
+        except Exception as exc:
+            raise IntentKitAPIError(
+                500, "AgentAssetError", "Failed to retrieve agent assets"
+            ) from exc
     elif not agent.network_id:
         assets_result = AgentAssets(net_worth="0", tokens=[])
     else:
@@ -215,7 +334,7 @@ async def agent_asset(agent_id: str) -> AgentAssets:
             web3_client = get_async_web3_client(str(agent.network_id))
             tokens = await build_assets_list(agent, agent_data, web3_client)
             net_worth = await _get_wallet_net_worth(
-                agent_data.evm_wallet_address, str(agent.network_id)
+                str(evm_wallet_address), str(agent.network_id)
             )
             assets_result = AgentAssets(net_worth=net_worth, tokens=tokens)
         except IntentKitAPIError:

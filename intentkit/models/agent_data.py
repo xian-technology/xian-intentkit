@@ -40,6 +40,9 @@ class AgentDataTable(Base):
     solana_wallet_address: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Solana wallet address"
     )
+    xian_wallet_address: Mapped[str | None] = mapped_column(
+        String, nullable=True, comment="Xian wallet address"
+    )
     cdp_wallet_data: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="CDP wallet data"
     )
@@ -48,6 +51,9 @@ class AgentDataTable(Base):
     )
     native_wallet_data: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Native wallet data (encrypted private key)"
+    )
+    xian_wallet_data: Mapped[str | None] = mapped_column(
+        String, nullable=True, comment="Xian wallet data"
     )
     twitter_id: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Twitter user ID"
@@ -144,6 +150,13 @@ class AgentData(BaseModel):
             description="Solana wallet address",
         ),
     ] = None
+    xian_wallet_address: Annotated[
+        str | None,
+        PydanticField(
+            default=None,
+            description="Xian wallet address",
+        ),
+    ] = None
     cdp_wallet_data: Annotated[
         str | None,
         PydanticField(
@@ -163,6 +176,13 @@ class AgentData(BaseModel):
         PydanticField(
             default=None,
             description="Native wallet data (encrypted private key)",
+        ),
+    ] = None
+    xian_wallet_data: Annotated[
+        str | None,
+        PydanticField(
+            default=None,
+            description="Xian wallet data",
         ),
     ] = None
     twitter_id: Annotated[

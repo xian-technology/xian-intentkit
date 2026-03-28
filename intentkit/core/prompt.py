@@ -182,6 +182,11 @@ def _build_wallet_section(agent: Agent, agent_data: AgentData) -> str:
             f"Your Solana wallet address is {agent_data.solana_wallet_address}."
             f"You are now in {network_id} network."
         )
+    if agent_data.xian_wallet_address and network_id and network_id.startswith("xian-"):
+        wallet_parts.append(
+            f"Your Xian wallet address is {agent_data.xian_wallet_address}."
+            f"You are now in {network_id} network."
+        )
 
     return "\n".join(wallet_parts) + ("\n" if wallet_parts else "")
 

@@ -113,7 +113,10 @@ async def process_agent_wallet(
         return await AgentData.get(agent.id)
 
     agent_data = await AgentData.get(agent.id)
-    if agent_data.evm_wallet_address:
+    if current_wallet_provider == "xian":
+        if agent_data.xian_wallet_address:
+            return agent_data
+    elif agent_data.evm_wallet_address:
         return agent_data
 
     if config.cdp_api_key_id and current_wallet_provider == "cdp":
@@ -279,6 +282,24 @@ async def process_agent_wallet(
         )
         logger.info(
             f"Created native wallet for agent {agent.id}, address: {wallet_data['address']}"
+        )
+    elif current_wallet_provider == "xian":
+        from intentkit.wallets.xian import create_xian_wallet
+
+        network_id = agent.network_id or "xian-mainnet"
+        wallet_data = create_xian_wallet(network_id)
+
+        agent_data = await AgentData.patch(
+            agent.id,
+            {
+                "xian_wallet_address": wallet_data["address"],
+                "xian_wallet_data": json.dumps(wallet_data),
+            },
+        )
+        logger.info(
+            "Created Xian wallet for agent %s, address: %s",
+            agent.id,
+            wallet_data["address"],
         )
 
     return agent_data

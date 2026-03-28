@@ -129,7 +129,8 @@ class AgentCore(BaseModel):
         ),
     ] = 0.0
     wallet_provider: Annotated[
-        Literal["cdp", "native", "readonly", "safe", "privy", "none"] | None,
+        Literal["cdp", "native", "readonly", "safe", "privy", "xian", "none"]
+        | None,
         PydanticField(
             default=None,
             description="Provider of the agent's wallet",
@@ -145,6 +146,10 @@ class AgentCore(BaseModel):
             "bnb-mainnet",
             "solana",
             "base-sepolia",
+            "xian-mainnet",
+            "xian-testnet",
+            "xian-devnet",
+            "xian-localnet",
         ]
         | None,
         PydanticField(
