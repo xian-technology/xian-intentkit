@@ -17,7 +17,7 @@ export interface Agent {
   temperature: number | null;
   frequency_penalty: number | null;
   presence_penalty: number | null;
-  wallet_provider: "cdp" | "native" | "readonly" | "safe" | "privy" | "none" | null;
+  wallet_provider: "cdp" | "native" | "readonly" | "safe" | "privy" | "xian" | "none" | null;
   readonly_wallet_address: string | null;
   network_id: string | null;
   skills: Record<string, unknown> | null;
@@ -47,6 +47,7 @@ export interface Agent {
   linked_telegram_username: string | null;
   linked_twitter_name: string | null;
   linked_telegram_name: string | null;
+  xian_wallet_address?: string | null;
   discord_username?: string | null; // Keeping as optional if needed by UI
 }
 

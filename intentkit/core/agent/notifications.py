@@ -60,6 +60,12 @@ def send_agent_notification(agent: Agent, agent_data: AgentData, message: str) -
     else:
         skills_formatted = "None"
 
+    wallet_address = (
+        agent_data.evm_wallet_address
+        or agent_data.solana_wallet_address
+        or agent_data.xian_wallet_address
+    )
+
     send_alert(
         message,
         attachments=[
@@ -91,7 +97,7 @@ def send_agent_notification(agent: Agent, agent_data: AgentData, message: str) -
                     },
                     {
                         "title": "Wallet Address",
-                        "value": agent_data.evm_wallet_address,
+                        "value": wallet_address,
                     },
                     {
                         "title": "Autonomous",

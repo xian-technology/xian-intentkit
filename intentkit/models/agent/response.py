@@ -62,6 +62,13 @@ class AgentResponse(Agent):
             description="Solana wallet address of the agent",
         ),
     ]
+    xian_wallet_address: Annotated[
+        str | None,
+        PydanticField(
+            default=None,
+            description="Xian wallet address of the agent",
+        ),
+    ]
     has_twitter_linked: Annotated[
         bool,
         PydanticField(
@@ -158,6 +165,7 @@ class AgentResponse(Agent):
         cdp_wallet_address = agent_data.evm_wallet_address if agent_data else None
         evm_wallet_address = agent_data.evm_wallet_address if agent_data else None
         solana_wallet_address = agent_data.solana_wallet_address if agent_data else None
+        xian_wallet_address = agent_data.xian_wallet_address if agent_data else None
 
         # Process Twitter linked status
         has_twitter_linked = False
@@ -201,6 +209,7 @@ class AgentResponse(Agent):
             cdp_wallet_address=cdp_wallet_address,
             evm_wallet_address=evm_wallet_address,
             solana_wallet_address=solana_wallet_address,
+            xian_wallet_address=xian_wallet_address,
             has_twitter_linked=has_twitter_linked,
             linked_twitter_username=linked_twitter_username,
             linked_twitter_name=linked_twitter_name,

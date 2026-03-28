@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Xian Blockchain",
+  "description": "Xian wallet, token, contract, transaction, and indexed-event skills powered by xian-py.",
+  "x-tags": [
+    "Crypto",
+    "Xian"
+  ],
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "description": "Whether the Xian skill category is enabled",
+      "default": false
+    },
+    "states": {
+      "type": "object",
+      "description": "States for each Xian skill (disabled, public, or private).",
+      "properties": {
+        "xian_get_wallet_details": {
+          "type": "string",
+          "title": "Get Wallet Details",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_get_token_balance": {
+          "type": "string",
+          "title": "Get Token Balance",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_transfer_tokens": {
+          "type": "string",
+          "title": "Transfer Tokens",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_approve_tokens": {
+          "type": "string",
+          "title": "Approve Tokens",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_get_allowance": {
+          "type": "string",
+          "title": "Get Allowance",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_read_contract_state": {
+          "type": "string",
+          "title": "Read Contract State",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_call_contract": {
+          "type": "string",
+          "title": "Call Contract",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_send_contract_transaction": {
+          "type": "string",
+          "title": "Send Contract Transaction",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_get_transaction": {
+          "type": "string",
+          "title": "Get Transaction",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_list_events": {
+          "type": "string",
+          "title": "List Events",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_get_chain_status": {
+          "type": "string",
+          "title": "Get Chain Status",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        }
+      }
+    }
+  },
+  "required": ["enabled", "states"],
+  "additionalProperties": true
+}
