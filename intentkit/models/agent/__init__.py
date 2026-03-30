@@ -1,6 +1,11 @@
 from ..agent_data import AgentData
 from .agent import Agent
-from .autonomous import AgentAutonomous, AgentAutonomousStatus
+from .autonomous import (
+    AgentAutonomous,
+    AgentAutonomousStatus,
+    AgentAutonomousTriggerType,
+    XianEventTrigger,
+)
 from .core import AgentCore, AgentVisibility
 from .db import AgentTable, AgentUserInputColumns
 from .public_info import AgentExample, AgentPublicInfo
@@ -10,6 +15,7 @@ from .user_input import AgentCreate, AgentUpdate, AgentUserInput
 __all__ = [
     "AgentAutonomous",
     "AgentAutonomousStatus",
+    "AgentAutonomousTriggerType",
     "Agent",
     "AgentCore",
     "AgentPublicInfo",
@@ -22,4 +28,5 @@ __all__ = [
     "AgentUpdate",
     "AgentUserInput",
     "AgentData",
+    "XianEventTrigger",
 ]

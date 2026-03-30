@@ -10,11 +10,13 @@ from intentkit.config.db import get_session
 from intentkit.models.agent.autonomous import (
     AgentAutonomous,
     AgentAutonomousStatus,
+    AgentAutonomousTriggerType,
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
 )
 from intentkit.models.agent.db import AgentTable
 from intentkit.utils.error import IntentKitAPIError
+from intentkit.wallets.xian_networks import is_xian_network
 
 
 def _deserialize_autonomous(
@@ -87,12 +89,15 @@ async def add_autonomous_task(
         task = AgentAutonomous(
             id=str(XID()),
             cron=task_request.cron,
+            trigger_type=task_request.trigger_type,
+            xian_event=task_request.xian_event,
             prompt=task_request.prompt,
             name=task_request.name,
             description=task_request.description,
             enabled=task_request.enabled,
             has_memory=task_request.has_memory,
         )
+        _validate_agent_task_compatibility(db_agent, task)
 
         current_tasks = _deserialize_autonomous(db_agent.autonomous)
         normalized_task = task.normalize_status_defaults()
@@ -150,6 +155,7 @@ async def update_autonomous_task(
                 updated_task = AgentAutonomous.model_validate(
                     task_dict
                 ).normalize_status_defaults()
+                _validate_agent_task_compatibility(db_agent, updated_task)
                 rewritten_tasks.append(updated_task)
             else:
                 rewritten_tasks.append(task)
@@ -204,3 +210,20 @@ async def update_autonomous_task_status(
         await session.commit()
 
     return updated_task
+
+
+def _validate_agent_task_compatibility(
+    db_agent: AgentTable,
+    task: AgentAutonomous,
+) -> None:
+    if task.trigger_type != AgentAutonomousTriggerType.XIAN_EVENT:
+        return
+
+    network_id = getattr(db_agent, "network_id", None)
+    if not is_xian_network(network_id):
+        raise IntentKitAPIError(
+            400,
+            "InvalidAutonomousTriggerNetwork",
+            "Xian event-triggered autonomous tasks require the agent to use a "
+            "supported Xian network_id.",
+        )

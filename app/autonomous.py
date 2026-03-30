@@ -28,7 +28,9 @@ from intentkit.config.redis import (
 )
 from intentkit.core.agent import get_agent
 from intentkit.core.autonomous import update_autonomous_task_status
+from intentkit.core.xian_event_triggers import XianEventTriggerService
 from intentkit.models.agent import Agent, AgentAutonomousStatus, AgentTable
+from intentkit.models.agent.autonomous import AgentAutonomousTriggerType
 from intentkit.utils.alert import cleanup_alert
 
 from app.entrypoints.autonomous import run_autonomous_task
@@ -52,6 +54,7 @@ jobstores = {
 }
 logger.info("autonomous scheduler use redis store: %s", config.redis_host)
 scheduler = AsyncIOScheduler(jobstores=jobstores)
+xian_event_trigger_service: XianEventTriggerService | None = None
 
 # Head job ID, it schedules the other jobs
 HEAD_JOB_ID = "head"
@@ -191,6 +194,8 @@ async def schedule_agent_autonomous_tasks():
     # List of jobs to schedule, will delete jobs not in this list
     planned_jobs = [HEAD_JOB_ID, "autonomous_heartbeat"]
 
+    loaded_agents: list[Agent] = []
+
     async with get_session() as db:
         # Get all agents with autonomous configuration
         query = (
@@ -202,6 +207,7 @@ async def schedule_agent_autonomous_tasks():
 
         for item in agents:
             agent = Agent.model_validate(item)
+            loaded_agents.append(agent)
             if not agent.autonomous or len(agent.autonomous) == 0:
                 continue
 
@@ -217,6 +223,9 @@ async def schedule_agent_autonomous_tasks():
                             None,
                             None,
                         )
+                    continue
+
+                if autonomous.trigger_type == AgentAutonomousTriggerType.XIAN_EVENT:
                     continue
 
                 # Create a unique task ID for this autonomous task
@@ -279,6 +288,9 @@ async def schedule_agent_autonomous_tasks():
             scheduler.remove_job(job.id)
             logger.info("Removed job %s", job.id)
 
+    if xian_event_trigger_service is not None:
+        await xian_event_trigger_service.refresh(loaded_agents)
+
 
 if __name__ == "__main__":
 
@@ -286,13 +298,16 @@ if __name__ == "__main__":
         # Initialize database
         await init_db(**config.db)
         # Initialize Redis
-        _ = await init_redis(
+        redis_client = await init_redis(
             host=config.redis_host,
             port=config.redis_port,
             db=config.redis_db,
             password=config.redis_password,
             ssl=config.redis_ssl,
         )
+        global xian_event_trigger_service
+        xian_event_trigger_service = XianEventTriggerService(redis_client)
+        await xian_event_trigger_service.start()
 
         # Add job to schedule agent autonomous tasks every 5 minutes
         # Run it immediately on startup and then every 5 minutes
@@ -343,6 +358,9 @@ if __name__ == "__main__":
                 await clean_heartbeat(redis_client, "autonomous")
             except Exception as e:
                 logger.error("Error cleaning up heartbeat: %s", e)
+
+            if xian_event_trigger_service is not None:
+                await xian_event_trigger_service.close()
 
             cleanup_alert()
 

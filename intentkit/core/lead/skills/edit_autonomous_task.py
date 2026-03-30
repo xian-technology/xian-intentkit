@@ -14,20 +14,12 @@ from intentkit.models.agent import AgentAutonomous
 from intentkit.models.agent.autonomous import AutonomousUpdateRequest
 
 
-class EditAutonomousTaskInput(BaseModel):
+class EditAutonomousTaskInput(AutonomousUpdateRequest):
     """Input model for edit_autonomous_task skill."""
 
     agent_id: str = Field(description="The ID of the agent owning the task")
     task_id: str = Field(
         description="The unique identifier of the autonomous task to edit"
-    )
-    name: str | None = Field(default=None, description="Display name of the task")
-    description: str | None = Field(default=None, description="Description of the task")
-    cron: str | None = Field(default=None, description="Cron expression")
-    prompt: str | None = Field(default=None, description="Special prompt")
-    enabled: bool | None = Field(default=None, description="Whether enabled")
-    has_memory: bool | None = Field(
-        default=None, description="Whether to retain memory between runs"
     )
 
 
@@ -45,6 +37,7 @@ class LeadEditAutonomousTask(LeadSkill):
     name: str = "lead_edit_autonomous_task"
     description: str = (
         "Edit an existing autonomous task configuration for a team agent. "
+        "This can update either cron scheduling or Xian event-trigger settings. "
         "Only provided fields will be updated; omitted fields will keep their current values."
     )
     args_schema: ArgsSchema | None = EditAutonomousTaskInput
@@ -69,6 +62,8 @@ class LeadEditAutonomousTask(LeadSkill):
             name=name,
             description=description,
             cron=cron,
+            trigger_type=kwargs.get("trigger_type"),
+            xian_event=kwargs.get("xian_event"),
             prompt=prompt,
             enabled=enabled,
             has_memory=has_memory,

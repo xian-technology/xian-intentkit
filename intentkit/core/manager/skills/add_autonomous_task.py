@@ -29,19 +29,20 @@ class AddAutonomousTask(ManagerSkill):
     name: str = "system_add_autonomous_task"
     description: str = (
         "Add a new autonomous task configuration to the agent. "
-        "Allows setting up scheduled operations with custom prompts and intervals. "
-        "User must provide a cron expression for scheduling. "
-        "If user want to add a condition task, you can add a 5 minutes task (using cron) to check the condition. "
-        "If the user does not explicitly state that the condition task should be executed continuously, "
-        "then add in the task prompt that it will delete itself after successful execution. "
+        "Allows setting up either scheduled operations with cron or Xian "
+        "event-triggered operations. "
+        "For Xian event triggers, provide trigger_type='xian_event' and "
+        "xian_event={contract,event,filters?,cooldown_seconds?}. "
+        "If the user wants a periodic condition check instead of an event "
+        "trigger, add a 5 minute cron task to check the condition. "
     )
     args_schema: ArgsSchema | None = AddAutonomousTaskInput
 
     @override
     async def _arun(
         self,
-        cron: str,
         prompt: str,
+        cron: str | None = None,
         name: str | None = None,
         description: str | None = None,
         enabled: bool = True,
@@ -69,6 +70,8 @@ class AddAutonomousTask(ManagerSkill):
             name=name,
             description=description,
             cron=cron,
+            trigger_type=kwargs.get("trigger_type"),
+            xian_event=kwargs.get("xian_event"),
             prompt=prompt,
             enabled=enabled,
             has_memory=has_memory,

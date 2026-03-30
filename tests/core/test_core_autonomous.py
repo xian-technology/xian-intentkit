@@ -4,8 +4,10 @@ import pytest
 
 from intentkit.models.agent.autonomous import (
     AgentAutonomous,
+    AgentAutonomousTriggerType,
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
+    XianEventTrigger,
     minutes_to_cron,
 )
 
@@ -34,6 +36,7 @@ async def test_add_autonomous_task():
         # Mock agent exists and is not archived
         mock_db_agent = MagicMock()
         mock_db_agent.archived_at = None
+        mock_db_agent.network_id = "xian-localnet"
         mock_db_agent.autonomous = None  # No existing tasks
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
@@ -87,6 +90,7 @@ async def test_update_autonomous_task():
 
         mock_db_agent = MagicMock()
         mock_db_agent.archived_at = None
+        mock_db_agent.network_id = "xian-localnet"
         mock_db_agent.autonomous = [existing_task.model_dump()]
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
@@ -130,6 +134,7 @@ async def test_delete_autonomous_task():
 
         mock_db_agent = MagicMock()
         mock_db_agent.archived_at = None
+        mock_db_agent.network_id = "xian-localnet"
         mock_db_agent.autonomous = [existing_task.model_dump()]
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
@@ -221,6 +226,69 @@ def test_autonomous_update_request_no_minutes_field():
     assert req.has_memory is None
 
 
+def test_autonomous_create_request_supports_xian_event():
+    req = AutonomousCreateRequest(
+        trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+        xian_event=XianEventTrigger(
+            contract="currency",
+            event="Transfer",
+            filters={"to": "abc"},
+            cooldown_seconds=10,
+        ),
+        prompt="React to transfers.",
+    )
+
+    assert req.trigger_type == AgentAutonomousTriggerType.XIAN_EVENT
+    assert req.cron is None
+    assert req.xian_event is not None
+    assert req.xian_event.contract == "currency"
+
+
+def test_agent_autonomous_event_trigger_clears_schedule_fields():
+    task = AgentAutonomous(
+        id="task-evt",
+        trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+        xian_event=XianEventTrigger(contract="currency", event="Transfer"),
+        prompt="Handle transfer event",
+        enabled=True,
+        status="waiting",
+    ).normalize_status_defaults()
+
+    assert task.trigger_type == AgentAutonomousTriggerType.XIAN_EVENT
+    assert task.cron is None
+    assert task.minutes is None
+    assert task.next_run_time is None
+
+
+@pytest.mark.asyncio
+async def test_add_xian_event_task_requires_xian_network():
+    from intentkit.core.autonomous import add_autonomous_task
+    from intentkit.utils.error import IntentKitAPIError
+
+    task_request = AutonomousCreateRequest(
+        trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+        xian_event=XianEventTrigger(contract="currency", event="Transfer"),
+        prompt="Watch transfer events",
+    )
+
+    with patch("intentkit.core.autonomous.get_session") as mock_get_session:
+        mock_session = MagicMock()
+        mock_get_session.return_value.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_get_session.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        mock_db_agent = MagicMock()
+        mock_db_agent.archived_at = None
+        mock_db_agent.network_id = "base-mainnet"
+        mock_db_agent.autonomous = None
+        mock_session.get = AsyncMock(return_value=mock_db_agent)
+
+        with pytest.raises(IntentKitAPIError) as exc_info:
+            await add_autonomous_task("agent-1", task_request)
+
+        assert exc_info.value.status_code == 400
+        assert exc_info.value.key == "InvalidAutonomousTriggerNetwork"
+
+
 @pytest.mark.asyncio
 async def test_add_autonomous_task_agent_not_found():
     """Test that adding task to non-existent agent raises error."""
@@ -263,6 +331,7 @@ async def test_delete_autonomous_task_not_found():
 
         mock_db_agent = MagicMock()
         mock_db_agent.archived_at = None
+        mock_db_agent.network_id = "xian-localnet"
         mock_db_agent.autonomous = []  # No tasks
         mock_session.get = AsyncMock(return_value=mock_db_agent)
 

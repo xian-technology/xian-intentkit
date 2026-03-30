@@ -92,8 +92,18 @@ These tools are intentionally narrow:
 For autonomous Xian trading agents, the recommended posture is:
 
 1. use a service node so indexed events are available
-2. poll indexed events with `xian_list_events`
-3. quote with `xian_dex_quote`
-4. execute with `xian_dex_trade`
-5. verify the confirmed transaction before any side effect such as posting to
+2. configure an autonomous task with `trigger_type="xian_event"` and an exact
+   `xian_event={contract,event,...}` source
+3. let the Xian event trigger service wake immediately from node websocket
+   activity and confirm against indexed events before execution
+4. quote with `xian_dex_quote`
+5. execute with `xian_dex_trade`
+6. verify the confirmed transaction before any side effect such as posting to
    social media
+
+The trigger model is intentionally hybrid:
+
+- node websocket traffic is used for low-latency wake-ups
+- indexed BDS events and Redis cursors are used as the source of truth
+- a periodic indexed sync loop remains enabled so BDS lag or websocket
+  reconnects do not cause missed triggers

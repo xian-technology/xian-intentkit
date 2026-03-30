@@ -2,7 +2,13 @@ import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-from intentkit.models.agent import Agent, AgentAutonomous, AgentAutonomousStatus
+from intentkit.models.agent import (
+    Agent,
+    AgentAutonomous,
+    AgentAutonomousStatus,
+    AgentAutonomousTriggerType,
+    XianEventTrigger,
+)
 
 from app.local.autonomous import autonomous_router
 
@@ -98,6 +104,51 @@ async def test_add_autonomous(client, mock_task, monkeypatch):
     assert data["name"] == "New Task"
     assert data["cron"] == "*/5 * * * *"
     assert data["chat_id"].startswith("autonomous-")
+
+
+@pytest.mark.asyncio
+async def test_add_xian_event_autonomous(client, monkeypatch):
+    import app.local.autonomous as autonomous_module
+
+    created_task = AgentAutonomous(
+        id="event-task-1",
+        name="Watch Transfers",
+        trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+        xian_event=XianEventTrigger(contract="currency", event="Transfer"),
+        prompt="Watch transfer events",
+        enabled=True,
+        status=AgentAutonomousStatus.WAITING,
+        minutes=None,
+        cron=None,
+        next_run_time=None,
+    )
+
+    async def mock_add_autonomous_task(agent_id, task_request):
+        assert task_request.trigger_type == AgentAutonomousTriggerType.XIAN_EVENT
+        assert task_request.xian_event is not None
+        return created_task
+
+    monkeypatch.setattr(
+        autonomous_module, "add_autonomous_task", mock_add_autonomous_task
+    )
+
+    payload = {
+        "name": "Watch Transfers",
+        "trigger_type": "xian_event",
+        "xian_event": {
+            "contract": "currency",
+            "event": "Transfer",
+            "cooldown_seconds": 5,
+        },
+        "prompt": "Watch transfer events",
+        "enabled": True,
+    }
+
+    response = client.post("/agents/test-agent/autonomous", json=payload)
+    assert response.status_code == 201
+    data = response.json()
+    assert data["trigger_type"] == "xian_event"
+    assert data["xian_event"]["contract"] == "currency"
 
 
 @pytest.mark.asyncio
