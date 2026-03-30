@@ -7,6 +7,7 @@ from intentkit.models.agent.autonomous import (
     AgentAutonomousTriggerType,
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
+    XianDexPriceChangeTrigger,
     XianEventTrigger,
     minutes_to_cron,
 )
@@ -40,8 +41,13 @@ async def test_add_autonomous_task():
         mock_db_agent.autonomous = None  # No existing tasks
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
+        publish_refresh = AsyncMock()
 
-        result = await add_autonomous_task(agent_id, task_request)
+        with patch(
+            "intentkit.core.autonomous._publish_autonomous_refresh_signal",
+            publish_refresh,
+        ):
+            result = await add_autonomous_task(agent_id, task_request)
 
         # Verify the result
         assert result.name == "Test Task"
@@ -57,6 +63,7 @@ async def test_add_autonomous_task():
         # Verify DB was updated
         mock_session.commit.assert_called_once()
         assert mock_db_agent.autonomous is not None
+        publish_refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -94,8 +101,13 @@ async def test_update_autonomous_task():
         mock_db_agent.autonomous = [existing_task.model_dump()]
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
+        publish_refresh = AsyncMock()
 
-        result = await update_autonomous_task(agent_id, task_id, update_request)
+        with patch(
+            "intentkit.core.autonomous._publish_autonomous_refresh_signal",
+            publish_refresh,
+        ):
+            result = await update_autonomous_task(agent_id, task_id, update_request)
 
         # Verify updated fields
         assert result.name == "Updated Task"
@@ -109,6 +121,7 @@ async def test_update_autonomous_task():
         assert result.has_memory is True
 
         mock_session.commit.assert_called_once()
+        publish_refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -138,12 +151,18 @@ async def test_delete_autonomous_task():
         mock_db_agent.autonomous = [existing_task.model_dump()]
         mock_session.get = AsyncMock(return_value=mock_db_agent)
         mock_session.commit = AsyncMock()
+        publish_refresh = AsyncMock()
 
-        await delete_autonomous_task(agent_id, task_id)
+        with patch(
+            "intentkit.core.autonomous._publish_autonomous_refresh_signal",
+            publish_refresh,
+        ):
+            await delete_autonomous_task(agent_id, task_id)
 
         # Verify task was removed
         assert mock_db_agent.autonomous == []
         mock_session.commit.assert_called_once()
+        publish_refresh.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -242,6 +261,26 @@ def test_autonomous_create_request_supports_xian_event():
     assert req.cron is None
     assert req.xian_event is not None
     assert req.xian_event.contract == "currency"
+
+
+def test_autonomous_create_request_supports_xian_event_dex_threshold():
+    req = AutonomousCreateRequest(
+        trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+        xian_event=XianEventTrigger(
+            contract="con_pairs",
+            event="Sync",
+            filters={"pair": "1"},
+            dex_price_change=XianDexPriceChangeTrigger(
+                threshold_pct=3.5,
+                direction="either",
+            ),
+        ),
+        prompt="React to material price moves.",
+    )
+
+    assert req.xian_event is not None
+    assert req.xian_event.dex_price_change is not None
+    assert req.xian_event.dex_price_change.threshold_pct == 3.5
 
 
 def test_agent_autonomous_event_trigger_clears_schedule_fields():

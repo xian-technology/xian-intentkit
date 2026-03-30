@@ -11,7 +11,10 @@ from intentkit.core.xian_event_triggers import (
     event_matches_trigger,
     iter_contract_events_from_tx_event,
 )
-from intentkit.models.agent.autonomous import XianEventTrigger
+from intentkit.models.agent.autonomous import (
+    XianDexPriceChangeTrigger,
+    XianEventTrigger,
+)
 
 
 class FakeRedis:
@@ -135,6 +138,21 @@ def test_build_xian_event_prompt_includes_event_context():
     assert "Original autonomous task instructions" in prompt
 
 
+def test_build_xian_event_prompt_includes_trigger_metrics():
+    task = _task()
+    event = _indexed_event(event_id=8, payload={"to": "alice", "amount": 7})
+
+    prompt = build_xian_event_prompt(
+        task,
+        event,
+        trigger_metrics={"price_change_pct": 6.2, "pair": "1"},
+    )
+
+    assert '"trigger_metrics"' in prompt
+    assert '"price_change_pct": 6.2' in prompt
+    assert '"pair": "1"' in prompt
+
+
 @pytest.mark.asyncio
 async def test_sync_task_advances_cursor_and_dispatches_matching_events(monkeypatch):
     redis = FakeRedis()
@@ -185,3 +203,103 @@ async def test_dispatch_event_respects_cooldown(monkeypatch):
     assert run_mock.await_count == 1
     assert status_mock.await_count == 2
     assert await redis.get(task.last_run_key) is not None
+
+
+@pytest.mark.asyncio
+async def test_dex_price_trigger_seeds_baseline_then_dispatches_matching_move(
+    monkeypatch,
+):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    task = XianEventTask(
+        runtime_id="agent-1-task-dex",
+        agent_id="agent-1",
+        agent_owner="owner-1",
+        agent_name="Agent One",
+        network_id="xian-localnet",
+        task_id="task-dex",
+        prompt="Trade on big moves",
+        has_memory=False,
+        trigger=XianEventTrigger(
+            contract="con_pairs",
+            event="Sync",
+            filters={"pair": "1"},
+            dex_price_change=XianDexPriceChangeTrigger(
+                threshold_pct=5.0,
+                direction="either",
+            ),
+        ),
+    )
+    fake_client = FakeClient(
+        [[
+            _indexed_event(
+                event_id=1,
+                contract="con_pairs",
+                event="Sync",
+                payload={"pair": 1, "reserve0": "100", "reserve1": "100"},
+            ),
+            _indexed_event(
+                event_id=2,
+                contract="con_pairs",
+                event="Sync",
+                payload={"pair": 1, "reserve0": "100", "reserve1": "112"},
+            ),
+        ]]
+    )
+    dispatched: list[tuple[int, dict[str, object] | None]] = []
+
+    async def fake_dispatch(runtime_task, event, *, trigger_metrics=None):
+        dispatched.append((event.id, trigger_metrics))
+
+    monkeypatch.setattr(service, "_xian_client", lambda network_id: fake_client)
+    monkeypatch.setattr(service, "_dispatch_event", fake_dispatch)
+    await redis.set(task.cursor_key, 0)
+
+    await service._sync_task(task)
+
+    assert len(dispatched) == 1
+    event_id, metrics = dispatched[0]
+    assert event_id == 2
+    assert metrics is not None
+    assert metrics["pair"] == "1"
+    assert metrics["price_change_pct_abs"] >= 12
+
+
+@pytest.mark.asyncio
+async def test_seed_cursor_primes_dex_baseline(monkeypatch):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    task = XianEventTask(
+        runtime_id="agent-1-task-seed",
+        agent_id="agent-1",
+        agent_owner="owner-1",
+        agent_name="Agent One",
+        network_id="xian-localnet",
+        task_id="task-seed",
+        prompt="Trade on big moves",
+        has_memory=False,
+        trigger=XianEventTrigger(
+            contract="con_pairs",
+            event="Sync",
+            filters={"pair": "1"},
+            dex_price_change=XianDexPriceChangeTrigger(threshold_pct=3.0),
+        ),
+    )
+    fake_client = FakeClient(
+        [[
+            _indexed_event(
+                event_id=9,
+                contract="con_pairs",
+                event="Sync",
+                payload={"pair": 1, "reserve0": "50", "reserve1": "75"},
+            )
+        ]]
+    )
+
+    monkeypatch.setattr(service, "_xian_client", lambda network_id: fake_client)
+
+    await service._seed_cursor(task)
+
+    baseline_raw = await redis.get(task.dex_baseline_key("1"))
+    assert baseline_raw is not None
+    assert '"price": "1.5"' in baseline_raw

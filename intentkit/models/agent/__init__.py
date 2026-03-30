@@ -4,6 +4,7 @@ from .autonomous import (
     AgentAutonomous,
     AgentAutonomousStatus,
     AgentAutonomousTriggerType,
+    XianDexPriceChangeTrigger,
     XianEventTrigger,
 )
 from .core import AgentCore, AgentVisibility
@@ -28,5 +29,6 @@ __all__ = [
     "AgentUpdate",
     "AgentUserInput",
     "AgentData",
+    "XianDexPriceChangeTrigger",
     "XianEventTrigger",
 ]

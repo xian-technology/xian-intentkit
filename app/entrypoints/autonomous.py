@@ -7,9 +7,30 @@ from intentkit.core.agent_activity import create_agent_activity
 from intentkit.core.chat import clear_thread_memory
 from intentkit.core.client import execute_agent
 from intentkit.models.agent_activity import AgentActivityCreate
-from intentkit.models.chat import AuthorType, ChatMessageCreate
+from intentkit.models.chat import AuthorType, Chat, ChatCreate, ChatMessageCreate
 
 logger = logging.getLogger(__name__)
+
+
+async def _ensure_autonomous_chat(
+    *,
+    agent_id: str,
+    user_id: str,
+    task_id: str,
+) -> str:
+    chat_id = f"autonomous-{task_id}"
+    existing = await Chat.get(chat_id)
+    if existing is not None:
+        return chat_id
+    chat = ChatCreate(
+        id=chat_id,
+        agent_id=agent_id,
+        user_id=user_id,
+        summary=f"Autonomous task {task_id}",
+        rounds=0,
+    )
+    _ = await chat.save()
+    return chat_id
 
 
 async def run_autonomous_task(
@@ -43,7 +64,11 @@ async def run_autonomous_task(
         agent_picture = agent.picture if agent else None
 
         # Run the autonomous action
-        chat_id = f"autonomous-{task_id}"
+        chat_id = await _ensure_autonomous_chat(
+            agent_id=agent_id,
+            user_id=agent_owner,
+            task_id=task_id,
+        )
 
         # Clear thread memory if has_memory is False
         if not has_memory:

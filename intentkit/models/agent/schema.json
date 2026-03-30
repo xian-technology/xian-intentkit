@@ -392,6 +392,52 @@
                 "description": "Minimum time between successful trigger executions.",
                 "default": 0,
                 "minimum": 0
+              },
+              "dex_price_change": {
+                "title": "DEX Price Change Trigger",
+                "type": "object",
+                "description": "Optional reserve-based price change threshold for Xian DEX Sync events.",
+                "properties": {
+                  "threshold_pct": {
+                    "title": "Threshold Percent",
+                    "type": "number",
+                    "description": "Minimum absolute price move percentage required before dispatch.",
+                    "exclusiveMinimum": 0
+                  },
+                  "direction": {
+                    "title": "Direction",
+                    "type": "string",
+                    "description": "Whether to trigger on upward moves, downward moves, or either.",
+                    "enum": ["either", "up", "down"],
+                    "default": "either"
+                  },
+                  "pair_field": {
+                    "title": "Pair Field",
+                    "type": "string",
+                    "description": "Merged event payload field that identifies the pair id.",
+                    "default": "pair"
+                  },
+                  "reserve0_field": {
+                    "title": "Reserve0 Field",
+                    "type": "string",
+                    "description": "Merged event payload field holding reserve0.",
+                    "default": "reserve0"
+                  },
+                  "reserve1_field": {
+                    "title": "Reserve1 Field",
+                    "type": "string",
+                    "description": "Merged event payload field holding reserve1.",
+                    "default": "reserve1"
+                  },
+                  "price_base": {
+                    "title": "Price Base",
+                    "type": "string",
+                    "description": "Which reserve ratio to treat as the tracked price.",
+                    "enum": ["token1_per_token0", "token0_per_token1"],
+                    "default": "token1_per_token0"
+                  }
+                },
+                "required": ["threshold_pct"]
               }
             },
             "required": ["contract", "event"]
