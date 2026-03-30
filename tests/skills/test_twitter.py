@@ -2,6 +2,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 from aiohttp import web
+import httpx
 
 from intentkit.abstracts.graph import AgentContext
 from intentkit.models.chat import AuthorType
@@ -80,14 +81,11 @@ async def test_twitter_post_tweet_supports_linked_account_mode_without_self_keys
         def skill_config(self, category: str):
             return self.skills.get(category, {})
 
-    fake_client = AsyncMock()
-    fake_client.create_tweet = AsyncMock(return_value={"data": {"id": "tweet-2"}})
-
     class _FakeTwitter:
         use_key = False
 
-        async def get_client(self):
-            return fake_client
+        async def create_tweet(self, *, text: str, media_ids=None):
+            return {"data": {"id": "tweet-2"}, "text": text, "media_ids": media_ids}
 
     context = AgentContext(
         agent_id="agent-linked",
@@ -116,5 +114,67 @@ async def test_twitter_post_tweet_supports_linked_account_mode_without_self_keys
         result = await tool._arun(text="Hello from linked account mode")
 
     assert "Tweet posted successfully" in result
-    fake_client.create_tweet.assert_awaited_once()
     check_rate_limit.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_twitter_post_tweet_surfaces_http_status_errors_cleanly():
+    tool = TwitterPostTweet()
+
+    class _LinkedAgent:
+        skills = {
+            "twitter": {
+                "enabled": True,
+                "auth_mode": "linked_account",
+                "states": {"post_tweet": "private"},
+            }
+        }
+
+        def skill_config(self, category: str):
+            return self.skills.get(category, {})
+
+    class _FailingTwitter:
+        use_key = False
+
+        async def create_tweet(self, *, text: str, media_ids=None):
+            request = httpx.Request("POST", "https://api.twitter.com/2/tweets")
+            response = httpx.Response(
+                403,
+                request=request,
+                text='{"title":"Unsupported Authentication"}',
+            )
+            raise httpx.HTTPStatusError(
+                "Client error '403 Forbidden' for url 'https://api.twitter.com/2/tweets'",
+                request=request,
+                response=response,
+            )
+
+    context = AgentContext(
+        agent_id="agent-linked",
+        get_agent=lambda: _LinkedAgent(),
+        chat_id="chat-1",
+        user_id="user-1",
+        entrypoint=AuthorType.TRIGGER,
+        is_private=True,
+    )
+
+    with (
+        patch(
+            "intentkit.skills.base.IntentKitSkill.get_context",
+            return_value=context,
+        ),
+        patch(
+            "intentkit.skills.twitter.post_tweet.get_twitter_client",
+            return_value=_FailingTwitter(),
+        ),
+        patch.object(
+            TwitterPostTweet,
+            "check_rate_limit",
+            AsyncMock(return_value=None),
+        ),
+    ):
+        with pytest.raises(Exception) as exc_info:
+            await tool._arun(text="Hello from linked account mode")
+
+    assert "Twitter API returned HTTP 403" in str(exc_info.value)
+    assert "Unsupported Authentication" in str(exc_info.value)

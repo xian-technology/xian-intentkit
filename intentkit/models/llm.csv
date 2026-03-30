@@ -1,4 +1,6 @@
 id,name,provider,enabled,input_price,cached_input_price,output_price,price_level,context_length,output_length,intelligence,speed,supports_image_input,supports_audio_input,supports_video_input,supports_file_input,reasoning_effort,supports_temperature,supports_frequency_penalty,supports_presence_penalty,timeout
+claude-sonnet-4-6,Claude Sonnet 4.6,anthropic,TRUE,3,0.3,15,4,200000,8192,5,3,TRUE,FALSE,FALSE,FALSE,high,TRUE,FALSE,FALSE,300
+claude-opus-4-6,Claude Opus 4.6,anthropic,TRUE,5,0.5,25,5,1000000,8192,5,2,TRUE,FALSE,FALSE,FALSE,high,TRUE,FALSE,FALSE,300
 google/gemma-4-31b-it:free,Gemma 4 31B (Free),openrouter,TRUE,0,,0,1,262144,32768,3,4,TRUE,FALSE,TRUE,FALSE,high,TRUE,TRUE,TRUE,300
 openrouter/free,OpenRouter Free,openrouter,TRUE,0,,0,1,200000,20000,2,2,FALSE,FALSE,FALSE,FALSE,high,TRUE,TRUE,TRUE,300
 qwen/qwen3.6-plus,Qwen3.6 Plus,openrouter,TRUE,0.325,,1.95,2,1000000,65536,4,4,TRUE,FALSE,TRUE,FALSE,high,TRUE,TRUE,TRUE,300

@@ -11,6 +11,7 @@ def pick_summarize_model() -> str:
     Pick the best available summarize model based on configured API keys.
     """
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
         ("gemini-3.1-flash-lite-preview", LLMProvider.GOOGLE),
         ("z-ai/glm-4.7-flash", LLMProvider.OPENROUTER),
         ("gpt-5.4-mini", LLMProvider.OPENAI),
@@ -47,6 +48,7 @@ def pick_default_model() -> str:
     Used as the default_factory for the agent model field.
     """
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
         ("gemini-3-flash-preview", LLMProvider.GOOGLE),
         ("MiniMax-M2.7", LLMProvider.MINIMAX),
         ("minimax/minimax-m2.7", LLMProvider.OPENROUTER),
@@ -104,6 +106,7 @@ def pick_long_context_model() -> str:
     """
     # Priority order based on cost (cheapest first), one per provider:
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-opus-4-6", LLMProvider.ANTHROPIC),
         ("gemini-3.1-flash-lite-preview", LLMProvider.GOOGLE),
         ("grok-4-1-fast-non-reasoning", LLMProvider.XAI),
         ("qwen/qwen3.5-flash-02-23", LLMProvider.OPENROUTER),

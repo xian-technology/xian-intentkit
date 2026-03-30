@@ -303,3 +303,47 @@ async def test_seed_cursor_primes_dex_baseline(monkeypatch):
     baseline_raw = await redis.get(task.dex_baseline_key("1"))
     assert baseline_raw is not None
     assert '"price": "1.5"' in baseline_raw
+
+
+@pytest.mark.asyncio
+async def test_seed_cursor_primes_dex_baseline_from_fixed_payload(monkeypatch):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    task = XianEventTask(
+        runtime_id="agent-1-task-fixed",
+        agent_id="agent-1",
+        agent_owner="owner-1",
+        agent_name="Agent One",
+        network_id="xian-localnet",
+        task_id="task-fixed",
+        prompt="Trade on big moves",
+        has_memory=False,
+        trigger=XianEventTrigger(
+            contract="con_pairs",
+            event="Sync",
+            filters={"pair": "1"},
+            dex_price_change=XianDexPriceChangeTrigger(threshold_pct=3.0),
+        ),
+    )
+    fake_client = FakeClient(
+        [[
+            _indexed_event(
+                event_id=10,
+                contract="con_pairs",
+                event="Sync",
+                payload={
+                    "pair": 1,
+                    "reserve0": {"__fixed__": "50"},
+                    "reserve1": {"__fixed__": "75"},
+                },
+            )
+        ]]
+    )
+
+    monkeypatch.setattr(service, "_xian_client", lambda network_id: fake_client)
+
+    await service._seed_cursor(task)
+
+    baseline_raw = await redis.get(task.dex_baseline_key("1"))
+    assert baseline_raw is not None
+    assert '"price": "1.5"' in baseline_raw

@@ -6,6 +6,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Literal
 
 from langchain_core.tools.base import ToolException
+from xian_py import to_contract_time
 
 from intentkit.skills.xian.utils import format_xian_amount
 from intentkit.wallets.xian import XianWalletProvider
@@ -13,6 +14,8 @@ from intentkit.wallets.xian import XianWalletProvider
 DEFAULT_DEX_CONTRACT = "con_dex"
 DEFAULT_DEX_HELPER_CONTRACT = "con_dex_helper"
 DEFAULT_DEX_PAIRS_CONTRACT = "con_pairs"
+DEFAULT_TRADE_FEE_BPS = 30
+ZERO_TRADE_FEE_BPS = 0
 
 
 @dataclass(frozen=True)
@@ -69,8 +72,9 @@ def canonical_tokens(token_a: str, token_b: str) -> tuple[str, str]:
     return (token_a, token_b) if token_a < token_b else (token_b, token_a)
 
 
-def build_deadline(minutes: int) -> datetime.datetime:
-    return datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=minutes)
+def build_deadline(minutes: int) -> dict[str, list[int]]:
+    deadline = datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=minutes)
+    return to_contract_time(deadline)
 
 
 async def resolve_pair_context(
@@ -88,18 +92,18 @@ async def resolve_pair_context(
             f"No DEX pair exists for tokens {buy_token} and {sell_token}."
         )
 
-    reserves = await provider.call_contract(
-        pairs_contract,
-        "getReserves",
-        {"pair": int(pair_id)},
+    reserve0 = decimal_from_value(
+        await provider.get_state(pairs_contract, "pairs", int(pair_id), "reserve0")
     )
-    if not isinstance(reserves, (list, tuple)) or len(reserves) < 2:
-        raise ToolException("Unexpected reserve response from DEX pair contract.")
-
-    reserve0 = decimal_from_value(reserves[0])
-    reserve1 = decimal_from_value(reserves[1])
-    fee_bps_raw = await provider.call_contract(dex_contract, "getTradeFeeBps", {})
-    fee_bps = int(decimal_from_value(fee_bps_raw))
+    reserve1 = decimal_from_value(
+        await provider.get_state(pairs_contract, "pairs", int(pair_id), "reserve1")
+    )
+    zero_fee = await provider.get_state(
+        dex_contract,
+        "zero_fee_signers",
+        provider.address,
+    )
+    fee_bps = ZERO_TRADE_FEE_BPS if bool(zero_fee) else DEFAULT_TRADE_FEE_BPS
 
     if token0 == buy_token:
         reserve_buy = reserve0
@@ -141,17 +145,14 @@ async def quote_trade(
     min_output_factor = Decimal("1") - (slippage / Decimal("100"))
 
     if side == "buy":
-        estimated_input_raw = await provider.call_contract(
-            dex_contract,
-            "getAmountIn",
-            {
-                "amountOut": decimal_to_contract_number(amount),
-                "reserveIn": decimal_to_contract_number(context.reserve_sell),
-                "reserveOut": decimal_to_contract_number(context.reserve_buy),
-                "feeBps": context.fee_bps,
-            },
-        )
-        estimated_input = decimal_from_value(estimated_input_raw)
+        if amount >= context.reserve_buy:
+            raise ToolException("Requested buy amount exceeds available liquidity.")
+        fee_multiplier = Decimal(10000 - context.fee_bps) / Decimal(10000)
+        if fee_multiplier <= 0:
+            raise ToolException("Invalid trade fee configuration for this pair.")
+        estimated_input = (
+            context.reserve_sell * amount
+        ) / ((context.reserve_buy - amount) * fee_multiplier)
         # Match con_dex_helper.buy(...) behavior: slippage expansion plus tiny buffer.
         max_input = estimated_input * slippage_factor * Decimal("1.0001")
         return DexQuote(
@@ -167,17 +168,13 @@ async def quote_trade(
             min_output=amount * min_output_factor,
         )
 
-    expected_output_raw = await provider.call_contract(
-        dex_contract,
-        "getAmountOut",
-        {
-            "amountIn": decimal_to_contract_number(amount),
-            "reserveIn": decimal_to_contract_number(context.reserve_sell),
-            "reserveOut": decimal_to_contract_number(context.reserve_buy),
-            "feeBps": context.fee_bps,
-        },
-    )
-    expected_output = decimal_from_value(expected_output_raw)
+    fee_multiplier = Decimal(10000 - context.fee_bps) / Decimal(10000)
+    amount_in_with_fee = amount * fee_multiplier
+    numerator = amount_in_with_fee * context.reserve_buy
+    denominator = context.reserve_sell + amount_in_with_fee
+    if denominator <= 0:
+        raise ToolException("Insufficient liquidity for the requested trade.")
+    expected_output = numerator / denominator
     return DexQuote(
         side=side,
         pair_id=context.pair_id,

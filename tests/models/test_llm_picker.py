@@ -23,6 +23,7 @@ def mock_llm_config(**keys):
     All API keys default to None unless explicitly provided.
     """
     defaults = dict(
+        anthropic_api_key=None,
         google_api_key=None,
         openai_api_key=None,
         openrouter_api_key=None,
@@ -75,6 +76,11 @@ def test_pick_summarize_model_different_providers_yield_different_models():
     assert google_result != deepseek_result
 
 
+def test_pick_summarize_model_prefers_anthropic_when_it_is_the_only_key():
+    with mock_llm_config(anthropic_api_key="sk-ant-test"):
+        assert pick_summarize_model() == "claude-sonnet-4-6"
+
+
 # ── pick_default_model ───────────────────────────────────────────────
 
 
@@ -101,6 +107,11 @@ def test_pick_default_model_different_providers_yield_different_models():
     assert google_result != deepseek_result
 
 
+def test_pick_default_model_prefers_anthropic_when_it_is_the_only_key():
+    with mock_llm_config(anthropic_api_key="sk-ant-test"):
+        assert pick_default_model() == "claude-sonnet-4-6"
+
+
 # ── pick_long_context_model ──────────────────────────────────────────
 
 
@@ -109,6 +120,11 @@ def test_pick_long_context_model_returns_model_when_provider_available():
     with mock_llm_config(google_api_key="gk"):
         result = pick_long_context_model()
         assert isinstance(result, str) and len(result) > 0
+
+
+def test_pick_long_context_model_prefers_anthropic_when_it_is_the_only_key():
+    with mock_llm_config(anthropic_api_key="sk-ant-test"):
+        assert pick_long_context_model() == "claude-opus-4-6"
 
 
 def test_pick_long_context_model_raises_when_none():

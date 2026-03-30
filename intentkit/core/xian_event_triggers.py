@@ -164,6 +164,8 @@ def _payload_decimal(payload: dict[str, Any], field_name: str) -> Decimal:
     raw = payload.get(field_name)
     if raw is None:
         raise ValueError(f"missing payload field '{field_name}'")
+    if isinstance(raw, dict) and "__fixed__" in raw:
+        raw = raw["__fixed__"]
     try:
         return Decimal(str(raw))
     except (InvalidOperation, ValueError, TypeError) as exc:

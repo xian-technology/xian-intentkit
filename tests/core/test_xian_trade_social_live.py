@@ -1,6 +1,7 @@
 from intentkit.testing.xian_trade_social_live import (
     DexContracts,
     SocialConfig,
+    _extract_trade_hash_from_text,
     build_agent_payload,
     load_social_config,
 )
@@ -76,3 +77,19 @@ def test_build_agent_payload_uses_self_key_mode():
     assert twitter_skill["auth_mode"] == "self_key"
     assert twitter_skill["consumer_key"] == "consumer-key"
     assert twitter_skill["access_token_secret"] == "access-token-secret"
+
+
+def test_extract_trade_hash_uses_last_transaction_hash():
+    text = """
+Quoted Xian DEX trade.
+
+Submitted Xian DEX helper approval for con_dex_helper on currency.
+Transaction hash: 18D72EC4D61D3A61F2A2D49DF3D46A54A5A82E56E48DE8CF085D2D9B0D63B8C1
+
+Submitted Xian DEX sell trade on con_dex_helper for pair 1.
+Transaction hash: D12B9D56C329391567B75635E1F1C16DE93F31CC832CBE33A40034BF515922AB
+"""
+
+    assert _extract_trade_hash_from_text(text) == (
+        "D12B9D56C329391567B75635E1F1C16DE93F31CC832CBE33A40034BF515922AB"
+    )

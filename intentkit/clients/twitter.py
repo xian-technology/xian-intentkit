@@ -204,6 +204,44 @@ class TwitterClient(TwitterABC):
 
         return self._client
 
+    async def create_tweet(
+        self,
+        *,
+        text: str,
+        media_ids: list[str] | None = None,
+    ) -> dict[str, Any]:
+        """Create a tweet using the configured auth mode."""
+
+        client = await self.get_client()
+        if self.use_key:
+            params: dict[str, Any] = {
+                "text": text,
+                "user_auth": True,
+            }
+            if media_ids:
+                params["media_ids"] = media_ids
+            return cast(dict[str, Any], await client.create_tweet(**params))
+
+        agent_data = await self._get_agent_data()
+        if not agent_data.twitter_access_token:
+            raise ValueError(f"[{self.agent_id}] Twitter access token not found")
+
+        payload: dict[str, Any] = {"text": text}
+        if media_ids:
+            payload["media"] = {"media_ids": media_ids}
+
+        async with httpx.AsyncClient(timeout=30) as http_client:
+            response = await http_client.post(
+                "https://api.twitter.com/2/tweets",
+                headers={
+                    "Authorization": f"Bearer {agent_data.twitter_access_token}",
+                    "Content-Type": "application/json",
+                },
+                json=payload,
+            )
+            response.raise_for_status()
+            return cast(dict[str, Any], response.json())
+
     @property
     @override
     def self_id(self) -> str | None:

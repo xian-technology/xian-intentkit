@@ -10,6 +10,7 @@ def test_llm_model_filtering():
     with patch("intentkit.models.llm.config") as mock_config:
         # Explicitly set all keys to None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.google_api_key = None
         mock_config.deepseek_api_key = None
         mock_config.xai_api_key = None
@@ -27,6 +28,7 @@ def test_llm_model_filtering():
         # Verify restricted providers are filtered out
         restricted_providers = {
             LLMProvider.OPENAI,
+            LLMProvider.ANTHROPIC,
             LLMProvider.GOOGLE,
             LLMProvider.DEEPSEEK,
             LLMProvider.XAI,
@@ -42,6 +44,7 @@ def test_llm_model_filtering():
     # Case 2: Enable OpenAI only
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.openai_api_key = "sk-test-key"
+        mock_config.anthropic_api_key = None
         # Ensure others are None
         mock_config.google_api_key = None
         mock_config.deepseek_api_key = None
@@ -68,6 +71,7 @@ def test_llm_model_filtering():
     # Case 3: Enable Multiple Providers
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.openai_api_key = "sk-test-key"
+        mock_config.anthropic_api_key = None
         mock_config.google_api_key = "ai-test-key"
         # Others None
         mock_config.deepseek_api_key = None
@@ -92,6 +96,7 @@ def test_llm_model_filtering():
     # Case 4: Both providers kept when both keys configured
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.openai_api_key = "sk-test-key"
+        mock_config.anthropic_api_key = None
         mock_config.google_api_key = None
         mock_config.deepseek_api_key = None
         mock_config.xai_api_key = None
@@ -119,6 +124,7 @@ def test_llm_model_filtering():
     # Case 5: Only OpenRouter when vendor key is missing
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.google_api_key = None
         mock_config.deepseek_api_key = None
         mock_config.xai_api_key = None
@@ -149,6 +155,7 @@ def test_model_id_index_suffix_matching():
     # indexed by the base name ("gpt-5.4-mini") for legacy agent configs.
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.google_api_key = None
         mock_config.deepseek_api_key = None
         mock_config.xai_api_key = None
@@ -175,3 +182,23 @@ def test_model_id_index_suffix_matching():
         assert "gpt-5.4-mini" in index
         matching_keys = index["gpt-5.4-mini"]
         assert any("openrouter:" in k for k in matching_keys)
+
+
+def test_anthropic_models_present_when_key_is_set():
+    with patch("intentkit.models.llm.config") as mock_config:
+        mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = "sk-ant-test"
+        mock_config.google_api_key = None
+        mock_config.deepseek_api_key = None
+        mock_config.xai_api_key = None
+        mock_config.openrouter_api_key = None
+        mock_config.minimax_api_key = None
+        mock_config.openai_compatible_api_key = None
+        mock_config.openai_compatible_base_url = None
+        mock_config.openai_compatible_model = None
+
+        models = load_default_llm_models()
+
+        sonnet = models.get("anthropic:claude-sonnet-4-6")
+        assert sonnet is not None
+        assert sonnet.provider == LLMProvider.ANTHROPIC
