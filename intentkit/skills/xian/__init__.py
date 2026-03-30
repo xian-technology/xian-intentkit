@@ -1,4 +1,4 @@
-"""Xian blockchain skills powered by xian-py."""
+"""Xian blockchain skills powered by xian-tech-py / xian_py."""
 
 from typing import TypedDict
 
@@ -6,6 +6,8 @@ from intentkit.skills.base import SkillConfig, SkillState
 from intentkit.skills.xian.approve_tokens import XianApproveTokens
 from intentkit.skills.xian.base import XianBaseTool
 from intentkit.skills.xian.call_contract import XianCallContract
+from intentkit.skills.xian.dex_quote import XianDexQuote
+from intentkit.skills.xian.dex_trade import XianDexTrade
 from intentkit.skills.xian.get_allowance import XianGetAllowance
 from intentkit.skills.xian.get_chain_status import XianGetChainStatus
 from intentkit.skills.xian.get_token_balance import XianGetTokenBalance
@@ -28,6 +30,8 @@ class SkillStates(TypedDict):
     xian_read_contract_state: SkillState
     xian_call_contract: SkillState
     xian_send_contract_transaction: SkillState
+    xian_dex_quote: SkillState
+    xian_dex_trade: SkillState
     xian_get_transaction: SkillState
     xian_list_events: SkillState
     xian_get_chain_status: SkillState
@@ -48,6 +52,8 @@ _cache: dict[str, XianBaseTool] = {
     "xian_read_contract_state": XianReadContractState(),
     "xian_call_contract": XianCallContract(),
     "xian_send_contract_transaction": XianSendContractTransaction(),
+    "xian_dex_quote": XianDexQuote(),
+    "xian_dex_trade": XianDexTrade(),
     "xian_get_transaction": XianGetTransaction(),
     "xian_list_events": XianListEvents(),
     "xian_get_chain_status": XianGetChainStatus(),

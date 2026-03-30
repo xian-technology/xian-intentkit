@@ -1,6 +1,7 @@
 # Xian Skills
 
-This skill category integrates `xian-py` into IntentKit for Xian-native agents.
+This skill category integrates the current `xian-tech-py` SDK into IntentKit
+for Xian-native agents.
 
 ## Requirements
 
@@ -69,5 +70,30 @@ net worth remains `0`.
 - transfers and approvals
 - contract state reads and read-only function calls
 - writable contract transactions
+- DEX quote and trade helpers for the current Xian DEX
 - transaction inspection and indexed event listing
 - node and BDS status checks
+
+## Current DEX Coverage
+
+The Xian skill category now includes dedicated tools for the current Xian DEX:
+
+- `xian_dex_quote`
+- `xian_dex_trade`
+
+These tools are intentionally narrow:
+
+- they target the current `con_dex`, `con_pairs`, and `con_dex_helper`
+  contracts
+- they focus on single-pair quote and helper-based buy/sell execution
+- they do not replace the generic contract tools for advanced routing or custom
+  DEX integrations
+
+For autonomous Xian trading agents, the recommended posture is:
+
+1. use a service node so indexed events are available
+2. poll indexed events with `xian_list_events`
+3. quote with `xian_dex_quote`
+4. execute with `xian_dex_trade`
+5. verify the confirmed transaction before any side effect such as posting to
+   social media

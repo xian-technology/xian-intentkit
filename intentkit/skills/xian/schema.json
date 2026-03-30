@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "title": "Xian Blockchain",
-  "description": "Xian wallet, token, contract, transaction, and indexed-event skills powered by xian-py.",
+  "description": "Xian wallet, token, contract, transaction, indexed-event, and DEX skills powered by xian-tech-py.",
   "x-tags": [
     "Crypto",
     "Xian"
@@ -70,6 +70,20 @@
         "xian_send_contract_transaction": {
           "type": "string",
           "title": "Send Contract Transaction",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_dex_quote": {
+          "type": "string",
+          "title": "DEX Quote",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
+        "xian_dex_trade": {
+          "type": "string",
+          "title": "DEX Trade",
           "enum": ["disabled", "public", "private"],
           "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
           "default": "disabled"

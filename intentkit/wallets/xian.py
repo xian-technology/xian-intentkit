@@ -13,7 +13,7 @@ from intentkit.wallets.xian_networks import (
 
 
 class XianWalletProvider:
-    """Wallet provider backed by xian-py for Ed25519 Xian accounts."""
+    """Wallet provider backed by xian-tech-py / xian_py for Ed25519 Xian accounts."""
 
     def __init__(
         self,
