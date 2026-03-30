@@ -71,7 +71,8 @@ net worth remains `0`.
 - contract state reads and read-only function calls
 - writable contract transactions
 - DEX quote and trade helpers for the current Xian DEX
-- transaction inspection and indexed event listing
+- transaction inspection, transaction-scoped indexed events, and indexed event
+  listing
 - node and BDS status checks
 
 ## Current DEX Coverage
@@ -98,8 +99,9 @@ For autonomous Xian trading agents, the recommended posture is:
    activity and confirm against indexed events before execution
 4. quote with `xian_dex_quote`
 5. execute with `xian_dex_trade`
-6. verify the confirmed transaction before any side effect such as posting to
-   social media
+6. verify the confirmed transaction and its emitted indexed events with
+   `xian_get_transaction` and `xian_get_events_for_tx` before any side effect
+   such as posting to social media
 
 The trigger model is intentionally hybrid:
 

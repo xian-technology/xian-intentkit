@@ -187,6 +187,10 @@ class XianWalletProvider:
         async with self._client() as client:
             return await client.get_tx(tx_hash)
 
+    async def get_events_for_transaction(self, tx_hash: str) -> list[Any]:
+        async with self._client() as client:
+            return await client.get_events_for_tx(tx_hash)
+
     async def wait_for_transaction_receipt(
         self,
         tx_hash: str,

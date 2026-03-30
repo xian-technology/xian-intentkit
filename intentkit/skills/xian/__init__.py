@@ -10,6 +10,7 @@ from intentkit.skills.xian.dex_quote import XianDexQuote
 from intentkit.skills.xian.dex_trade import XianDexTrade
 from intentkit.skills.xian.get_allowance import XianGetAllowance
 from intentkit.skills.xian.get_chain_status import XianGetChainStatus
+from intentkit.skills.xian.get_events_for_tx import XianGetEventsForTx
 from intentkit.skills.xian.get_token_balance import XianGetTokenBalance
 from intentkit.skills.xian.get_transaction import XianGetTransaction
 from intentkit.skills.xian.get_wallet_details import XianGetWalletDetails
@@ -33,6 +34,7 @@ class SkillStates(TypedDict):
     xian_dex_quote: SkillState
     xian_dex_trade: SkillState
     xian_get_transaction: SkillState
+    xian_get_events_for_tx: SkillState
     xian_list_events: SkillState
     xian_get_chain_status: SkillState
 
@@ -55,6 +57,7 @@ _cache: dict[str, XianBaseTool] = {
     "xian_dex_quote": XianDexQuote(),
     "xian_dex_trade": XianDexTrade(),
     "xian_get_transaction": XianGetTransaction(),
+    "xian_get_events_for_tx": XianGetEventsForTx(),
     "xian_list_events": XianListEvents(),
     "xian_get_chain_status": XianGetChainStatus(),
 }

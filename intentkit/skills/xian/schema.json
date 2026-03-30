@@ -95,6 +95,13 @@
           "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
           "default": "disabled"
         },
+        "xian_get_events_for_tx": {
+          "type": "string",
+          "title": "Get Events For Transaction",
+          "enum": ["disabled", "public", "private"],
+          "x-enum-title": ["Disabled", "Agent Owner + All Users", "Agent Owner Only"],
+          "default": "disabled"
+        },
         "xian_list_events": {
           "type": "string",
           "title": "List Events",
