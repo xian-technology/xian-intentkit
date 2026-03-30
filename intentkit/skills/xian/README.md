@@ -185,18 +185,34 @@ It uses the real local API, real autonomous worker, real indexed events, and
 real social credentials. It does **not** mock the Xian trigger path or the
 social delivery path.
 
-Required env vars:
+Required env vars in all modes:
 
 - `INTENTKIT_E2E_TELEGRAM_BOT_TOKEN`
 - `INTENTKIT_E2E_TELEGRAM_CHAT_ID`
-- `INTENTKIT_E2E_TWITTER_CONSUMER_KEY`
-- `INTENTKIT_E2E_TWITTER_CONSUMER_SECRET`
-- `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN`
-- `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET`
+
+X posting modes:
+
+- `linked_account`
+  - no per-run X access-token env vars are required
+  - the runner creates a normal agent, asks IntentKit for `/auth/twitter`, and
+    waits until that agent has a linked X account through the existing OAuth
+    flow
+  - set `INTENTKIT_E2E_TWITTER_AUTH_MODE=linked_account`
+  - also set `INTENTKIT_E2E_TWITTER_REDIRECT_URI` or `INTENTKIT_E2E_APP_URL`
+- `self_key`
+  - set `INTENTKIT_E2E_TWITTER_AUTH_MODE=self_key`
+  - requires:
+    - `INTENTKIT_E2E_TWITTER_CONSUMER_KEY`
+    - `INTENTKIT_E2E_TWITTER_CONSUMER_SECRET`
+    - `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN`
+    - `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET`
 
 Common optional overrides:
 
 - `INTENTKIT_E2E_API_URL`
+- `INTENTKIT_E2E_TWITTER_AUTH_MODE`
+- `INTENTKIT_E2E_TWITTER_REDIRECT_URI`
+- `INTENTKIT_E2E_APP_URL`
 - `INTENTKIT_E2E_MODEL`
 - `INTENTKIT_E2E_THRESHOLD_PCT`
 - `INTENTKIT_E2E_TRIGGER_SELL_AMOUNT`
@@ -208,6 +224,9 @@ Run it with:
 cd /Users/endogen/Projekte/xian/xian-intentkit
 uv run python scripts/test_xian_trade_social_live.py --allow-live-posts
 ```
+
+For linked-account mode, add `--open-auth-url` if you want the script to open
+the IntentKit X authorization URL in your default browser automatically.
 
 The script prints a JSON summary including:
 

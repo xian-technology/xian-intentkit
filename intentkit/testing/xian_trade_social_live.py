@@ -7,10 +7,12 @@ import json
 import os
 import re
 import time
+import webbrowser
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+from urllib.parse import quote
 
 import aiohttp
 from xian_py import XianAsync
@@ -57,10 +59,11 @@ class DexContracts:
 class SocialConfig:
     telegram_bot_token: str
     telegram_chat_id: str
-    twitter_consumer_key: str
-    twitter_consumer_secret: str
-    twitter_access_token: str
-    twitter_access_token_secret: str
+    twitter_auth_mode: Literal["linked_account", "self_key"]
+    twitter_consumer_key: str | None = None
+    twitter_consumer_secret: str | None = None
+    twitter_access_token: str | None = None
+    twitter_access_token_secret: str | None = None
 
 
 def _env(name: str, default: str | None = None) -> str | None:
@@ -149,6 +152,30 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Required acknowledgement that the workflow will post real Telegram and X messages.",
     )
+    parser.add_argument(
+        "--twitter-auth-mode",
+        choices=["auto", "linked_account", "self_key"],
+        default=_env("INTENTKIT_E2E_TWITTER_AUTH_MODE", "auto"),
+        help=(
+            "How the live runner authenticates the agent to X. "
+            "'auto' selects self_key when all self-key env vars are present, "
+            "otherwise linked_account."
+        ),
+    )
+    parser.add_argument(
+        "--twitter-redirect-uri",
+        default=_env("INTENTKIT_E2E_TWITTER_REDIRECT_URI")
+        or _env("INTENTKIT_E2E_APP_URL"),
+        help=(
+            "Redirect URI used when generating the IntentKit /auth/twitter URL for "
+            "linked-account mode. It must be under IntentKit APP_BASE_URL."
+        ),
+    )
+    parser.add_argument(
+        "--open-auth-url",
+        action="store_true",
+        help="Open the linked-account X auth URL in the default browser.",
+    )
     return parser.parse_args()
 
 
@@ -182,23 +209,52 @@ def load_localnet_config(
     )
 
 
-def load_social_config() -> SocialConfig:
-    required = {
-        "telegram_bot_token": _env("INTENTKIT_E2E_TELEGRAM_BOT_TOKEN"),
-        "telegram_chat_id": _env("INTENTKIT_E2E_TELEGRAM_CHAT_ID"),
-        "twitter_consumer_key": _env("INTENTKIT_E2E_TWITTER_CONSUMER_KEY"),
-        "twitter_consumer_secret": _env("INTENTKIT_E2E_TWITTER_CONSUMER_SECRET"),
-        "twitter_access_token": _env("INTENTKIT_E2E_TWITTER_ACCESS_TOKEN"),
-        "twitter_access_token_secret": _env(
-            "INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET"
-        ),
-    }
-    missing = [name for name, value in required.items() if not value]
-    if missing:
+def load_social_config(*, twitter_auth_mode: str) -> SocialConfig:
+    telegram_bot_token = _env("INTENTKIT_E2E_TELEGRAM_BOT_TOKEN")
+    telegram_chat_id = _env("INTENTKIT_E2E_TELEGRAM_CHAT_ID")
+    if not telegram_bot_token or not telegram_chat_id:
         raise LiveWorkflowError(
-            "Missing required live social env vars: " + ", ".join(missing)
+            "Missing required live Telegram env vars: "
+            "INTENTKIT_E2E_TELEGRAM_BOT_TOKEN, INTENTKIT_E2E_TELEGRAM_CHAT_ID"
         )
-    return SocialConfig(**required)  # type: ignore[arg-type]
+
+    consumer_key = _env("INTENTKIT_E2E_TWITTER_CONSUMER_KEY")
+    consumer_secret = _env("INTENTKIT_E2E_TWITTER_CONSUMER_SECRET")
+    access_token = _env("INTENTKIT_E2E_TWITTER_ACCESS_TOKEN")
+    access_token_secret = _env("INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET")
+
+    if twitter_auth_mode == "auto":
+        if consumer_key and consumer_secret and access_token and access_token_secret:
+            twitter_auth_mode = "self_key"
+        else:
+            twitter_auth_mode = "linked_account"
+
+    if twitter_auth_mode == "self_key":
+        missing = [
+            name
+            for name, value in {
+                "INTENTKIT_E2E_TWITTER_CONSUMER_KEY": consumer_key,
+                "INTENTKIT_E2E_TWITTER_CONSUMER_SECRET": consumer_secret,
+                "INTENTKIT_E2E_TWITTER_ACCESS_TOKEN": access_token,
+                "INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET": access_token_secret,
+            }.items()
+            if not value
+        ]
+        if missing:
+            raise LiveWorkflowError(
+                "Missing required live X env vars for self_key mode: "
+                + ", ".join(missing)
+            )
+
+    return SocialConfig(
+        telegram_bot_token=telegram_bot_token,
+        telegram_chat_id=telegram_chat_id,
+        twitter_auth_mode=twitter_auth_mode,
+        twitter_consumer_key=consumer_key,
+        twitter_consumer_secret=consumer_secret,
+        twitter_access_token=access_token,
+        twitter_access_token_secret=access_token_secret,
+    )
 
 
 def deadline_value(*, seconds_from_now: int) -> str:
@@ -490,10 +546,17 @@ def build_agent_payload(
             "twitter": {
                 "enabled": True,
                 "states": {"post_tweet": "private"},
-                "consumer_key": social.twitter_consumer_key,
-                "consumer_secret": social.twitter_consumer_secret,
-                "access_token": social.twitter_access_token,
-                "access_token_secret": social.twitter_access_token_secret,
+                "auth_mode": social.twitter_auth_mode,
+                **(
+                    {
+                        "consumer_key": social.twitter_consumer_key,
+                        "consumer_secret": social.twitter_consumer_secret,
+                        "access_token": social.twitter_access_token,
+                        "access_token_secret": social.twitter_access_token_secret,
+                    }
+                    if social.twitter_auth_mode == "self_key"
+                    else {}
+                ),
             },
         },
     }
@@ -559,6 +622,74 @@ async def wait_for_agent_wallet(
             return address
         await asyncio.sleep(1)
     raise LiveWorkflowError("Agent Xian wallet was not created before the timeout")
+
+
+async def wait_for_twitter_link(
+    session: aiohttp.ClientSession,
+    *,
+    base_url: str,
+    agent_id: str,
+    timeout_seconds: float = WAIT_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
+    deadline = time.monotonic() + timeout_seconds
+    while time.monotonic() < deadline:
+        payload = await api_request(
+            session,
+            method="GET",
+            base_url=base_url,
+            path=f"/agents/{agent_id}",
+        )
+        if payload.get("has_twitter_linked"):
+            return payload
+        await asyncio.sleep(1)
+    raise LiveWorkflowError(
+        f"Timed out waiting for a linked X account on agent {agent_id}"
+    )
+
+
+async def ensure_twitter_linked(
+    session: aiohttp.ClientSession,
+    *,
+    base_url: str,
+    agent_id: str,
+    redirect_uri: str | None,
+    open_auth_url: bool,
+) -> dict[str, Any]:
+    payload = await api_request(
+        session,
+        method="GET",
+        base_url=base_url,
+        path=f"/agents/{agent_id}",
+    )
+    if payload.get("has_twitter_linked"):
+        return payload
+    if not redirect_uri:
+        raise LiveWorkflowError(
+            "Linked-account X mode requires --twitter-redirect-uri or "
+            "INTENTKIT_E2E_TWITTER_REDIRECT_URI / INTENTKIT_E2E_APP_URL."
+        )
+
+    auth_url_payload = await api_request(
+        session,
+        method="GET",
+        base_url=base_url,
+        path=(
+            f"/auth/twitter?agent_id={quote(agent_id, safe='')}"
+            f"&redirect_uri={quote(redirect_uri, safe='')}"
+        ),
+    )
+    auth_url = auth_url_payload["url"]
+    print("\nLink the agent's X account through this URL, then return here:\n")
+    print(auth_url)
+    print()
+    if open_auth_url:
+        webbrowser.open(auth_url)
+
+    return await wait_for_twitter_link(
+        session,
+        base_url=base_url,
+        agent_id=agent_id,
+    )
 
 
 async def fund_agent_wallet(
@@ -713,7 +844,7 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             "real Telegram and X messages."
         )
 
-    social = load_social_config()
+    social = load_social_config(twitter_auth_mode=args.twitter_auth_mode)
     network = load_localnet_config(
         network_json=args.network_json,
         rpc_url=args.rpc_url,
@@ -761,6 +892,15 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             base_url=args.intentkit_api_url,
             agent_id=agent_id,
         )
+        twitter_link = None
+        if social.twitter_auth_mode == "linked_account":
+            twitter_link = await ensure_twitter_linked(
+                session,
+                base_url=args.intentkit_api_url,
+                agent_id=agent_id,
+                redirect_uri=args.twitter_redirect_uri,
+                open_auth_url=args.open_auth_url,
+            )
 
         await fund_agent_wallet(
             founder_client,
@@ -814,6 +954,10 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
         return {
             "agent_id": agent_id,
             "agent_wallet": agent_wallet,
+            "twitter_auth_mode": social.twitter_auth_mode,
+            "linked_twitter_username": (
+                twitter_link.get("linked_twitter_username") if twitter_link else None
+            ),
             "autonomous_task_id": task_id,
             "chat_id": chat_id,
             "trigger_tx_hash": trigger_tx_hash,
