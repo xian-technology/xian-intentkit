@@ -27,7 +27,10 @@ from intentkit.config.redis import (
     send_heartbeat,
 )
 from intentkit.core.agent import get_agent
-from intentkit.core.autonomous import update_autonomous_task_status
+from intentkit.core.autonomous import (
+    AUTONOMOUS_REFRESH_CHANNEL,
+    update_autonomous_task_status,
+)
 from intentkit.core.xian_event_triggers import XianEventTriggerService
 from intentkit.models.agent import Agent, AgentAutonomousStatus, AgentTable
 from intentkit.utils.alert import cleanup_alert, send_alert
@@ -55,6 +58,8 @@ jobstores = {
 logger.info("autonomous scheduler use redis store: %s", config.redis_host)
 scheduler = AsyncIOScheduler(jobstores=jobstores)
 xian_event_trigger_service: XianEventTriggerService | None = None
+refresh_listener_task: asyncio.Task[None] | None = None
+schedule_lock: asyncio.Lock | None = None
 
 # Head job ID, it schedules the other jobs
 HEAD_JOB_ID = "head"
@@ -189,6 +194,18 @@ async def schedule_agent_autonomous_tasks():
     Find all agents with autonomous tasks and schedule them.
     This function is called periodically to update the scheduler with new or modified tasks.
     """
+    async with _get_schedule_lock():
+        await _schedule_agent_autonomous_tasks_impl()
+
+
+def _get_schedule_lock() -> asyncio.Lock:
+    global schedule_lock
+    if schedule_lock is None:
+        schedule_lock = asyncio.Lock()
+    return schedule_lock
+
+
+async def _schedule_agent_autonomous_tasks_impl() -> None:
     logger.info("Checking for agent autonomous tasks...")
 
     # List of jobs to schedule, will delete jobs not in this list
@@ -292,6 +309,24 @@ async def schedule_agent_autonomous_tasks():
         await xian_event_trigger_service.refresh(loaded_agents)
 
 
+async def listen_for_autonomous_refresh(redis_client) -> None:
+    pubsub = redis_client.pubsub()
+    await pubsub.subscribe(AUTONOMOUS_REFRESH_CHANNEL)
+    try:
+        async for message in pubsub.listen():
+            if not isinstance(message, dict):
+                continue
+            if message.get("type") != "message":
+                continue
+            logger.info("Received autonomous refresh signal")
+            await schedule_agent_autonomous_tasks()
+    except asyncio.CancelledError:
+        raise
+    finally:
+        await pubsub.unsubscribe(AUTONOMOUS_REFRESH_CHANNEL)
+        await pubsub.close()
+
+
 if __name__ == "__main__":
 
     async def main():
@@ -308,6 +343,10 @@ if __name__ == "__main__":
         global xian_event_trigger_service
         xian_event_trigger_service = XianEventTriggerService(redis_client)
         await xian_event_trigger_service.start()
+        global refresh_listener_task
+        refresh_listener_task = asyncio.create_task(
+            listen_for_autonomous_refresh(redis_client)
+        )
 
         # Add job to schedule agent autonomous tasks every 5 minutes
         # Run it immediately on startup and then every 5 minutes
@@ -358,6 +397,11 @@ if __name__ == "__main__":
                 await clean_heartbeat(redis_client, "autonomous")
             except Exception as e:
                 logger.error("Error cleaning up heartbeat: %s", e)
+            if refresh_listener_task is not None:
+                refresh_listener_task.cancel()
+                await asyncio.gather(refresh_listener_task, return_exceptions=True)
+            if xian_event_trigger_service is not None:
+                await xian_event_trigger_service.close()
 
             if xian_event_trigger_service is not None:
                 await xian_event_trigger_service.close()

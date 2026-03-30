@@ -7,6 +7,7 @@ from epyxid import XID
 from sqlalchemy import select
 
 from intentkit.config.db import get_session
+from intentkit.config.redis import get_redis
 from intentkit.models.agent.autonomous import (
     AgentAutonomous,
     AgentAutonomousStatus,
@@ -18,6 +19,8 @@ from intentkit.models.agent.autonomous import (
 from intentkit.models.agent.db import AgentTable
 from intentkit.utils.error import IntentKitAPIError
 from intentkit.wallets.xian_networks import is_xian_network
+
+AUTONOMOUS_REFRESH_CHANNEL = "intentkit:autonomous:refresh"
 
 
 def _deserialize_autonomous(
@@ -107,6 +110,7 @@ async def add_autonomous_task(
         db_agent.autonomous = _serialize_autonomous(current_tasks)
         await session.commit()
 
+    await _publish_autonomous_refresh_signal()
     return normalized_task
 
 
@@ -130,6 +134,8 @@ async def delete_autonomous_task(agent_id: str, task_id: str) -> None:
 
         db_agent.autonomous = _serialize_autonomous(updated_tasks)
         await session.commit()
+
+    await _publish_autonomous_refresh_signal()
 
 
 async def update_autonomous_task(
@@ -171,6 +177,7 @@ async def update_autonomous_task(
         db_agent.autonomous = _serialize_autonomous(rewritten_tasks)
         await session.commit()
 
+    await _publish_autonomous_refresh_signal()
     return updated_task
 
 
@@ -274,3 +281,12 @@ def _validate_agent_task_compatibility(
             "Xian event-triggered autonomous tasks require the agent to use a "
             "supported Xian network_id.",
         )
+
+
+async def _publish_autonomous_refresh_signal() -> None:
+    """Notify the autonomous worker that task definitions changed."""
+    try:
+        redis = get_redis()
+    except RuntimeError:
+        return
+    await redis.publish(AUTONOMOUS_REFRESH_CHANNEL, str(datetime.now().timestamp()))

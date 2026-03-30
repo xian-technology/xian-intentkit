@@ -31,6 +31,50 @@ class AgentAutonomousTriggerType(str, Enum):
     XIAN_EVENT = "xian_event"
 
 
+class XianDexPriceChangeTrigger(BaseModel):
+    """Trigger when a DEX Sync event moves the implied pair price materially."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
+
+    threshold_pct: float = PydanticField(
+        ...,
+        description="Minimum percentage price move required to trigger.",
+        gt=0,
+        le=1000000,
+    )
+    direction: str = PydanticField(
+        default="either",
+        description="Required price-move direction: either, up, or down.",
+        pattern=r"^(either|up|down)$",
+    )
+    pair_field: str = PydanticField(
+        default="pair",
+        description="Payload field containing the pair identifier.",
+        min_length=1,
+        max_length=128,
+    )
+    reserve0_field: str = PydanticField(
+        default="reserve0",
+        description="Payload field containing reserve0.",
+        min_length=1,
+        max_length=128,
+    )
+    reserve1_field: str = PydanticField(
+        default="reserve1",
+        description="Payload field containing reserve1.",
+        min_length=1,
+        max_length=128,
+    )
+    price_base: str = PydanticField(
+        default="token1_per_token0",
+        description=(
+            "How to derive price from reserves: token1_per_token0 or "
+            "token0_per_token1."
+        ),
+        pattern=r"^(token1_per_token0|token0_per_token1)$",
+    )
+
+
 class XianEventTrigger(BaseModel):
     """Xian indexed-event trigger configuration."""
 
@@ -62,6 +106,15 @@ class XianEventTrigger(BaseModel):
         ),
         ge=0,
         le=86400,
+    )
+    dex_price_change: XianDexPriceChangeTrigger | None = PydanticField(
+        default=None,
+        description=(
+            "Optional DEX Sync-event price threshold. When set, the trigger "
+            "compares the current event reserves against the stored baseline "
+            "price for the same pair and only fires if the move exceeds the "
+            "threshold."
+        ),
     )
 
 

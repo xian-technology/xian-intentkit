@@ -7,6 +7,7 @@ from intentkit.models.agent import (
     AgentAutonomous,
     AgentAutonomousStatus,
     AgentAutonomousTriggerType,
+    XianDexPriceChangeTrigger,
     XianEventTrigger,
 )
 
@@ -114,7 +115,12 @@ async def test_add_xian_event_autonomous(client, monkeypatch):
         id="event-task-1",
         name="Watch Transfers",
         trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
-        xian_event=XianEventTrigger(contract="currency", event="Transfer"),
+        xian_event=XianEventTrigger(
+            contract="con_pairs",
+            event="Sync",
+            filters={"pair": "1"},
+            dex_price_change=XianDexPriceChangeTrigger(threshold_pct=4.0),
+        ),
         prompt="Watch transfer events",
         enabled=True,
         status=AgentAutonomousStatus.WAITING,
@@ -136,9 +142,11 @@ async def test_add_xian_event_autonomous(client, monkeypatch):
         "name": "Watch Transfers",
         "trigger_type": "xian_event",
         "xian_event": {
-            "contract": "currency",
-            "event": "Transfer",
+            "contract": "con_pairs",
+            "event": "Sync",
+            "filters": {"pair": "1"},
             "cooldown_seconds": 5,
+            "dex_price_change": {"threshold_pct": 4.0},
         },
         "prompt": "Watch transfer events",
         "enabled": True,
@@ -148,7 +156,8 @@ async def test_add_xian_event_autonomous(client, monkeypatch):
     assert response.status_code == 201
     data = response.json()
     assert data["trigger_type"] == "xian_event"
-    assert data["xian_event"]["contract"] == "currency"
+    assert data["xian_event"]["contract"] == "con_pairs"
+    assert data["xian_event"]["dex_price_change"]["threshold_pct"] == 4.0
 
 
 @pytest.mark.asyncio

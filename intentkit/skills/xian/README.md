@@ -110,9 +110,13 @@ The trigger model is intentionally hybrid:
 - a periodic indexed sync loop remains enabled so BDS lag or websocket
   reconnects do not cause missed triggers
 
-## Workflow Test Harness
+## Workflow Test Harnesses
 
-There is now a deterministic workflow test for the exact Xian agent pattern:
+There are now two workflow harnesses for the exact Xian agent pattern:
+
+### Deterministic Harness
+
+This keeps the IntentKit trigger and skill path fully deterministic:
 
 1. a Xian indexed event wakes the autonomous trigger path
 2. the agent checks a `price_change_pct` threshold
@@ -120,7 +124,7 @@ There is now a deterministic workflow test for the exact Xian agent pattern:
 4. the agent posts to Telegram
 5. the agent posts to X
 
-The harness uses:
+It uses:
 
 - the real `XianEventTriggerService`
 - the real `xian_dex_trade` skill
@@ -132,9 +136,6 @@ It intentionally mocks only:
 - the indexed Xian event feed
 - the DEX wallet/provider transport
 - the Telegram/X delivery endpoints
-
-That keeps the workflow test deterministic and credential-free while still
-exercising the full IntentKit trigger and skill path.
 
 Run it with:
 
@@ -167,9 +168,51 @@ REDIS_HOST=localhost uv run pytest -q \
   tests/core/test_xian_trade_social_workflow.py
 ```
 
-If you want to move from the mock social sinks to real delivery:
+### Live Localnet Harness
 
-- replace the Telegram skill config with a real `bot_token` and `default_chat_id`
-- replace the Twitter skill config with real X credentials instead of
-  `mock_webhook_url`
-- keep the same `xian_event` trigger shape and DEX skill surface
+This is the real end-to-end path:
+
+1. deploy a real localnet DEX pack
+2. seed a real pair with liquidity
+3. create a real IntentKit agent through the local HTTP API
+4. configure a real `xian_event` autonomous trigger on `con_pairs.Sync`
+5. trigger a real price move on-chain
+6. let IntentKit react by executing a real `xian_dex_trade`
+7. verify the resulting on-chain tx/events
+8. send a real Telegram message and a real X post
+
+It uses the real local API, real autonomous worker, real indexed events, and
+real social credentials. It does **not** mock the Xian trigger path or the
+social delivery path.
+
+Required env vars:
+
+- `INTENTKIT_E2E_TELEGRAM_BOT_TOKEN`
+- `INTENTKIT_E2E_TELEGRAM_CHAT_ID`
+- `INTENTKIT_E2E_TWITTER_CONSUMER_KEY`
+- `INTENTKIT_E2E_TWITTER_CONSUMER_SECRET`
+- `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN`
+- `INTENTKIT_E2E_TWITTER_ACCESS_TOKEN_SECRET`
+
+Common optional overrides:
+
+- `INTENTKIT_E2E_API_URL`
+- `INTENTKIT_E2E_MODEL`
+- `INTENTKIT_E2E_THRESHOLD_PCT`
+- `INTENTKIT_E2E_TRIGGER_SELL_AMOUNT`
+- `INTENTKIT_E2E_AGENT_SELL_AMOUNT`
+
+Run it with:
+
+```bash
+cd /Users/endogen/Projekte/xian/xian-intentkit
+uv run python scripts/test_xian_trade_social_live.py --allow-live-posts
+```
+
+The script prints a JSON summary including:
+
+- deployed DEX contract names
+- the trigger trade tx hash
+- the agent trade tx hash
+- the observed skill call sequence
+- the on-chain events emitted by the agent trade

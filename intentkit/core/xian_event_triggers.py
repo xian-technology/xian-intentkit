@@ -7,6 +7,7 @@ import logging
 import time
 from collections import defaultdict
 from dataclasses import dataclass
+from decimal import Decimal, InvalidOperation
 from typing import Any
 
 import aiohttp
@@ -20,6 +21,7 @@ from intentkit.core.autonomous import update_autonomous_task_status
 from intentkit.models.agent import Agent, AgentAutonomousStatus
 from intentkit.models.agent.autonomous import (
     AgentAutonomousTriggerType,
+    XianDexPriceChangeTrigger,
     XianEventTrigger,
 )
 from intentkit.wallets.xian_networks import get_xian_network_config, is_xian_network
@@ -40,6 +42,7 @@ _SUBSCRIBE_TX = json.dumps(
 _RECONNECT_DELAYS = [1, 2, 4, 8, 16, 30]
 _CURSOR_PREFIX = "intentkit:xian_event_trigger:cursor:"
 _LAST_RUN_PREFIX = "intentkit:xian_event_trigger:last_run:"
+_DEX_BASELINE_PREFIX = "intentkit:xian_event_trigger:dex_baseline:"
 
 
 @dataclass(frozen=True)
@@ -69,6 +72,9 @@ class XianEventTask:
     @property
     def last_run_key(self) -> str:
         return f"{_LAST_RUN_PREFIX}{self.runtime_id}"
+
+    def dex_baseline_key(self, pair_key: str) -> str:
+        return f"{_DEX_BASELINE_PREFIX}{self.runtime_id}:{pair_key}"
 
 
 def build_cometbft_ws_url(rpc_url: str) -> str:
@@ -109,6 +115,8 @@ def iter_contract_events_from_tx_event(event_data: dict[str, Any]):
 def build_xian_event_prompt(
     task: XianEventTask,
     event: IndexedEvent,
+    *,
+    trigger_metrics: dict[str, Any] | None = None,
 ) -> str:
     payload = merged_event_payload(event)
     context = {
@@ -122,6 +130,8 @@ def build_xian_event_prompt(
         "caller": event.caller,
         "payload": payload,
     }
+    if trigger_metrics:
+        context["trigger_metrics"] = trigger_metrics
     context_json = json.dumps(context, sort_keys=True, ensure_ascii=True)
     return (
         "A Xian event trigger fired for this autonomous task.\n"
@@ -148,6 +158,57 @@ def event_matches_trigger(
         if actual is None or str(actual) != expected:
             return False
     return True
+
+
+def _payload_decimal(payload: dict[str, Any], field_name: str) -> Decimal:
+    raw = payload.get(field_name)
+    if raw is None:
+        raise ValueError(f"missing payload field '{field_name}'")
+    try:
+        return Decimal(str(raw))
+    except (InvalidOperation, ValueError, TypeError) as exc:
+        raise ValueError(
+            f"payload field '{field_name}' is not numeric: {raw!r}"
+        ) from exc
+
+
+def _compute_dex_price_metrics(
+    *,
+    payload: dict[str, Any],
+    trigger: XianDexPriceChangeTrigger,
+    baseline_price: Decimal,
+) -> tuple[str, Decimal, dict[str, Any]]:
+    pair_value = payload.get(trigger.pair_field)
+    if pair_value is None:
+        raise ValueError(
+            f"missing payload field '{trigger.pair_field}' for dex price trigger"
+        )
+    reserve0 = _payload_decimal(payload, trigger.reserve0_field)
+    reserve1 = _payload_decimal(payload, trigger.reserve1_field)
+    if reserve0 <= 0 or reserve1 <= 0:
+        raise ValueError("dex price trigger reserves must be greater than 0")
+
+    if trigger.price_base == "token0_per_token1":
+        current_price = reserve0 / reserve1
+    else:
+        current_price = reserve1 / reserve0
+
+    if baseline_price <= 0:
+        raise ValueError("baseline dex price must be greater than 0")
+
+    signed_change_pct = ((current_price - baseline_price) / baseline_price) * 100
+    absolute_change_pct = abs(signed_change_pct)
+    metrics = {
+        "pair": str(pair_value),
+        "price_before": str(baseline_price),
+        "price_after": str(current_price),
+        "price_change_pct": float(signed_change_pct),
+        "price_change_pct_abs": float(absolute_change_pct),
+        "price_base": trigger.price_base,
+        "reserve0": str(reserve0),
+        "reserve1": str(reserve1),
+    }
+    return str(pair_value), current_price, metrics
 
 
 class XianEventTriggerService:
@@ -364,16 +425,27 @@ class XianEventTriggerService:
             await self.request_sync_by_source(network_id, contract, event)
 
     async def _seed_cursor(self, task: XianEventTask) -> None:
-        if await self.redis.exists(task.cursor_key):
-            return
+        cursor_exists = await self.redis.exists(task.cursor_key)
         async with self._xian_client(task.network_id) as client:
             latest = await client.list_events(
                 task.trigger.contract,
                 task.trigger.event,
-                limit=1,
+                limit=self.batch_limit,
             )
-        latest_id = max((item.id or 0 for item in latest), default=0)
-        await self.redis.set(task.cursor_key, latest_id)
+        if not cursor_exists:
+            latest_id = max((item.id or 0 for item in latest), default=0)
+            await self.redis.set(task.cursor_key, latest_id)
+
+        if task.trigger.dex_price_change is None:
+            return
+
+        latest_matching: IndexedEvent | None = None
+        for item in latest:
+            if event_matches_trigger(task, item):
+                if latest_matching is None or (item.id or 0) > (latest_matching.id or 0):
+                    latest_matching = item
+        if latest_matching is not None:
+            await self._update_dex_baseline_from_event(task, latest_matching)
 
     async def _drain_task(self, runtime_id: str) -> None:
         try:
@@ -405,8 +477,7 @@ class XianEventTriggerService:
                 for event in events:
                     if event.id is None:
                         continue
-                    if event_matches_trigger(task, event):
-                        await self._dispatch_event(task, event)
+                    await self._process_event(task, event)
                     cursor = event.id
                     await self.redis.set(task.cursor_key, cursor)
 
@@ -417,6 +488,8 @@ class XianEventTriggerService:
         self,
         task: XianEventTask,
         event: IndexedEvent,
+        *,
+        trigger_metrics: dict[str, Any] | None = None,
     ) -> None:
         if not await self._passes_cooldown(task):
             return
@@ -432,7 +505,11 @@ class XianEventTriggerService:
                 task.agent_id,
                 task.agent_owner,
                 task.task_id,
-                build_xian_event_prompt(task, event),
+                build_xian_event_prompt(
+                    task,
+                    event,
+                    trigger_metrics=trigger_metrics,
+                ),
                 task.has_memory,
             )
             await self.redis.set(task.last_run_key, str(time.time()))
@@ -476,6 +553,126 @@ class XianEventTriggerService:
             return int(raw or 0)
         except (TypeError, ValueError):
             return 0
+
+    async def _process_event(
+        self,
+        task: XianEventTask,
+        event: IndexedEvent,
+    ) -> None:
+        if not event_matches_trigger(task, event):
+            return
+
+        if task.trigger.dex_price_change is None:
+            await self._dispatch_event(task, event)
+            return
+
+        evaluation = await self._evaluate_dex_price_change(task, event)
+        if evaluation is None:
+            return
+        await self._dispatch_event(
+            task,
+            event,
+            trigger_metrics=evaluation,
+        )
+
+    async def _evaluate_dex_price_change(
+        self,
+        task: XianEventTask,
+        event: IndexedEvent,
+    ) -> dict[str, Any] | None:
+        trigger = task.trigger.dex_price_change
+        if trigger is None:
+            return None
+
+        payload = merged_event_payload(event)
+        pair_value = payload.get(trigger.pair_field)
+        if pair_value is None:
+            logger.warning(
+                "Skipping dex price trigger for %s: missing pair field %s",
+                task.runtime_id,
+                trigger.pair_field,
+            )
+            return None
+
+        baseline_key = task.dex_baseline_key(str(pair_value))
+        baseline_raw = await self.redis.get(baseline_key)
+        if baseline_raw is None:
+            await self._update_dex_baseline_from_event(task, event)
+            return None
+
+        try:
+            baseline_data = json.loads(str(baseline_raw))
+            baseline_price = Decimal(str(baseline_data["price"]))
+        except (KeyError, TypeError, ValueError, InvalidOperation, json.JSONDecodeError):
+            await self._update_dex_baseline_from_event(task, event)
+            return None
+
+        try:
+            _, current_price, metrics = _compute_dex_price_metrics(
+                payload=payload,
+                trigger=trigger,
+                baseline_price=baseline_price,
+            )
+        except ValueError as exc:
+            logger.warning(
+                "Skipping dex price trigger for %s on event %s: %s",
+                task.runtime_id,
+                event.id,
+                exc,
+            )
+            return None
+
+        await self.redis.set(
+            baseline_key,
+            json.dumps(
+                {
+                    "event_id": event.id,
+                    "price": str(current_price),
+                    "block_height": event.block_height,
+                },
+                sort_keys=True,
+            ),
+        )
+
+        absolute_change = Decimal(str(metrics["price_change_pct_abs"]))
+        if absolute_change < Decimal(str(trigger.threshold_pct)):
+            return None
+
+        signed_change = Decimal(str(metrics["price_change_pct"]))
+        if trigger.direction == "up" and signed_change <= 0:
+            return None
+        if trigger.direction == "down" and signed_change >= 0:
+            return None
+        return metrics
+
+    async def _update_dex_baseline_from_event(
+        self,
+        task: XianEventTask,
+        event: IndexedEvent,
+    ) -> None:
+        trigger = task.trigger.dex_price_change
+        if trigger is None:
+            return
+        payload = merged_event_payload(event)
+        try:
+            pair_key, current_price, _ = _compute_dex_price_metrics(
+                payload=payload,
+                trigger=trigger,
+                baseline_price=Decimal("1"),
+            )
+        except ValueError:
+            return
+        await self.redis.set(
+            task.dex_baseline_key(pair_key),
+            json.dumps(
+                {
+                    "event_id": event.id,
+                    "price": str(current_price),
+                    "block_height": event.block_height,
+                },
+                sort_keys=True,
+            ),
+        )
 
     def _xian_client(self, network_id: str) -> XianAsync:
         network = get_xian_network_config(network_id)
