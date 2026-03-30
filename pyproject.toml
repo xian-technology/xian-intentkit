@@ -52,7 +52,7 @@ dependencies = [
     "eth-keys>=0.4.0",
     "eth-utils>=2.1.0",
     "x402>=2.0.0",
-    "xian-py>=0.4.8,<0.5.0",
+    "xian-tech-py>=0.4.8,<0.5.0",
     # Social platforms
     "slack-sdk>=3.34.0",
     "tweepy[async]>=4.15.0",
@@ -129,7 +129,7 @@ default-groups = ["dev"]
 override-dependencies = ["bcl>=3.0.0"]
 
 [tool.uv.sources]
-xian-py = { path = "../xian-py", editable = true }
+xian-tech-py = { path = "../xian-py", editable = true }
 
 # Override bcl to >=3.0.0 because 2.x lacks Linux ARM64 (aarch64) wheels,
 # causing source builds to fail on Python 3.13 (pkgutil.ImpImporter removed).
