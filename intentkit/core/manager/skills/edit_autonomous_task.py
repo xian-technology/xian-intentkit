@@ -31,7 +31,8 @@ class EditAutonomousTask(ManagerSkill):
     name: str = "system_edit_autonomous_task"
     description: str = (
         "Edit an existing autonomous task configuration for the agent. "
-        "Allows updating the name, description, schedule (cron), prompt, and enabled status. "
+        "Allows updating the name, description, schedule (cron), Xian event "
+        "trigger configuration, prompt, and enabled status. "
         "Only provided fields will be updated; omitted fields will keep their current values. "
     )
     args_schema: ArgsSchema | None = EditAutonomousTaskInput
@@ -70,6 +71,8 @@ class EditAutonomousTask(ManagerSkill):
             name=name,
             description=description,
             cron=cron,
+            trigger_type=kwargs.get("trigger_type"),
+            xian_event=kwargs.get("xian_event"),
             prompt=prompt,
             enabled=enabled,
             has_memory=has_memory,

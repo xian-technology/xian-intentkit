@@ -8,7 +8,10 @@ from epyxid import XID
 from pydantic import ConfigDict, field_validator
 from pydantic import Field as PydanticField
 
-from intentkit.models.agent.autonomous import AgentAutonomous
+from intentkit.models.agent.autonomous import (
+    AgentAutonomous,
+    AgentAutonomousTriggerType,
+)
 from intentkit.models.agent.core import AgentCore, AgentVisibility
 from intentkit.utils.error import IntentKitAPIError
 
@@ -197,16 +200,25 @@ class AgentUpdate(AgentUserInput):
         return v
 
     def validate_autonomous_schedule(self) -> None:
-        """Validate the schedule settings for autonomous configurations.
+        """Validate autonomous trigger settings for autonomous configurations.
 
         This validation ensures:
-        1. Only one scheduling method (minutes or cron) is set per autonomous config
-        2. The minimum interval is 5 minutes for both types of schedules
+        1. Scheduled tasks use exactly one scheduling method (minutes or cron)
+        2. Scheduled tasks respect the minimum interval of 5 minutes
+        3. Event-triggered tasks do not require schedule settings
         """
         if not self.autonomous:
             return
 
         for autonomous_config in self.autonomous:
+            trigger_type = (
+                autonomous_config.trigger_type
+                or AgentAutonomousTriggerType.SCHEDULE
+            )
+
+            if trigger_type == AgentAutonomousTriggerType.XIAN_EVENT:
+                continue
+
             # Check that exactly one scheduling method is provided
             if not autonomous_config.minutes and not autonomous_config.cron:
                 raise IntentKitAPIError(

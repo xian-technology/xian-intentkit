@@ -6,7 +6,13 @@ from enum import Enum
 from typing import Annotated, ClassVar
 
 from epyxid import XID
-from pydantic import BaseModel, ConfigDict, field_serializer, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    field_serializer,
+    field_validator,
+    model_validator,
+)
 from pydantic import Field as PydanticField
 
 
@@ -16,6 +22,47 @@ class AgentAutonomousStatus(str, Enum):
     WAITING = "waiting"
     RUNNING = "running"
     ERROR = "error"
+
+
+class AgentAutonomousTriggerType(str, Enum):
+    """Autonomous trigger mode."""
+
+    SCHEDULE = "schedule"
+    XIAN_EVENT = "xian_event"
+
+
+class XianEventTrigger(BaseModel):
+    """Xian indexed-event trigger configuration."""
+
+    model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
+
+    contract: str = PydanticField(
+        ...,
+        description="Exact Xian contract name to monitor.",
+        min_length=1,
+        max_length=128,
+    )
+    event: str = PydanticField(
+        ...,
+        description="Exact event name to monitor on the contract.",
+        min_length=1,
+        max_length=128,
+    )
+    filters: dict[str, str] | None = PydanticField(
+        default=None,
+        description=(
+            "Optional exact-match filters applied against the merged indexed "
+            "event payload."
+        ),
+    )
+    cooldown_seconds: int = PydanticField(
+        default=0,
+        description=(
+            "Minimum time between successful trigger executions for this task."
+        ),
+        ge=0,
+        le=86400,
+    )
 
 
 class AutonomousCreateRequest(BaseModel):
@@ -33,9 +80,17 @@ class AutonomousCreateRequest(BaseModel):
         description="Description of the autonomous configuration",
         max_length=200,
     )
-    cron: str = PydanticField(
-        ...,
+    cron: str | None = PydanticField(
+        default=None,
         description="Cron expression for scheduling operations",
+    )
+    trigger_type: AgentAutonomousTriggerType | None = PydanticField(
+        default=None,
+        description="Trigger mode for the autonomous task.",
+    )
+    xian_event: XianEventTrigger | None = PydanticField(
+        default=None,
+        description="Xian event trigger configuration.",
     )
     prompt: str = PydanticField(
         ...,
@@ -50,6 +105,35 @@ class AutonomousCreateRequest(BaseModel):
         default=False,
         description="Whether to retain conversation memory between autonomous runs.",
     )
+
+    @model_validator(mode="after")
+    def validate_trigger_config(self) -> "AutonomousCreateRequest":
+        trigger_type = self.trigger_type
+        if trigger_type is None:
+            trigger_type = (
+                AgentAutonomousTriggerType.XIAN_EVENT
+                if self.xian_event is not None
+                else AgentAutonomousTriggerType.SCHEDULE
+            )
+            self.trigger_type = trigger_type
+
+        if trigger_type == AgentAutonomousTriggerType.SCHEDULE:
+            if not self.cron:
+                raise ValueError("cron is required for scheduled autonomous tasks")
+            if self.xian_event is not None:
+                raise ValueError(
+                    "xian_event cannot be set for scheduled autonomous tasks"
+                )
+        else:
+            if self.xian_event is None:
+                raise ValueError(
+                    "xian_event is required for xian_event autonomous tasks"
+                )
+            if self.cron:
+                raise ValueError(
+                    "cron cannot be set for xian_event autonomous tasks"
+                )
+        return self
 
 
 class AutonomousUpdateRequest(BaseModel):
@@ -70,6 +154,14 @@ class AutonomousUpdateRequest(BaseModel):
     cron: str | None = PydanticField(
         default=None,
         description="Cron expression for scheduling operations",
+    )
+    trigger_type: AgentAutonomousTriggerType | None = PydanticField(
+        default=None,
+        description="Trigger mode for the autonomous task.",
+    )
+    xian_event: XianEventTrigger | None = PydanticField(
+        default=None,
+        description="Xian event trigger configuration.",
     )
     prompt: str | None = PydanticField(
         default=None,
@@ -170,6 +262,26 @@ class AgentAutonomous(BaseModel):
                 "x-group": "autonomous",
             },
         ),
+    ]
+    trigger_type: Annotated[
+        AgentAutonomousTriggerType | None,
+        PydanticField(
+            default=None,
+            description="Trigger mode for the autonomous task.",
+            json_schema_extra={
+                "x-group": "autonomous",
+            },
+        ),
+    ] = None
+    xian_event: Annotated[
+        XianEventTrigger | None,
+        PydanticField(
+            default=None,
+            description="Xian event trigger configuration.",
+            json_schema_extra={
+                "x-group": "autonomous",
+            },
+        ),
     ] = None
     prompt: Annotated[
         str,
@@ -222,6 +334,35 @@ class AgentAutonomous(BaseModel):
         ),
     ] = None
 
+    @model_validator(mode="after")
+    def validate_trigger_config(self) -> "AgentAutonomous":
+        trigger_type = self.trigger_type
+        if trigger_type is None:
+            trigger_type = (
+                AgentAutonomousTriggerType.XIAN_EVENT
+                if self.xian_event is not None
+                else AgentAutonomousTriggerType.SCHEDULE
+            )
+            self.trigger_type = trigger_type
+
+        if trigger_type == AgentAutonomousTriggerType.SCHEDULE:
+            if self.xian_event is not None:
+                raise ValueError(
+                    "xian_event cannot be set for scheduled autonomous tasks"
+                )
+            if self.minutes is None and not self.cron:
+                return self
+        else:
+            if self.xian_event is None:
+                raise ValueError(
+                    "xian_event is required for xian_event autonomous tasks"
+                )
+            if self.minutes is not None or self.cron:
+                raise ValueError(
+                    "xian_event autonomous tasks cannot define minutes or cron"
+                )
+        return self
+
     @field_serializer("next_run_time")
     @classmethod
     def serialize_next_run_time(cls, v: datetime | None) -> str | None:
@@ -257,6 +398,12 @@ class AgentAutonomous(BaseModel):
         if self.minutes is not None and not self.cron:
             updates["cron"] = minutes_to_cron(self.minutes)
             updates["minutes"] = None  # Clear minutes after conversion
+
+        if self.trigger_type == AgentAutonomousTriggerType.XIAN_EVENT:
+            updates["minutes"] = None
+            updates["cron"] = None
+            if self.next_run_time is not None:
+                updates["next_run_time"] = None
 
         if not self.enabled:
             if self.status is not None or self.next_run_time is not None:

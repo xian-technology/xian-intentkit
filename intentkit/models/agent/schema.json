@@ -354,10 +354,52 @@
             "description": "Advanced scheduling (cron format), mutually exclusive with minutes",
             "x-group": "autonomous"
           },
+          "trigger_type": {
+            "title": "Trigger Type",
+            "type": "string",
+            "description": "Whether this task runs on a schedule or from Xian events.",
+            "enum": ["schedule", "xian_event"],
+            "default": "schedule",
+            "x-group": "autonomous"
+          },
+          "xian_event": {
+            "title": "Xian Event Trigger",
+            "type": "object",
+            "description": "Xian indexed event configuration for near-real-time triggers.",
+            "x-group": "autonomous",
+            "properties": {
+              "contract": {
+                "title": "Contract",
+                "type": "string",
+                "description": "Exact Xian contract name to monitor."
+              },
+              "event": {
+                "title": "Event",
+                "type": "string",
+                "description": "Exact event name to monitor."
+              },
+              "filters": {
+                "title": "Filters",
+                "type": "object",
+                "description": "Optional exact-match filters on the merged event payload.",
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "cooldown_seconds": {
+                "title": "Cooldown Seconds",
+                "type": "integer",
+                "description": "Minimum time between successful trigger executions.",
+                "default": 0,
+                "minimum": 0
+              }
+            },
+            "required": ["contract", "event"]
+          },
           "prompt": {
             "title": "Task Prompt",
             "type": "string",
-            "description": "Prompt the agent will execute on schedule",
+            "description": "Prompt the agent will execute when the schedule or trigger fires.",
             "maxLength": 20000,
             "x-str-type": "prompt",
             "x-group": "autonomous"
@@ -379,7 +421,7 @@
         },
         "required": ["name", "prompt"]
       },
-      "description": "Set automated prompts and schedules for your agent.",
+      "description": "Set automated prompts that run either on a cron schedule or from Xian event triggers.",
       "x-group": "autonomous",
       "x-inline": true
     },
@@ -387,8 +429,8 @@
       "title": "Wallet Provider",
       "type": "string",
       "description": "Provider of the agent's wallet, choose cdp if you want the agent to have it's own wallet.",
-      "enum": ["none", "native", "cdp", "privy", "safe", "readonly"],
-      "x-enum-title": ["None", "Native Wallet", "Coinbase Server Wallet V2", "Privy Wallet", "Safe Wallet", "Readonly Wallet"],
+      "enum": ["none", "native", "cdp", "privy", "safe", "readonly", "xian"],
+      "x-enum-title": ["None", "Native Wallet", "Coinbase Server Wallet V2", "Privy Wallet", "Safe Wallet", "Readonly Wallet", "Xian Wallet"],
       "default": "none",
       "x-group": "onchain",
       "x-advanced": true
@@ -405,7 +447,11 @@
         "arbitrum-mainnet",
         "optimism-mainnet",
         "bnb-mainnet",
-        "base-sepolia"
+        "base-sepolia",
+        "xian-mainnet",
+        "xian-testnet",
+        "xian-devnet",
+        "xian-localnet"
       ],
       "x-group": "onchain",
       "x-advanced": true

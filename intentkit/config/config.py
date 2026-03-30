@@ -264,6 +264,15 @@ class Config:
         # Agent Execution Limits
         self.recursion_limit: int = self.load_int("RECURSION_LIMIT", 100)
         self.super_recursion_limit: int = self.load_int("SUPER_RECURSION_LIMIT", 1000)
+        self.xian_event_trigger_enabled: bool = (
+            self.load("XIAN_EVENT_TRIGGER_ENABLED", "true") == "true"
+        )
+        self.xian_event_trigger_poll_interval_seconds: float = self.load_float(
+            "XIAN_EVENT_TRIGGER_POLL_INTERVAL_SECONDS", 5.0
+        )
+        self.xian_event_trigger_batch_limit: int = self.load_int(
+            "XIAN_EVENT_TRIGGER_BATCH_LIMIT", 50
+        )
 
         # ===== config loaded
         # Now we know the env, set up logging
