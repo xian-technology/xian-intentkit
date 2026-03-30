@@ -183,6 +183,7 @@ def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
 
 class LLMProvider(str, Enum):
     OPENAI = "openai"
+    ANTHROPIC = "anthropic"
     GOOGLE = "google"
     DEEPSEEK = "deepseek"
     XAI = "xai"
@@ -196,6 +197,7 @@ class LLMProvider(str, Enum):
         """Check if the provider is configured with an API key."""
         config_map = {
             self.OPENAI: bool(config.openai_api_key),
+            self.ANTHROPIC: bool(config.anthropic_api_key),
             self.GOOGLE: bool(config.google_api_key),
             self.DEEPSEEK: bool(config.deepseek_api_key),
             self.XAI: bool(config.xai_api_key),
@@ -214,6 +216,7 @@ class LLMProvider(str, Enum):
         """Return user-friendly display name for the provider."""
         display_names = {
             self.OPENAI: "OpenAI",
+            self.ANTHROPIC: "Anthropic",
             self.GOOGLE: "Google",
             self.DEEPSEEK: "DeepSeek",
             self.XAI: "xAI",
@@ -607,6 +610,32 @@ class OpenAILLM(LLMModel):
         return ChatOpenAI(**kwargs)
 
 
+class AnthropicLLM(LLMModel):
+    """Anthropic Claude LLM configuration."""
+
+    @override
+    async def create_instance(self, params: dict[str, Any] = {}) -> BaseChatModel:
+        """Create and return a ChatAnthropic instance."""
+        from langchain_anthropic import ChatAnthropic
+
+        info = await self.model_info()
+
+        kwargs: dict[str, Any] = {
+            "model": info.id,
+            "api_key": config.anthropic_api_key,
+            "timeout": info.timeout,
+            "max_retries": 3,
+            "max_tokens": info.output_length,
+        }
+
+        if info.supports_temperature:
+            kwargs["temperature"] = self.temperature
+
+        kwargs.update(params)
+
+        return ChatAnthropic(**kwargs)
+
+
 class DeepseekLLM(LLMModel):
     """Deepseek LLM configuration."""
 
@@ -951,6 +980,7 @@ async def create_llm_model(
     info = await LLMModelInfo.get(model_name)
 
     provider_map: dict[LLMProvider, type[LLMModel]] = {
+        LLMProvider.ANTHROPIC: AnthropicLLM,
         LLMProvider.GOOGLE: GoogleLLM,
         LLMProvider.DEEPSEEK: DeepseekLLM,
         LLMProvider.XAI: XAILLM,

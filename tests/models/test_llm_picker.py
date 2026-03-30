@@ -11,6 +11,7 @@ def test_pick_summarize_model_prefers_google_then_openai():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = "sk-test"
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = None
@@ -23,6 +24,7 @@ def test_pick_summarize_model_xai_when_available():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = "xai-key"
         mock_config.deepseek_api_key = "ds-key"
@@ -35,6 +37,7 @@ def test_pick_summarize_model_raises_when_none():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = None
@@ -51,6 +54,7 @@ def test_pick_default_model_prefers_minimax_then_google():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = "google-key"
         mock_config.openai_api_key = "sk-test"
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = None
@@ -63,6 +67,7 @@ def test_pick_default_model_openrouter_uses_minimax():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = "or-key"
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = None
@@ -75,6 +80,7 @@ def test_pick_default_model_falls_to_deepseek():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = "ds-key"
@@ -87,6 +93,7 @@ def test_pick_default_model_fallback_when_none():
     with patch("intentkit.models.llm.config") as mock_config:
         mock_config.google_api_key = None
         mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = None
         mock_config.openrouter_api_key = None
         mock_config.xai_api_key = None
         mock_config.deepseek_api_key = None
@@ -94,3 +101,16 @@ def test_pick_default_model_fallback_when_none():
 
         result = pick_default_model()
         assert result == "gpt-5.4-mini"
+
+
+def test_pick_default_model_prefers_anthropic_when_it_is_the_only_key():
+    with patch("intentkit.models.llm.config") as mock_config:
+        mock_config.google_api_key = None
+        mock_config.openai_api_key = None
+        mock_config.anthropic_api_key = "sk-ant-test"
+        mock_config.openrouter_api_key = None
+        mock_config.xai_api_key = None
+        mock_config.deepseek_api_key = None
+        mock_config.minimax_api_key = None
+
+        assert pick_default_model() == "claude-sonnet-4-6"

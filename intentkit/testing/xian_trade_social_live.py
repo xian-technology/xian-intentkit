@@ -15,7 +15,7 @@ from typing import Any, Literal
 from urllib.parse import quote
 
 import aiohttp
-from xian_py import XianAsync
+from xian_py import XianAsync, to_contract_time
 from xian_py.wallet import Wallet
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -33,6 +33,7 @@ TOKEN_TX_STAMPS = 12_000
 DEX_TX_STAMPS = 80_000
 WAIT_TIMEOUT_SECONDS = 120.0
 AUTONOMOUS_READY_TIMEOUT_SECONDS = 30.0
+AUTONOMOUS_SYNC_GRACE_SECONDS = 3.0
 
 
 class LiveWorkflowError(RuntimeError):
@@ -110,6 +111,14 @@ def parse_args() -> argparse.Namespace:
         "--model",
         default=_env("INTENTKIT_E2E_MODEL", "gpt-4o-mini"),
         help="IntentKit agent model to use for the live workflow.",
+    )
+    parser.add_argument(
+        "--agent-id",
+        default=_env("INTENTKIT_E2E_AGENT_ID"),
+        help=(
+            "Reuse an existing IntentKit agent instead of creating a new one. "
+            "Useful for keeping a pre-linked X account across test runs."
+        ),
     )
     parser.add_argument(
         "--threshold-pct",
@@ -209,10 +218,16 @@ def load_localnet_config(
     )
 
 
-def load_social_config(*, twitter_auth_mode: str) -> SocialConfig:
+def load_social_config(
+    *,
+    twitter_auth_mode: str,
+    allow_missing: bool = False,
+) -> SocialConfig | None:
     telegram_bot_token = _env("INTENTKIT_E2E_TELEGRAM_BOT_TOKEN")
     telegram_chat_id = _env("INTENTKIT_E2E_TELEGRAM_CHAT_ID")
     if not telegram_bot_token or not telegram_chat_id:
+        if allow_missing:
+            return None
         raise LiveWorkflowError(
             "Missing required live Telegram env vars: "
             "INTENTKIT_E2E_TELEGRAM_BOT_TOKEN, INTENTKIT_E2E_TELEGRAM_CHAT_ID"
@@ -241,6 +256,8 @@ def load_social_config(*, twitter_auth_mode: str) -> SocialConfig:
             if not value
         ]
         if missing:
+            if allow_missing:
+                return None
             raise LiveWorkflowError(
                 "Missing required live X env vars for self_key mode: "
                 + ", ".join(missing)
@@ -257,10 +274,10 @@ def load_social_config(*, twitter_auth_mode: str) -> SocialConfig:
     )
 
 
-def deadline_value(*, seconds_from_now: int) -> str:
-    return (
+def deadline_value(*, seconds_from_now: int):
+    return to_contract_time(
         datetime.now(UTC) + timedelta(seconds=seconds_from_now)
-    ).isoformat(timespec="seconds")
+    )
 
 
 def _read_file(path: Path) -> str:
@@ -304,7 +321,17 @@ def _render_submission_error(result: Any) -> str:
 
 def _submission_succeeded(result: Any) -> bool:
     receipt = getattr(result, "receipt", None)
-    return bool(getattr(result, "finalized", False) and getattr(receipt, "success", False))
+    if not getattr(result, "finalized", False):
+        return False
+    if receipt is not None:
+        return bool(getattr(receipt, "success", False))
+    response = getattr(result, "response", None)
+    if isinstance(response, dict):
+        tx_result = response.get("result", {}).get("tx_result", {})
+        if isinstance(tx_result, dict):
+            return int(tx_result.get("code", 1)) == 0
+    accepted = getattr(result, "accepted", None)
+    return bool(accepted) if accepted is not None else False
 
 
 async def submit_contract(
@@ -378,13 +405,8 @@ async def approve_or_raise(
 
 async def wait_for_chain_ready(client: XianAsync) -> None:
     status = await client.get_node_status()
-    if not status.node_info.network:
+    if not status.network:
         raise LiveWorkflowError("Xian node status did not return a chain/network id")
-    bds = await client.get_bds_status()
-    if not bds.enabled:
-        raise LiveWorkflowError(
-            "BDS is not enabled. This live workflow requires indexed events."
-        )
     deadline = time.monotonic() + WAIT_TIMEOUT_SECONDS
     while time.monotonic() < deadline:
         bds = await client.get_bds_status()
@@ -562,6 +584,23 @@ def build_agent_payload(
     }
 
 
+def build_agent_update_payload(
+    *,
+    suffix: str,
+    model: str,
+    dex: DexContracts,
+    social: SocialConfig,
+) -> dict[str, Any]:
+    payload = build_agent_payload(
+        suffix=suffix,
+        model=model,
+        dex=dex,
+        social=social,
+    )
+    payload.pop("id", None)
+    return payload
+
+
 def build_autonomous_payload(
     *,
     dex: DexContracts,
@@ -601,6 +640,85 @@ def build_autonomous_payload(
             },
         },
     }
+
+
+async def upsert_live_agent(
+    session: aiohttp.ClientSession,
+    *,
+    base_url: str,
+    requested_agent_id: str | None,
+    suffix: str,
+    model: str,
+    dex: DexContracts,
+    social: SocialConfig | None,
+) -> dict[str, Any]:
+    if requested_agent_id:
+        if social is None:
+            return await api_request(
+                session,
+                method="GET",
+                base_url=base_url,
+                path=f"/agents/{requested_agent_id}",
+            )
+        await api_request(
+            session,
+            method="PATCH",
+            base_url=base_url,
+            path=f"/agents/{requested_agent_id}",
+            json_body=build_agent_update_payload(
+                suffix=suffix,
+                model=model,
+                dex=dex,
+                social=social,
+            ),
+        )
+        return await api_request(
+            session,
+            method="GET",
+            base_url=base_url,
+            path=f"/agents/{requested_agent_id}",
+        )
+
+    if social is None:
+        raise LiveWorkflowError(
+            "Cannot create a new live workflow agent without Telegram/X social config."
+        )
+    return await api_request(
+        session,
+        method="POST",
+        base_url=base_url,
+        path="/agents",
+        json_body=build_agent_payload(
+            suffix=suffix,
+            model=model,
+            dex=dex,
+            social=social,
+        ),
+    )
+
+
+async def delete_matching_autonomous_tasks(
+    session: aiohttp.ClientSession,
+    *,
+    base_url: str,
+    agent_id: str,
+    task_name: str,
+) -> None:
+    tasks = await api_request(
+        session,
+        method="GET",
+        base_url=base_url,
+        path=f"/agents/{agent_id}/autonomous",
+    )
+    for task in tasks:
+        if task.get("name") != task_name:
+            continue
+        await api_request(
+            session,
+            method="DELETE",
+            base_url=base_url,
+            path=f"/agents/{agent_id}/autonomous/{task['id']}",
+        )
 
 
 async def wait_for_agent_wallet(
@@ -765,9 +883,10 @@ async def trigger_price_move(
 def _extract_trade_hash_from_text(text: str | None) -> str | None:
     if not text:
         return None
-    match = re.search(r"Transaction hash: ([A-Fa-f0-9-]+)", text)
-    if match:
-        return match.group(1)
+    matches = re.findall(r"Transaction hash: ([A-Fa-f0-9-]+)", text)
+    if matches:
+        # The DEX tool can emit an approval tx first and the actual trade tx last.
+        return matches[-1]
     return None
 
 
@@ -780,12 +899,18 @@ async def wait_for_workflow_messages(
 ) -> list[dict[str, Any]]:
     deadline = time.monotonic() + WAIT_TIMEOUT_SECONDS
     while time.monotonic() < deadline:
-        payload = await api_request(
-            session,
-            method="GET",
-            base_url=base_url,
-            path=f"/agents/{agent_id}/chats/{chat_id}/messages",
-        )
+        try:
+            payload = await api_request(
+                session,
+                method="GET",
+                base_url=base_url,
+                path=f"/agents/{agent_id}/chats/{chat_id}/messages",
+            )
+        except LiveWorkflowError as exc:
+            if "ChatNotFound" in str(exc):
+                await asyncio.sleep(2)
+                continue
+            raise
         messages = payload.get("data", [])
         skill_names = {
             call.get("name")
@@ -844,7 +969,10 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             "real Telegram and X messages."
         )
 
-    social = load_social_config(twitter_auth_mode=args.twitter_auth_mode)
+    social = load_social_config(
+        twitter_auth_mode=args.twitter_auth_mode,
+        allow_missing=bool(args.agent_id),
+    )
     network = load_localnet_config(
         network_json=args.network_json,
         rpc_url=args.rpc_url,
@@ -873,18 +1001,14 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             liquidity_token=args.liquidity_token,
         )
 
-        agent_payload = build_agent_payload(
+        agent = await upsert_live_agent(
+            session,
+            base_url=args.intentkit_api_url,
+            requested_agent_id=args.agent_id,
             suffix=suffix,
             model=args.model,
             dex=dex,
             social=social,
-        )
-        agent = await api_request(
-            session,
-            method="POST",
-            base_url=args.intentkit_api_url,
-            path="/agents",
-            json_body=agent_payload,
         )
         agent_id = agent["id"]
         agent_wallet = agent.get("xian_wallet_address") or await wait_for_agent_wallet(
@@ -893,7 +1017,12 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             agent_id=agent_id,
         )
         twitter_link = None
-        if social.twitter_auth_mode == "linked_account":
+        effective_twitter_auth_mode = (
+            social.twitter_auth_mode
+            if social is not None
+            else ("linked_account" if agent.get("has_twitter_linked") else "existing_agent")
+        )
+        if effective_twitter_auth_mode == "linked_account" and social is not None:
             twitter_link = await ensure_twitter_linked(
                 session,
                 base_url=args.intentkit_api_url,
@@ -908,16 +1037,24 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             amount=args.agent_funding_amount,
         )
 
+        autonomous_payload = build_autonomous_payload(
+            dex=dex,
+            threshold_pct=args.threshold_pct,
+            agent_sell_amount=args.agent_sell_amount,
+        )
+        await delete_matching_autonomous_tasks(
+            session,
+            base_url=args.intentkit_api_url,
+            agent_id=agent_id,
+            task_name=autonomous_payload["name"],
+        )
+
         autonomous = await api_request(
             session,
             method="POST",
             base_url=args.intentkit_api_url,
             path=f"/agents/{agent_id}/autonomous",
-            json_body=build_autonomous_payload(
-                dex=dex,
-                threshold_pct=args.threshold_pct,
-                agent_sell_amount=args.agent_sell_amount,
-            ),
+            json_body=autonomous_payload,
         )
         task_id = autonomous["id"]
         chat_id = autonomous["chat_id"]
@@ -927,6 +1064,7 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
             agent_id=agent_id,
             task_id=task_id,
         )
+        await asyncio.sleep(AUTONOMOUS_SYNC_GRACE_SECONDS)
 
         trigger_tx_hash = await trigger_price_move(
             founder_client,
@@ -954,7 +1092,7 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
         return {
             "agent_id": agent_id,
             "agent_wallet": agent_wallet,
-            "twitter_auth_mode": social.twitter_auth_mode,
+            "twitter_auth_mode": effective_twitter_auth_mode,
             "linked_twitter_username": (
                 twitter_link.get("linked_twitter_username") if twitter_link else None
             ),

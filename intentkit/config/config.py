@@ -146,6 +146,7 @@ class Config:
         )
         # LLM providers
         self.openai_api_key: str | None = self.load("OPENAI_API_KEY")
+        self.anthropic_api_key: str | None = self.load("ANTHROPIC_API_KEY")
         self.google_api_key: str | None = self.load("GOOGLE_API_KEY")
         self.google_genai_use_vertexai: bool = (
             self.load("GOOGLE_GENAI_USE_VERTEXAI", "false") == "true"

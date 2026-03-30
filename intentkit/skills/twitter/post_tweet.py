@@ -1,6 +1,5 @@
 import logging
 from decimal import Decimal
-from typing import Any, cast
 
 import httpx
 from langchain_core.tools import ArgsSchema, ToolException
@@ -65,8 +64,6 @@ class TwitterPostTweet(TwitterBaseTool):
                 agent_id=context.agent_id,
                 config=skill_config,
             )
-            client = await twitter.get_client()
-
             # Check rate limit only when not using OAuth
             if not twitter.use_key:
                 await self.check_rate_limit(max_requests=24, interval=1440)
@@ -92,18 +89,7 @@ class TwitterPostTweet(TwitterBaseTool):
                         f"Image URL validation failed for agent {context.agent_id}: {image}"
                     )
 
-            # Post tweet using tweepy client
-            tweet_params: dict[str, Any] = {
-                "text": text,
-                "user_auth": twitter.use_key,
-            }
-            if media_ids:
-                tweet_params["media_ids"] = media_ids
-
-            response = cast(
-                dict[str, Any],
-                await client.create_tweet(**tweet_params),
-            )
+            response = await twitter.create_tweet(text=text, media_ids=media_ids)
             if "data" in response and "id" in response["data"]:
                 # Return response with warning if image was ignored
                 result = (
@@ -116,4 +102,13 @@ class TwitterPostTweet(TwitterBaseTool):
 
         except Exception as e:
             logger.error("Error posting tweet: %s", e)
-            raise type(e)(f"[agent:{context.agent_id}]: {e}") from e
+            if isinstance(e, httpx.HTTPStatusError):
+                status_code = e.response.status_code if e.response is not None else "?"
+                response_text = (
+                    e.response.text if e.response is not None else "<no response body>"
+                )
+                raise ToolException(
+                    f"[agent:{context.agent_id}]: "
+                    f"Twitter API returned HTTP {status_code}: {response_text}"
+                ) from e
+            raise ToolException(f"[agent:{context.agent_id}]: {e}") from e

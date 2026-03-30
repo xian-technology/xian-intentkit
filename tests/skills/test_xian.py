@@ -160,17 +160,35 @@ async def test_xian_dex_quote_sell(monkeypatch):
     ctx = _mock_context()
     provider = _provider(monkeypatch)
 
-    async def call_contract(contract: str, function: str, kwargs: dict):
-        if contract == "con_pairs" and function == "getReserves":
-            return [1000, 500, 0]
-        if contract == "con_dex" and function == "getTradeFeeBps":
-            return 30
-        if contract == "con_dex" and function == "getAmountOut":
-            return 45
-        raise AssertionError(f"unexpected call: {contract}.{function} {kwargs}")
+    async def get_state(contract: str, variable: str, *keys):
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "toks_to_pair",
+            ("con_token", "currency"),
+        ):
+            return 7
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (7, "reserve0"),
+        ):
+            return 500
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (7, "reserve1"),
+        ):
+            return 1000
+        if (contract, variable, keys) == (
+            "con_dex",
+            "zero_fee_signers",
+            (provider.address,),
+        ):
+            return None
+        raise AssertionError(f"unexpected get_state: {contract}.{variable} {keys}")
 
-    provider.get_state = AsyncMock(return_value=7)
-    provider.call_contract = AsyncMock(side_effect=call_contract)
+    provider.get_state = AsyncMock(side_effect=get_state)
+    provider.call_contract = AsyncMock()
 
     with (
         patch("intentkit.skills.base.IntentKitSkill.get_context", return_value=ctx),
@@ -188,8 +206,10 @@ async def test_xian_dex_quote_sell(monkeypatch):
 
     assert "Xian DEX quote (sell)" in result
     assert "Pair: 7" in result
-    assert "Expected output: 45" in result
+    assert "Expected output:" in result
+    assert "Minimum output with slippage:" in result
     assert "Approval target for execution: con_dex_helper" in result
+    provider.call_contract.assert_not_awaited()
 
 
 @pytest.mark.asyncio
@@ -198,17 +218,35 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
     ctx = _mock_context()
     provider = _provider(monkeypatch)
 
-    async def call_contract(contract: str, function: str, kwargs: dict):
-        if contract == "con_pairs" and function == "getReserves":
-            return [1000, 500, 0]
-        if contract == "con_dex" and function == "getTradeFeeBps":
-            return 30
-        if contract == "con_dex" and function == "getAmountIn":
-            return 120
-        raise AssertionError(f"unexpected call: {contract}.{function} {kwargs}")
+    async def get_state(contract: str, variable: str, *keys):
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "toks_to_pair",
+            ("con_token", "currency"),
+        ):
+            return 11
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (11, "reserve0"),
+        ):
+            return 500
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (11, "reserve1"),
+        ):
+            return 1000
+        if (contract, variable, keys) == (
+            "con_dex",
+            "zero_fee_signers",
+            (provider.address,),
+        ):
+            return None
+        raise AssertionError(f"unexpected get_state: {contract}.{variable} {keys}")
 
-    provider.get_state = AsyncMock(return_value=11)
-    provider.call_contract = AsyncMock(side_effect=call_contract)
+    provider.get_state = AsyncMock(side_effect=get_state)
+    provider.call_contract = AsyncMock()
     provider.get_allowance = AsyncMock(return_value=0)
     provider.approve = AsyncMock(
         return_value=SimpleNamespace(
@@ -247,13 +285,18 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
 
     provider.approve.assert_awaited_once()
     provider.send_contract_transaction.assert_awaited_once()
+    approve_amount = provider.approve.await_args.kwargs["amount"]
+    assert approve_amount > 110
     trade_kwargs = provider.send_contract_transaction.await_args.kwargs["kwargs"]
     assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex_helper"
     assert provider.send_contract_transaction.await_args.kwargs["function"] == "buy"
     assert trade_kwargs["buy_token"] == "con_token"
     assert trade_kwargs["sell_token"] == "currency"
+    assert isinstance(trade_kwargs["deadline"], dict)
+    assert "__time__" in trade_kwargs["deadline"]
     assert "approve-123" in result
     assert "trade-123" in result
+    provider.call_contract.assert_not_awaited()
 
 
 @pytest.mark.asyncio

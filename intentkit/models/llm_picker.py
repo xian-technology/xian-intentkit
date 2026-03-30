@@ -17,6 +17,7 @@ def pick_summarize_model() -> str:
     # 4. Grok: Good performance if available
     # 5. DeepSeek: Final fallback
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
         ("z-ai/glm-4.7-flash", LLMProvider.OPENROUTER),
         ("gemini-3.1-flash-lite-preview", LLMProvider.GOOGLE),
         ("gpt-5.4-mini", LLMProvider.OPENAI),
@@ -51,6 +52,7 @@ def pick_default_model() -> str:
     # 4. Grok: Good performance if available
     # 5. DeepSeek: Final fallback
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
         ("MiniMax-M2.7", LLMProvider.MINIMAX),
         ("minimax/minimax-m2.7", LLMProvider.OPENROUTER),
         ("google/gemini-3-flash-preview", LLMProvider.GOOGLE),
@@ -77,6 +79,7 @@ def pick_long_context_model() -> str:
     """
     # Priority order based on cost (cheapest first), one per provider:
     order: list[tuple[str, LLMProvider]] = [
+        ("claude-opus-4-6", LLMProvider.ANTHROPIC),
         ("gemini-3.1-flash-lite-preview", LLMProvider.GOOGLE),
         ("grok-4-1-fast-non-reasoning", LLMProvider.XAI),
         ("qwen/qwen3.5-flash-02-23", LLMProvider.OPENROUTER),
