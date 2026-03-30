@@ -2,6 +2,7 @@ import logging
 from decimal import Decimal
 from typing import Any, cast
 
+import httpx
 from langchain_core.tools import ArgsSchema, ToolException
 from pydantic import BaseModel, Field
 
@@ -43,6 +44,23 @@ class TwitterPostTweet(TwitterBaseTool):
         context = self.get_context()
         try:
             skill_config = context.agent.skill_config(self.category)
+            mock_webhook_url = skill_config.get("mock_webhook_url")
+            if mock_webhook_url:
+                async with httpx.AsyncClient(timeout=15) as client:
+                    response = await client.post(
+                        str(mock_webhook_url),
+                        json={
+                            "agent_id": context.agent_id,
+                            "text": text,
+                            "image": image,
+                        },
+                    )
+                    response.raise_for_status()
+                return (
+                    "Tweet captured by mock webhook. "
+                    f"Response: {response.text}"
+                )
+
             twitter = get_twitter_client(
                 agent_id=context.agent_id,
                 config=skill_config,
