@@ -1,6 +1,7 @@
 """Twitter OAuth2 callback handler."""
 
 import asyncio
+import logging
 from datetime import UTC, datetime
 from typing import Any, cast
 from urllib.parse import parse_qs, urlencode, urlparse
@@ -17,6 +18,7 @@ from intentkit.utils.error import IntentKitAPIError
 from app.services.twitter.oauth2 import oauth2_user_handler
 
 twitter_callback_router = APIRouter(prefix="/callback/auth", tags=["Callback"])
+logger = logging.getLogger(__name__)
 
 
 def is_valid_redirect_url(url: str) -> bool:
@@ -156,6 +158,11 @@ async def twitter_oauth_callback(
                 status_code=200,
             )
     except IntentKitAPIError as http_exc:
+        logger.warning(
+            "Twitter OAuth callback failed with handled error for redirect_uri=%s: %s",
+            redirect_uri,
+            http_exc.message,
+        )
         # Handle error response
         if redirect_uri and is_valid_redirect_url(redirect_uri):
             params = {"twitter_auth": "failed", "error": str(http_exc.message)}
@@ -164,6 +171,10 @@ async def twitter_oauth_callback(
         # Re-raise HTTP exceptions to preserve their status codes
         raise http_exc
     except Exception as e:
+        logger.exception(
+            "Twitter OAuth callback failed unexpectedly for redirect_uri=%s",
+            redirect_uri,
+        )
         # Handle error response for unexpected errors
         if redirect_uri and is_valid_redirect_url(redirect_uri):
             params = {"twitter_auth": "failed", "error": str(e)}
