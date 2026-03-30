@@ -5,6 +5,7 @@ import pytest
 
 from intentkit.skills.xian.dex_quote import XianDexQuote
 from intentkit.skills.xian.dex_trade import XianDexTrade
+from intentkit.skills.xian.get_events_for_tx import XianGetEventsForTx
 from intentkit.skills.xian.get_wallet_details import XianGetWalletDetails
 from intentkit.skills.xian.read_contract_state import XianReadContractState
 from intentkit.skills.xian.send_contract_transaction import (
@@ -118,6 +119,39 @@ async def test_xian_send_contract_transaction(monkeypatch):
     assert "submission.submit_contract" in result
     assert "tx-123" in result
     assert "Finalized: True" in result
+
+
+@pytest.mark.asyncio
+async def test_xian_get_events_for_tx(monkeypatch):
+    skill = XianGetEventsForTx()
+    ctx = _mock_context()
+    provider = _provider(monkeypatch)
+    provider.get_events_for_transaction = AsyncMock(
+        return_value=[
+            SimpleNamespace(
+                raw={
+                    "id": 12,
+                    "tx_hash": "tx-123",
+                    "contract": "currency",
+                    "event": "Transfer",
+                    "data": {"to": "bob", "amount": 25},
+                }
+            )
+        ]
+    )
+
+    with (
+        patch("intentkit.skills.base.IntentKitSkill.get_context", return_value=ctx),
+        patch(
+            "intentkit.skills.xian.base.get_wallet_provider",
+            new=AsyncMock(return_value=provider),
+        ),
+    ):
+        result = await skill._arun("tx-123")
+
+    assert "Indexed events for transaction tx-123" in result
+    assert '"event": "Transfer"' in result
+    assert '"amount": 25' in result
 
 
 @pytest.mark.asyncio
