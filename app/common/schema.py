@@ -110,7 +110,7 @@ def _simplify_skill_schema(skill_schema: dict[str, Any]) -> dict[str, Any]:
         if key in skill_schema:
             simplified[key] = skill_schema[key]
 
-    # Keep only enabled and states in properties
+    # Keep only a minimal set of operational properties in local mode.
     original_properties = skill_schema.get("properties", {})
     if original_properties:
         simplified_properties: dict[str, Any] = {}
@@ -118,6 +118,8 @@ def _simplify_skill_schema(skill_schema: dict[str, Any]) -> dict[str, Any]:
             simplified_properties["enabled"] = original_properties["enabled"]
         if "states" in original_properties:
             simplified_properties["states"] = original_properties["states"]
+        if "auth_mode" in original_properties:
+            simplified_properties["auth_mode"] = original_properties["auth_mode"]
         if simplified_properties:
             simplified["properties"] = simplified_properties
 

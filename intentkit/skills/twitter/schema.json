@@ -181,6 +181,17 @@
       },
       "description": "States for each X skill"
     },
+    "auth_mode": {
+      "type": "string",
+      "title": "X Authentication Mode",
+      "description": "How this agent authenticates to X. Use linked_account for an account linked through IntentKit OAuth, self_key for direct API credentials, or mock_webhook for local test sinks.",
+      "enum": [
+        "linked_account",
+        "self_key",
+        "mock_webhook"
+      ],
+      "default": "linked_account"
+    },
     "consumer_key": {
       "type": "string",
       "title": "X API consumer key",
@@ -229,6 +240,16 @@
   },
   "then": {
     "anyOf": [
+      {
+        "properties": {
+          "auth_mode": {
+            "const": "linked_account"
+          }
+        },
+        "required": [
+          "auth_mode"
+        ]
+      },
       {
         "required": [
           "mock_webhook_url"
