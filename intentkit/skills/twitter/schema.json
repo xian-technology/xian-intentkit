@@ -209,6 +209,11 @@
       "description": "X API access token secret",
       "x-sensitive": true,
       "maxLength": 100
+    },
+    "mock_webhook_url": {
+      "type": "string",
+      "title": "Mock Webhook URL",
+      "description": "Optional local test sink for tweet posts. When set, post_tweet sends a JSON payload to this URL instead of the live X API."
     }
   },
   "required": [
@@ -223,11 +228,20 @@
     }
   },
   "then": {
-    "required": [
-      "consumer_key",
-      "consumer_secret",
-      "access_token",
-      "access_token_secret"
+    "anyOf": [
+      {
+        "required": [
+          "mock_webhook_url"
+        ]
+      },
+      {
+        "required": [
+          "consumer_key",
+          "consumer_secret",
+          "access_token",
+          "access_token_secret"
+        ]
+      }
     ]
   },
   "additionalProperties": true

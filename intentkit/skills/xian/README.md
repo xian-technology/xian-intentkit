@@ -109,3 +109,67 @@ The trigger model is intentionally hybrid:
 - indexed BDS events and Redis cursors are used as the source of truth
 - a periodic indexed sync loop remains enabled so BDS lag or websocket
   reconnects do not cause missed triggers
+
+## Workflow Test Harness
+
+There is now a deterministic workflow test for the exact Xian agent pattern:
+
+1. a Xian indexed event wakes the autonomous trigger path
+2. the agent checks a `price_change_pct` threshold
+3. the agent executes `xian_dex_trade` to sell `currency`
+4. the agent posts to Telegram
+5. the agent posts to X
+
+The harness uses:
+
+- the real `XianEventTriggerService`
+- the real `xian_dex_trade` skill
+- the real `telegram_send_message` skill
+- the real `twitter_post_tweet` skill
+
+It intentionally mocks only:
+
+- the indexed Xian event feed
+- the DEX wallet/provider transport
+- the Telegram/X delivery endpoints
+
+That keeps the workflow test deterministic and credential-free while still
+exercising the full IntentKit trigger and skill path.
+
+Run it with:
+
+```bash
+cd /Users/endogen/Projekte/xian/xian-intentkit
+uv run python scripts/test_xian_trade_social_workflow.py --threshold-pct 3.0
+```
+
+The script returns a JSON summary showing:
+
+- which indexed event IDs caused action
+- the DEX helper trade call that was submitted
+- the captured Telegram payload
+- the captured X payload
+- the final Redis cursor
+
+The default test feed contains two events:
+
+- event `1` with `price_change_pct=1.5` should be ignored
+- event `2` with `price_change_pct=6.4` should trigger the workflow
+
+The matching pytest coverage is:
+
+```bash
+cd /Users/endogen/Projekte/xian/xian-intentkit
+REDIS_HOST=localhost uv run pytest -q \
+  tests/skills/test_telegram.py \
+  tests/skills/test_twitter.py \
+  tests/core/test_xian_event_triggers.py \
+  tests/core/test_xian_trade_social_workflow.py
+```
+
+If you want to move from the mock social sinks to real delivery:
+
+- replace the Telegram skill config with a real `bot_token` and `default_chat_id`
+- replace the Twitter skill config with real X credentials instead of
+  `mock_webhook_url`
+- keep the same `xian_event` trigger shape and DEX skill surface
