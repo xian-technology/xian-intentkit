@@ -34,7 +34,7 @@ from intentkit.core.autonomous import (
 from intentkit.core.xian_event_triggers import XianEventTriggerService
 from intentkit.models.agent import Agent, AgentAutonomousStatus, AgentTable
 from intentkit.models.agent.autonomous import AgentAutonomousTriggerType
-from intentkit.utils.alert import cleanup_alert
+from intentkit.utils.alert import cleanup_alert, send_alert
 
 from app.entrypoints.autonomous import run_autonomous_task
 
@@ -411,6 +411,12 @@ if __name__ == "__main__":
         try:
             logger.info("Starting autonomous agents scheduler...")
             scheduler.start()
+
+            # Send startup alert
+            send_alert(
+                f"IntentKit autonomous service started\n"
+                f"env: {config.env} | release: {config.release}"
+            )
 
             # Wait for shutdown event
             logger.info(

@@ -473,6 +473,20 @@ export interface TeamChannel {
   updated_at: string;
 }
 
+export interface TelegramWhitelistEntry {
+  chat_id: string;
+  chat_name: string | null;
+  verified_at: string;
+}
+
+export interface TelegramStatus {
+  status: string | null;
+  verification_code: string | null;
+  bot_username: string | null;
+  bot_name: string | null;
+  whitelist: TelegramWhitelistEntry[];
+}
+
 export interface WechatQrCodeResponse {
   qrcode: string;
   qrcode_img_content: string;
@@ -560,6 +574,24 @@ export const channelApi = {
       throw new Error(`Failed to connect WeChat: ${response.statusText}`);
     }
     return response.json();
+  },
+
+  async getTelegramStatus(): Promise<TelegramStatus> {
+    const response = await fetch(`${API_BASE}/lead/channels/telegram/status`);
+    if (!response.ok) {
+      throw new Error(`Failed to get Telegram status: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  async removeTelegramWhitelist(chatId: string): Promise<void> {
+    const response = await fetch(
+      `${API_BASE}/lead/channels/telegram/whitelist/${encodeURIComponent(chatId)}`,
+      { method: "DELETE" },
+    );
+    if (!response.ok) {
+      throw new Error(`Failed to remove from whitelist: ${response.statusText}`);
+    }
   },
 };
 
@@ -857,6 +889,82 @@ export const postApi = {
     }
     return response.json();
   },
+
+  getPdfUrl(postId: string): string {
+    return `${API_BASE}/posts/${postId}/pdf`;
+  },
+
+  getPdfUrlBySlug(agentId: string, slug: string): string {
+    return `${API_BASE}/agents/${agentId}/posts/slug/${slug}/pdf`;
+  },
+};
+
+/**
+ * Subscription API functions
+ */
+export const subscriptionApi = {
+  async list(): Promise<{ agent_id: string }[]> {
+    const response = await fetch(`${API_BASE}/subscriptions`);
+    if (!response.ok) throw new Error(`Failed: ${response.statusText}`);
+    return response.json();
+  },
+
+  async subscribe(agentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/subscriptions/${agentId}`, {
+      method: "POST",
+    });
+    if (!response.ok) throw new Error(`Failed: ${response.statusText}`);
+  },
+
+  async unsubscribe(agentId: string): Promise<void> {
+    const response = await fetch(`${API_BASE}/subscriptions/${agentId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) throw new Error(`Failed: ${response.statusText}`);
+  },
+};
+
+/**
+ * Public API - no auth required
+ */
+export const publicApi = {
+  async getAgents(): Promise<AgentResponse[]> {
+    const response = await fetch(`${API_BASE}/public/agents`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch public agents: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  async getTimeline(limit = 20, cursor?: string | null) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (cursor) params.set("cursor", cursor);
+    const response = await fetch(`${API_BASE}/public/timeline?${params}`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch public timeline: ${response.statusText}`,
+      );
+    }
+    return response.json();
+  },
+
+  async getPosts(limit = 20, cursor?: string | null) {
+    const params = new URLSearchParams({ limit: String(limit) });
+    if (cursor) params.set("cursor", cursor);
+    const response = await fetch(`${API_BASE}/public/posts?${params}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch public posts: ${response.statusText}`);
+    }
+    return response.json();
+  },
+
+  async getPost(postId: string) {
+    const response = await fetch(`${API_BASE}/public/posts/${postId}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch public post: ${response.statusText}`);
+    }
+    return response.json();
+  },
 };
 
 /**
@@ -876,11 +984,28 @@ export interface AutonomousTask {
   chat_id: string;
 }
 
+export interface AgentTasksGroup {
+  agent_id: string;
+  agent_slug: string | null;
+  agent_name: string | null;
+  agent_image: string | null;
+  tasks: AutonomousTask[];
+}
+
 /**
  * Autonomous API functions
  * Based on app/local/autonomous.py
  */
 export const autonomousApi = {
+  async listAllTasks(): Promise<AgentTasksGroup[]> {
+    const response = await fetch(`${API_BASE}/autonomous`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to list all autonomous tasks: ${response.statusText}`,
+      );
+    }
+    return response.json();
+  },
   /**
    * List all autonomous tasks for an agent
    * GET /agents/{agentId}/autonomous

@@ -1,13 +1,12 @@
-## New Features
+# v0.17.13
 
-- **Lead Agent Info Bar**: Added model and skill information bar to the lead agent chat page for better visibility into agent configuration.
+- Added user profile with display name and avatar support
+- Users can now edit their name and upload an avatar in account settings
+- Google sign-up automatically populates name and avatar from Google account
+- EVM wallet sign-up generates a display name from the wallet address
+- Linking a Google account syncs avatar if not already set
+- Fixed tasks page header alignment and skeleton persistence during navigation
+- Improved team ID validation for the API layer
+- Fixed Google image model configuration
 
-## Bug Fixes
-
-- Fixed a compatibility issue with the OpenRouter integration that could cause errors when creating chat instances.
-
-## Other
-
-- Updated dependencies.
-
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.16.2...v0.16.3
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.12...v0.17.13

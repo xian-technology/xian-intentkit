@@ -87,6 +87,7 @@ class TestAgent:
 
 @dataclass
 class FakeDexProvider:
+    address: str = "xian-workflow-test"
     trade_calls: list[dict[str, Any]] = field(default_factory=list)
 
     async def get_state(self, contract: str, variable: str, *keys: str) -> Any:

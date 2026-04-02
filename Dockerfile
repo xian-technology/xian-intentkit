@@ -36,6 +36,14 @@ FROM python:3.13-slim AS runtime
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     libpq5 \
+    libpango-1.0-0 \
+    libpangocairo-1.0-0 \
+    libgdk-pixbuf-2.0-0 \
+    libffi-dev \
+    libcairo2 \
+    fonts-liberation \
+    fonts-noto-cjk \
+    fonts-noto-color-emoji \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory
@@ -48,6 +56,7 @@ COPY --from=builder /app/.venv /app/.venv
 COPY --from=builder /app/intentkit /app/intentkit
 COPY --from=builder /app/app /app/app
 COPY --from=builder /app/scripts /app/scripts
+COPY --from=builder /app/public_agents /app/public_agents
 
 ARG RELEASE=local
 ENV RELEASE=$RELEASE

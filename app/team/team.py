@@ -4,11 +4,13 @@ import json
 import logging
 from datetime import datetime
 
-from epyxid import XID
 from fastapi import APIRouter, Body, Depends, File, Path, Response, UploadFile
 from pydantic import BaseModel, Field, TypeAdapter
+from sqlalchemy import update as sa_update
 
-from intentkit.clients.s3 import store_image_bytes
+from intentkit.clients.moralis import get_wallet_net_worth
+from intentkit.clients.supabase import get_user_identities, parse_linked_providers
+from intentkit.config.db import get_session
 from intentkit.core.team.channel import get_default_channel, set_default_channel
 from intentkit.core.team.membership import (
     check_permission,
@@ -19,9 +21,10 @@ from intentkit.core.team.membership import (
     remove_member,
     update_team,
 )
-from intentkit.models.team import TeamMember, TeamRole
+from intentkit.models.team import TeamMember, TeamPlan, TeamRole, TeamTable
 from intentkit.models.user import User, UserUpdate
 from intentkit.utils.error import IntentKitAPIError
+from intentkit.utils.upload import validate_and_store_image
 
 from app.team.auth import get_current_user, verify_team_admin, verify_team_member
 from app.team.user import invalidate_user_cache
@@ -35,7 +38,7 @@ logger = logging.getLogger(__name__)
 
 class CreateTeamRequest(BaseModel):
     id: str = Field(
-        ..., min_length=2, max_length=60, pattern=r"^[a-z]([a-z0-9-]*[a-z0-9])?$"
+        ..., min_length=3, max_length=20, pattern=r"^[a-z]([a-z0-9-]*[a-z0-9])?$"
     )
     name: str = Field(..., min_length=1, max_length=100)
 
@@ -61,6 +64,18 @@ async def create_team_endpoint(
             message=str(e),
         )
 
+    # Determine and set initial plan based on signup method
+    plan = await _determine_initial_plan(user_id)
+    if plan != TeamPlan.NONE:
+        async with get_session() as db:
+            await db.execute(
+                sa_update(TeamTable)
+                .where(TeamTable.id == team.id)
+                .values(plan=plan.value)
+            )
+            await db.commit()
+        team = team.model_copy(update={"plan": plan})
+
     await UserUpdate.model_validate({"current_team_id": team.id}).patch(user_id)
     await invalidate_user_cache(user_id)
 
@@ -69,6 +84,36 @@ async def create_team_endpoint(
         media_type="application/json",
         status_code=201,
     )
+
+
+async def _determine_initial_plan(user_id: str) -> TeamPlan:
+    """Determine initial team plan based on user's signup method.
+
+    Only the first team a user creates can be upgraded to free.
+    - Google signup → FREE
+    - EVM signup with wallet >$20 → FREE
+    - Otherwise → NONE
+    """
+    # Only the first created team can get a free plan
+    owned_count = await User.count_owned_teams(user_id)
+    if owned_count > 1:
+        return TeamPlan.NONE
+
+    identities = await get_user_identities(user_id)
+    providers = parse_linked_providers(identities)
+
+    if providers.get("google"):
+        return TeamPlan.FREE
+
+    evm_info = providers.get("evm")
+    if evm_info:
+        address = evm_info.get("address")
+        if address:
+            net_worth = await get_wallet_net_worth(address)
+            if net_worth > 20.0:
+                return TeamPlan.FREE
+
+    return TeamPlan.NONE
 
 
 @team_management_router.post("/teams/{team_id}/invite", status_code=201)
@@ -163,27 +208,7 @@ async def upload_team_picture(
     **Returns:**
     * `dict` with `path` - The relative S3 path of the uploaded image
     """
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise IntentKitAPIError(400, "BadRequest", "File must be an image")
-
-    content = await file.read()
-    if len(content) > 5 * 1024 * 1024:
-        raise IntentKitAPIError(400, "BadRequest", "Image must be less than 5MB")
-
-    allowed_extensions = {"jpg", "jpeg", "png", "gif", "webp"}
-    ext = (
-        file.filename.rsplit(".", 1)[-1].lower()
-        if file.filename and "." in file.filename
-        else ""
-    )
-    if ext not in allowed_extensions:
-        ext = "jpg"
-    key = f"avatars/{XID()}.{ext}"
-
-    path = await store_image_bytes(content, key, content_type=file.content_type)
-    if not path:
-        raise IntentKitAPIError(500, "ServerError", "Failed to upload image to storage")
-
+    path = await validate_and_store_image(file, "avatars/")
     return {"path": path}
 
 

@@ -1,39 +1,46 @@
 import logging
 
 from fastapi import APIRouter, Body, Path, Response
-from pydantic import Field
 
 from intentkit.core.agent import get_agent
 from intentkit.core.autonomous import (
     add_autonomous_task,
     delete_autonomous_task,
+    list_all_autonomous_tasks,
     update_autonomous_task,
 )
-from intentkit.models.agent import AgentAutonomous
 from intentkit.models.agent.autonomous import (
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
 )
 from intentkit.utils.error import IntentKitAPIError
 
+from app.common.autonomous import AllTasksAgentGroup, AutonomousResponse
+
 autonomous_router = APIRouter()
 
 logger = logging.getLogger(__name__)
 
 
-class AutonomousResponse(AgentAutonomous):
-    """Response model for autonomous task with additional computed fields."""
-
-    chat_id: str = Field(
-        description="The chat ID associated with this autonomous task",
-    )
-
-    @classmethod
-    def from_model(cls, model: AgentAutonomous) -> "AutonomousResponse":
-        """Convert from AgentAutonomous model to AutonomousResponse."""
-        data = model.model_dump()
-        data["chat_id"] = f"autonomous-{model.id}"
-        return cls.model_validate(data)
+@autonomous_router.get(
+    "/autonomous",
+    tags=["Autonomous"],
+    operation_id="list_all_autonomous",
+    summary="List All Autonomous Tasks",
+)
+async def list_all_autonomous() -> list[AllTasksAgentGroup]:
+    """List all autonomous tasks across all agents, grouped by agent."""
+    groups = await list_all_autonomous_tasks()
+    return [
+        AllTasksAgentGroup(
+            agent_id=g.agent_id,
+            agent_slug=g.agent_slug,
+            agent_name=g.agent_name,
+            agent_image=g.agent_image,
+            tasks=[AutonomousResponse.from_model(t) for t in g.tasks],
+        )
+        for g in groups
+    ]
 
 
 @autonomous_router.get(

@@ -290,7 +290,7 @@ async def check_transaction_balance() -> list[AccountCheckingResult]:
     last_id = ""  # Starting ID for pagination (empty string comes before all valid IDs)
 
     # Time window for events (last 3 days for performance)
-    three_days_ago = datetime.now(UTC) - timedelta(hours=4)
+    recent_cutoff = datetime.now(UTC) - timedelta(hours=4)
 
     while True:
         # Create a new session for each batch to prevent timeouts
@@ -298,7 +298,7 @@ async def check_transaction_balance() -> list[AccountCheckingResult]:
             # Get events in batches using ID-based pagination
             query = (
                 select(CreditEventTable)
-                .where(CreditEventTable.created_at >= three_days_ago)
+                .where(CreditEventTable.created_at >= recent_cutoff)
                 .where(
                     CreditEventTable.id > last_id
                 )  # Key change: ID-based pagination with string comparison
@@ -455,6 +455,7 @@ async def check_orphaned_events() -> list[AccountCheckingResult]:
         FROM credit_events e
         LEFT JOIN credit_transactions t ON e.id = t.event_id
         WHERE t.id IS NULL
+        AND e.total_amount != 0
     """)
 
         result = await session.execute(query)
@@ -633,6 +634,85 @@ async def check_transaction_total_balance() -> list[AccountCheckingResult]:
     return [result]
 
 
+def _format_failed_check_details(
+    check_name: str, failed_results: list[AccountCheckingResult], max_items: int = 5
+) -> str:
+    """Format failure details for a specific check type.
+
+    Args:
+        check_name: The check type name
+        failed_results: List of failed AccountCheckingResult
+        max_items: Maximum number of items to include in details
+
+    Returns:
+        Formatted detail string
+    """
+    if not failed_results:
+        return ""
+
+    lines: list[str] = []
+    shown = failed_results[:max_items]
+
+    if check_name == "transaction_balance":
+        lines.append(f"First {len(shown)} of {len(failed_results)} imbalanced events:")
+        for i, r in enumerate(shown, 1):
+            d = r.details
+            lines.append(
+                f"{i}. Event {d.get('event_id')} ({d.get('event_type')}): "
+                f"credit={d.get('credit_sum')}, debit={d.get('debit_sum')}, "
+                f"diff={d.get('difference')}"
+            )
+
+    elif check_name == "orphaned_transactions":
+        orphaned = shown[0].details.get("orphaned_transactions", [])[:max_items]
+        count = shown[0].details.get("orphaned_count", 0)
+        lines.append(f"First {len(orphaned)} of {count} orphaned transactions:")
+        for i, tx in enumerate(orphaned, 1):
+            lines.append(
+                f"{i}. TX {tx.get('id')} (event={tx.get('event_id')}, "
+                f"type={tx.get('tx_type')}, {tx.get('credit_debit')}, "
+                f"amount={tx.get('change_amount')})"
+            )
+
+    elif check_name == "orphaned_events":
+        orphaned = shown[0].details.get("orphaned_events", [])[:max_items]
+        count = shown[0].details.get("orphaned_count", 0)
+        lines.append(f"First {len(orphaned)} of {count} orphaned events:")
+        for i, ev in enumerate(orphaned, 1):
+            lines.append(
+                f"{i}. Event {ev.get('event_id')} ({ev.get('event_type')}): "
+                f"account={ev.get('account_id')}, amount={ev.get('total_amount')}, "
+                f"type={ev.get('credit_type')}, at={ev.get('created_at')}"
+            )
+
+    elif check_name == "total_credit_balance":
+        d = shown[0].details
+        lines.append(
+            f"Grand total: {d.get('grand_total')} "
+            f"(free={d.get('total_free_credits')}, "
+            f"reward={d.get('total_reward_credits')}, "
+            f"permanent={d.get('total_permanent_credits')})"
+        )
+
+    elif check_name == "transaction_total_balance":
+        d = shown[0].details
+        lines.append(
+            f"Credits: {d.get('total_credits')}, "
+            f"Debits: {d.get('total_debits')}, "
+            f"Difference: {d.get('difference')}"
+        )
+
+    else:
+        # Generic fallback
+        for i, r in enumerate(shown, 1):
+            lines.append(f"{i}. {r.details}")
+
+    if len(failed_results) > max_items:
+        lines.append(f"... and {len(failed_results) - max_items} more")
+
+    return "\n".join(lines)
+
+
 async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
     """Run quick account checking procedures and return results.
 
@@ -678,7 +758,7 @@ async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
         )
 
     # Create a summary message with color based on status
-    total_checks = sum(len(check_results) for check_results in results.values())
+    total_checks = len(results)
 
     if all_passed:
         color = "good"  # Green color
@@ -688,7 +768,7 @@ async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
     else:
         color = "danger"  # Red color
         title = "❌ Quick Account Checking Found Issues"
-        text = f"Quick account checking found {failed_count} issues out of {total_checks} checks."
+        text = f"Quick account checking found {failed_count} {'issue' if failed_count == 1 else 'issues'} out of {total_checks} checks."
         notify = "<!channel> "  # Notify channel for failures
 
     # Create attachments with check details
@@ -702,7 +782,7 @@ async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
         check_status = (
             "✅ Passed"
             if check_failed_count == 0
-            else f"❌ Failed ({check_failed_count} issues)"
+            else f"❌ Failed ({check_failed_count} {'issue' if check_failed_count == 1 else 'issues'})"
         )
 
         attachments[0]["fields"].append(
@@ -712,6 +792,23 @@ async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
                 "short": True,
             }
         )
+
+    # Add failure details for each failed check type
+    if not all_passed:
+        for check_name, check_results in results.items():
+            failed_results = [r for r in check_results if not r.status]
+            if not failed_results:
+                continue
+
+            details_text = _format_failed_check_details(check_name, failed_results)
+            if details_text:
+                attachments.append(
+                    {
+                        "color": "warning",
+                        "title": f"{check_name.replace('_', ' ').title()} Details",
+                        "text": details_text,
+                    }
+                )
 
     # Send the message
     send_alert(
@@ -761,10 +858,8 @@ async def run_slow_checks() -> dict[str, list[AccountCheckingResult]]:
             failed_count,
         )
 
-    # Send summary to Slack
-
     # Create a summary message with color based on status
-    total_checks = sum(len(check_results) for check_results in results.values())
+    total_checks = len(results)
 
     if all_passed:
         color = "good"  # Green color
@@ -774,7 +869,7 @@ async def run_slow_checks() -> dict[str, list[AccountCheckingResult]]:
     else:
         color = "danger"  # Red color
         title = "❌ Slow Account Checking Found Issues"
-        text = f"Slow account checking found {failed_count} issues out of {total_checks} checks."
+        text = f"Slow account checking found {failed_count} {'issue' if failed_count == 1 else 'issues'} out of {total_checks} checks."
         notify = "<!channel> "  # Notify channel for failures
 
     # Create attachments with check details
@@ -788,7 +883,7 @@ async def run_slow_checks() -> dict[str, list[AccountCheckingResult]]:
         check_status = (
             "✅ Passed"
             if check_failed_count == 0
-            else f"❌ Failed ({check_failed_count} issues)"
+            else f"❌ Failed ({check_failed_count} {'issue' if check_failed_count == 1 else 'issues'})"
         )
 
         attachments[0]["fields"].append(

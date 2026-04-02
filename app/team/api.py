@@ -28,7 +28,8 @@ from intentkit.utils.error import (
     request_validation_exception_handler,
 )
 
-from app.local.metadata import metadata_router
+from app.common.health import health_router
+from app.common.metadata import metadata_router
 from app.team import (
     team_agent_router,
     team_autonomous_router,
@@ -36,7 +37,9 @@ from app.team import (
     team_content_router,
     team_lead_router,
     team_management_router,
+    team_public_router,
     team_user_router,
+    team_wechat_router,
 )
 
 logger = logging.getLogger(__name__)
@@ -68,6 +71,15 @@ async def lifespan(app: FastAPI):
     ensure_bucket_exists_and_public()
 
     await ensure_system_user_and_team()
+
+    # Sync public agents from YAML files
+    from intentkit.core.public_agents import (
+        ensure_public_agent_prerequisites,
+        sync_public_agents,
+    )
+
+    await ensure_public_agent_prerequisites()
+    await sync_public_agents()
 
     logger.info("Team API server start")
     yield
@@ -102,6 +114,7 @@ _ = app.add_middleware(
     allow_headers=["*"],
 )
 
+_ = app.include_router(health_router)
 _ = app.include_router(core_router)
 _ = app.include_router(metadata_router)
 _ = app.include_router(team_agent_router)
@@ -111,6 +124,8 @@ _ = app.include_router(team_content_router)
 _ = app.include_router(team_lead_router)
 _ = app.include_router(team_management_router)
 _ = app.include_router(team_user_router)
+_ = app.include_router(team_public_router)
+_ = app.include_router(team_wechat_router)
 
 
 async def ensure_system_user_and_team() -> None:

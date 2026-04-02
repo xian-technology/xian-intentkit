@@ -1,3 +1,214 @@
+# Release v0.17.13
+
+- Added user profile with display name and avatar support
+- Users can now edit their name and upload an avatar in account settings
+- Google sign-up automatically populates name and avatar from Google account
+- EVM wallet sign-up generates a display name from the wallet address
+- Linking a Google account syncs avatar if not already set
+- Fixed tasks page header alignment and skeleton persistence during navigation
+- Improved team ID validation for the API layer
+- Fixed Google image model configuration
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.12...v0.17.13
+
+---
+
+# Release v0.17.12
+
+- Fixed authentication failure caused by missing JWT audience validation
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.11...v0.17.12
+
+---
+
+# Release v0.17.11
+
+- Fixed authentication failure in Team API where login always returned 401 due to JWT algorithm mismatch with modern Supabase signing keys
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.10...v0.17.11
+
+---
+
+# Release v0.17.10
+
+- Fixed false positive alerts in account checking where zero-amount events were incorrectly flagged as orphaned
+- Fixed incorrect check count and singular/plural formatting in account checking alerts
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.9...v0.17.10
+
+---
+
+# Release v0.17.9
+
+- Added startup notification alert when the autonomous service starts, including environment and release information.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.8...v0.17.9
+
+---
+
+# Release v0.17.8
+
+## Improvements
+
+### Telegram Alert Formatting
+- Alert notifications sent to Telegram now display with proper formatting instead of raw data. Messages include bold titles, color-coded status indicators, and structured field layouts.
+- Account checking alerts now include detailed failure information (affected event/transaction IDs, amounts, etc.) directly in the notification, making it easier to diagnose issues without checking logs.
+
+### Documentation
+- Updated documentation links and added a local deployment guide.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.7...v0.17.8
+
+---
+
+# Release v0.17.7
+
+## New Features
+
+### Account Linking & Plan Initialization
+- Users can now link Google and EVM wallet accounts to their profile, with a dedicated account management page showing linked providers.
+- Team plans are automatically initialized when creating a team: Google users receive a Free plan, and EVM wallet users with a portfolio value over $20 also receive a Free plan.
+- Linking a Google account upgrades the user's first team from None to Free plan.
+- Google accounts cannot be unlinked once linked. EVM wallets can only be unlinked if a Google account is already linked.
+
+### Pricing Plan Tiers
+- Added four pricing plan tiers (None, Free, Pro, Max) with configurable quotas, refill rates, and monthly credit issuance for paid plans.
+
+### Team-Based Billing
+- Migrated billing system from user-based to team-based, aligning credit accounts and plan management with team ownership.
+
+## Improvements
+- Improved documentation with PyPI badge and security features in README.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.6...v0.17.7
+
+---
+
+# Release v0.17.5
+
+## Improvements
+
+### Floating Version Footer
+- The version and copyright footer now floats at the bottom-left corner of every page, ensuring it's always visible regardless of which section you're viewing.
+
+### Infrastructure
+- Optimized Docker health check intervals for better resource efficiency.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.4...v0.17.5
+
+---
+
+# Release v0.17.4
+
+## New Features
+
+### Version Display
+- The frontend sidebar now shows the current IntentKit version, making it easier to identify which release is deployed.
+
+### On-Chain Skills Test Coverage
+- Added comprehensive BDD tests for on-chain read-only skills including Aave V3, Aerodrome, ERC-20, ERC-721, Morpho, PancakeSwap, and Uniswap, tested against real RPC endpoints.
+
+## Improvements
+- Fixed and updated broken tests across the test suite to match the current implementation.
+- Resolved a circular import issue in the lead agent module.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.3...v0.17.4
+
+---
+
+# Release v0.17.2
+
+## New Features
+
+### Telegram Channel Verification System
+- Team Telegram channels now require verification before chats can interact with the bot. When a bot is connected, a 4-digit verification code is generated. New private chats or group conversations must send this code to activate. The code automatically regenerates after each successful verification for security.
+
+### Telegram Bot Status Monitoring
+- The Channels page now shows real-time bot listening status (Listening / Connecting / Error), bot username, and a list of all verified chats. Admins can remove verified chats directly from the UI.
+
+### Verification Rate Limiting
+- To prevent brute-force attempts, verification is limited to 3 attempts per chat within a 10-minute window.
+
+## Improvements
+- Minor gitignore improvements.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.1...v0.17.2
+
+---
+
+# Release v0.17.1
+
+## New Features
+
+### Team WeChat Integration
+- **WeChat QR code login** is now available for team deployments. Team admins can connect a WeChat bot to their team's Lead agent through the channel management interface, using the same QR code scan flow available in the local version.
+
+## Improvements
+- Extracted shared code (health endpoint, metadata, chat helpers, autonomous helpers, WeChat helpers) from local API into a common module, reducing duplication between local and team API servers.
+- Synchronized team Docker Compose configuration with latest changes.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.0...v0.17.1
+
+---
+
+# Release v0.17.0
+
+## New Features
+
+### Discover Page & Public Agents
+- **30 curated public agents** are now available out of the box, covering content creation (Blog Writer, Email Copywriter, SEO Optimizer), research (Market Researcher, Academic Researcher, Fact Checker), education (Study Tutor, Language Coach), productivity (Resume Coach, Business Plan Writer, Meeting Minutes), health (Nutrition Planner, Fitness Coach), and more.
+- **Discover page** with three tabs — Agents, Timeline, and Posts — lets users explore all public agents and their content in one place.
+- **Subscribe to public agents** directly from the agent detail page. Subscribed agents appear in your Timeline and Posts, and your agents can call them as sub-agents.
+
+### Permission-Aware Agent Detail Pages
+- Agent detail pages now show or hide Edit, Archive, and task management controls based on ownership. Public agents you don't own display a "Public" badge and a Subscribe button instead.
+
+### Public Feed System
+- Activities and posts from public agents are automatically distributed to a shared public feed, powering the Discover page's Timeline and Posts tabs.
+
+### Smart Agent Sync
+- Public agents are automatically synced from configuration files on startup. If a required AI model is not available in the current deployment, the agent is gracefully archived and automatically restored when the model becomes available.
+
+## Improvements
+- Improved local agent list to only show your own agents, keeping the interface clean.
+- Feed fan-out logic refactored for better maintainability.
+
+## API Changes
+- New public endpoints: `GET /public/agents`, `GET /public/timeline`, `GET /public/posts`, `GET /public/posts/{post_id}`
+- New subscription endpoints: `POST /subscriptions/{agent_id}`, `DELETE /subscriptions/{agent_id}`, `GET /subscriptions`
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.16.6...v0.17.0
+
+---
+
+# Release v0.16.6
+
+## New Features
+
+- **Tasks Overview Page**: Added a new "Tasks" page in the top navigation that displays all autonomous tasks across all agents. Tasks are organized by agent with a two-level hierarchy showing agent name and avatar alongside their configured tasks, making it easy to get a bird's-eye view of all scheduled automation.
+
+## Improvements
+
+- Improved frontend development hot reload support in Docker.
+
+# Release v0.16.5
+
+## Bug Fixes
+
+- Fixed full-width digit rendering in PDF generation when using CJK fonts.
+
+# Release v0.16.4
+
+## New Features
+
+- **PDF Download for Posts**: Posts can now be downloaded as professionally styled PDF files directly from the browser. The backend generates high-quality PDFs with full support for CJK characters and emoji.
+- **Lead as Default Landing Page**: The Lead agent page is now the default home page, making it easier to start conversations immediately.
+
+## Improvements
+
+- Cleaner, more compact timeline and post list design with better readability.
+- Improved navigation structure and page layout consistency.
+
 # Release v0.16.2
 
 ## New Features
