@@ -6,8 +6,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/ilink"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/ilink"
 )
 
 type WechatSender struct {

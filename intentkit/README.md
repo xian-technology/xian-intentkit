@@ -32,18 +32,18 @@ uv build --wheel
 uv build --sdist
 ```
 
-To publish to PyPI:
+Releases are published from pushed Git tags through `release.yml`. The supported
+maintainer flow is:
 
 ```bash
-# Build and publish to PyPI
-uv build
-uv publish
-
-# Publish to Test PyPI
-uv publish --publish-url https://test.pypi.org/legacy/
+git tag vX.Y.Z
+git push origin vX.Y.Z
 ```
 
-> **Note**: This package uses `hatchling` as the build backend with `uv` for dependency management and publishing.
+The workflow builds the package, publishes to PyPI via Trusted Publishing, and
+creates the matching GitHub release automatically.
+
+> **Note**: This package uses `hatchling` as the build backend with `uv` for dependency management.
 
 ## Quick Start
 
@@ -73,11 +73,11 @@ IntentKit comes with 30+ pre-built skills including:
 
 ## Documentation
 
-For detailed documentation, examples, and guides, visit our [documentation](https://github.com/crestal-network/intentkit/tree/main/docs).
+For detailed documentation, examples, and guides, visit our [documentation](https://github.com/xian-technology/xian-intentkit/tree/main/docs).
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](https://github.com/crestal-network/intentkit/blob/main/CONTRIBUTING.md) for details.
+We welcome contributions! Please see our [Contributing Guide](https://github.com/xian-technology/xian-intentkit/blob/main/CONTRIBUTING.md) for details.
 
 ## License
 
@@ -85,4 +85,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-For support, please open an issue on our [GitHub repository](https://github.com/crestal-network/intentkit/issues).
+For support, please open an issue on our [GitHub repository](https://github.com/xian-technology/xian-intentkit/issues).

@@ -1,12 +1,12 @@
----
-title: "Deployment"
+title: "Setup"
 weight: 2
 ---
 
-Choose the setup that matches your environment:
+IntentKit no longer ships prebuilt deployment images. The supported setup path is to run the repository from source.
 
-- Local for quick preview and evaluation on your own machine
-- Docker Compose for remote server deployment
-- Docker Swarm for production-style deployments
+Use the local setup guide to:
 
-All options run the API server, background workers, and the supporting services (Postgres, Redis, and RustFS).
+- clone the repository
+- configure `.env`
+- start the stack from the current checkout
+- iterate locally without depending on published container images

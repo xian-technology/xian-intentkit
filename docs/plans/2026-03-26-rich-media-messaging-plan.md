@@ -37,7 +37,7 @@ Consolidate `integrations/telegram/`, `integrations/wechat/`, `integrations/type
 cd integrations
 ```
 
-Create `integrations/go.mod` with module name `github.com/crestalnetwork/intentkit/integrations`. Merge dependencies from both `telegram/go.mod` and `wechat/go.mod`. Remove all `replace` directives.
+Create `integrations/go.mod` with module name `github.com/xian-technology/xian-intentkit/integrations`. Merge dependencies from both `telegram/go.mod` and `wechat/go.mod`. Remove all `replace` directives.
 
 **Step 2: Move main.go files to cmd/**
 
@@ -48,13 +48,13 @@ mv integrations/wechat/main.go integrations/cmd/wechat/main.go
 ```
 
 Update import paths in both `cmd/*/main.go`:
-- `cmd/telegram/main.go`: Change imports from `github.com/crestalnetwork/intentkit/integrations/telegram/...` — these stay the same since the package paths within the module are unchanged.
+- `cmd/telegram/main.go`: Change imports from `github.com/xian-technology/xian-intentkit/integrations/telegram/...` — these stay the same since the package paths within the module are unchanged.
 - `cmd/wechat/main.go`: Same — imports stay the same.
 
 **Step 3: Update all internal imports**
 
 In every `.go` file under `integrations/telegram/` and `integrations/wechat/`:
-- Remove the `replace` directive import workaround — `types` package import path `github.com/crestalnetwork/intentkit/integrations/types` stays the same but now resolves within the single module.
+- Remove the `replace` directive import workaround — `types` package import path `github.com/xian-technology/xian-intentkit/integrations/types` stays the same but now resolves within the single module.
 
 **Step 4: Delete old module files**
 
@@ -325,7 +325,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 	"github.com/go-resty/resty/v3"
 )
 
@@ -451,7 +451,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 )
 
 // MessageSender is the interface each platform implements.
@@ -808,8 +808,8 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 	"github.com/mymmrac/telego"
 	tu "github.com/mymmrac/telego/telegoutil"
 	"github.com/rs/xid"
@@ -1197,8 +1197,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/ilink"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/ilink"
 )
 
 // WechatSender implements shared.MessageSender for WeChat.
@@ -1407,8 +1407,8 @@ func (m *Manager) handleTeamMessage(entry *botEntry, msg ilink.WeixinMessage, te
 Remember to add the new imports at the top of manager.go:
 ```go
 import (
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 )
 ```
 

@@ -1,4 +1,4 @@
-module github.com/crestalnetwork/intentkit/docs
+module github.com/xian-technology/xian-intentkit/docs
 
 go 1.26
 

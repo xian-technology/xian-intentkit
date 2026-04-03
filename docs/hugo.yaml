@@ -23,14 +23,14 @@ menu:
       params:
         type: search
     - name: "GitHub"
-      url: "https://github.com/crestalnetwork/intentkit"
+      url: "https://github.com/xian-technology/xian-intentkit"
       weight: 2
       params:
         icon: github
 
 author:
-  name: "Crestal Network"
-  email: "hello@crestal.network"
+  name: "xian-technology"
+  email: ""
 
 params:
   theme:

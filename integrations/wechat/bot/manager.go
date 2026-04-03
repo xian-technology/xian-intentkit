@@ -7,12 +7,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/types"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/api"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/config"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/ilink"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/store"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/api"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/config"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/ilink"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/store"
 	"gorm.io/gorm"
 )
 

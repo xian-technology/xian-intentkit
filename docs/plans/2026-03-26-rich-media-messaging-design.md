@@ -22,7 +22,7 @@ Consolidate `integrations/telegram/`, `integrations/wechat/`, and `integrations/
 
 ```
 integrations/
-  go.mod                      # single module: github.com/crestalnetwork/intentkit/integrations
+  go.mod                      # single module: github.com/xian-technology/xian-intentkit/integrations
   go.sum
   cmd/
     telegram/main.go          # telegram entrypoint

@@ -12,9 +12,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/crestalnetwork/intentkit/integrations/telegram/api"
-	"github.com/crestalnetwork/intentkit/integrations/telegram/bot"
-	"github.com/crestalnetwork/intentkit/integrations/telegram/config"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/api"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/bot"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/config"
 )
 
 func main() {

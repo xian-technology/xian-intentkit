@@ -114,7 +114,7 @@ app = FastAPI(
     version=config.release,
     contact={
         "name": "IntentKit Team",
-        "url": "https://github.com/crestalnetwork/intentkit",
+        "url": "https://github.com/xian-technology/xian-intentkit",
     },
     license_info={
         "name": "MIT",

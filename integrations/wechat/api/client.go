@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
 	"resty.dev/v3"
 )
 

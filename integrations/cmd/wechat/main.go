@@ -10,9 +10,9 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	"github.com/crestalnetwork/intentkit/integrations/wechat/api"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/bot"
-	"github.com/crestalnetwork/intentkit/integrations/wechat/config"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/api"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/bot"
+	"github.com/xian-technology/xian-intentkit/integrations/wechat/config"
 )
 
 func main() {

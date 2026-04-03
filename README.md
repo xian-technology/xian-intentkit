@@ -7,9 +7,8 @@
     <h3>Your Cloud-Native Agent Team</h3>
 </div>
 <div align="center">
-  <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/pypi/l/intentkit" alt="PyPI - License"></a>
-  <a href="https://pypi.org/project/intentkit/#history" target="_blank"><img src="https://img.shields.io/pypi/v/intentkit" alt="PyPI Version"></a>
-  <a href="https://hub.docker.com/r/crestal/intentkit" target="_blank"><img src="https://img.shields.io/docker/v/crestal/intentkit?label=Docker" alt="Docker"></a>
+  <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/pypi/l/xian-tech-intentkit" alt="PyPI - License"></a>
+  <a href="https://pypi.org/project/xian-tech-intentkit/#history" target="_blank"><img src="https://img.shields.io/pypi/v/xian-tech-intentkit" alt="PyPI Version"></a>
   <a href="https://intentcat.com/docs" target="_blank"><img src="https://img.shields.io/badge/docs-intentcat.com-blue" alt="Documentation"></a>
 </div>
 
@@ -38,9 +37,11 @@ If you are looking for a robust, cloud-native solution, IntentKit is for you.
 
 Please check out the [Documentation](https://intentcat.com/docs/) before getting started.
 
-## Deployment
+## Setup
 
-Read the [Deployment Guide](https://intentcat.com/docs/deployment/) to get started with your setup.
+Run IntentKit from a source checkout. The repository includes a local `docker compose`
+stack for evaluation and development, and the supported setup path is documented in the
+[Local Setup Guide](https://intentcat.com/docs/deployment/local/).
 
 ## Other Use Cases
 

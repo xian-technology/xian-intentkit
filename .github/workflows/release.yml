@@ -1,53 +1,22 @@
 name: Release
 
 on:
-  release:
-    types: [published]
-  workflow_dispatch:
-    inputs:
-      release_tag:
-        description: Release tag to publish
-        required: true
-        type: string
+  push:
+    tags:
+      - "v*"
 
 concurrency:
-  group: release-${{ github.event.release.tag_name || inputs.release_tag || github.run_id }}
+  group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  release-context:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    outputs:
-      tag: ${{ steps.resolve.outputs.tag }}
-      version: ${{ steps.resolve.outputs.version }}
-    steps:
-      - name: Resolve release metadata
-        id: resolve
-        env:
-          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
-        run: |
-          if [ -z "${RELEASE_TAG}" ]; then
-            echo "Release tag is required" >&2
-            exit 1
-          fi
-          version="${RELEASE_TAG#v}"
-          {
-            echo "tag=${RELEASE_TAG}"
-            echo "version=${version}"
-          } >> "${GITHUB_OUTPUT}"
-
   build:
-    needs: release-context
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
-        with:
-          ref: ${{ needs.release-context.outputs.tag }}
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -60,88 +29,28 @@ jobs:
       - name: Clean build directories
         run: rm -rf build dist
 
-      - name: Update package version for the release build
-        env:
-          RELEASE_VERSION: ${{ needs.release-context.outputs.version }}
-        run: |
-          python - <<'PY'
-          import os
-          import pathlib
-          import re
-
-          version = os.environ["RELEASE_VERSION"]
-
-          replacements = {
-              pathlib.Path("pyproject.toml"): (r'^version = ".*"$', f'version = "{version}"'),
-              pathlib.Path("intentkit/__init__.py"): (
-                  r'^__version__ = ".*"$',
-                  f'__version__ = "{version}"',
-              ),
-          }
-
-          for path, (pattern, replacement) in replacements.items():
-              text = path.read_text()
-              updated, count = re.subn(pattern, replacement, text, count=1, flags=re.MULTILINE)
-              if count != 1:
-                  raise SystemExit(f"Failed to update version in {path}")
-              path.write_text(updated)
-
-          pyproject_path = pathlib.Path("pyproject.toml")
-          pyproject_text = pyproject_path.read_text()
-          pyproject_updates = [
-              (r'^name = ".*"$', 'name = "xian-tech-intentkit"'),
-              (
-                  r'^Homepage = ".*"$',
-                  'Homepage = "https://github.com/xian-technology/xian-intentkit"',
-              ),
-              (
-                  r'^Repository = ".*"$',
-                  'Repository = "https://github.com/xian-technology/xian-intentkit"',
-              ),
-              (
-                  r'^Documentation = ".*"$',
-                  'Documentation = "https://github.com/xian-technology/xian-intentkit/tree/main/docs"',
-              ),
-              (
-                  r'^"Bug Tracker" = ".*"$',
-                  '"Bug Tracker" = "https://github.com/xian-technology/xian-intentkit/issues"',
-              ),
-          ]
-          for pattern, replacement in pyproject_updates:
-              pyproject_text, count = re.subn(
-                  pattern,
-                  replacement,
-                  pyproject_text,
-                  count=1,
-                  flags=re.MULTILINE,
-              )
-              if count != 1:
-                  raise SystemExit(f"Failed to update metadata with pattern {pattern!r}")
-          pyproject_path.write_text(pyproject_text)
-          PY
-
       - name: Build package
         run: python -m build
 
-      - name: Verify built artifacts match the release tag
-        env:
-          RELEASE_VERSION: ${{ needs.release-context.outputs.version }}
+      - name: Verify built artifacts match tag
         run: |
           python - <<'PY'
-          import os
           import pathlib
 
-          version = os.environ["RELEASE_VERSION"]
+          expected = "${{ github.ref_name }}".removeprefix("v")
           files = sorted(path.name for path in pathlib.Path("dist").iterdir() if path.is_file())
           if not files:
               raise SystemExit("No distribution artifacts were built")
 
           expected = [
-              f"xian_tech_intentkit-{version}.tar.gz",
-              f"xian_tech_intentkit-{version}-py3-none-any.whl",
+              f"xian_tech_intentkit-{expected}.tar.gz",
+              f"xian_tech_intentkit-{expected}-py3-none-any.whl",
           ]
           if files != sorted(expected):
-              raise SystemExit(f"Built artifacts do not match {version}: {files}")
+              raise SystemExit(
+                  f"Built artifacts do not match the expected release set for "
+                  f"{expected}: {files}"
+              )
           PY
 
       - name: Upload release artifacts
@@ -154,7 +63,6 @@ jobs:
 
   publish:
     needs:
-      - release-context
       - build
     runs-on: ubuntu-latest
     permissions:
@@ -174,7 +82,6 @@ jobs:
 
   github-release:
     needs:
-      - release-context
       - build
       - publish
     runs-on: ubuntu-latest
@@ -187,10 +94,12 @@ jobs:
           name: release-dist
           path: dist
 
-      - name: Upload release assets to GitHub
+      - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release upload "${{ needs.release-context.outputs.tag }}" dist/* \
+          gh release create "${GITHUB_REF_NAME}" dist/* \
             --repo "${GITHUB_REPOSITORY}" \
-            --clobber
+            --verify-tag \
+            --title "xian-tech-intentkit ${GITHUB_REF_NAME#v}" \
+            --generate-notes

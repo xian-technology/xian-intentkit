@@ -3,7 +3,7 @@
 - Added team usage page API for viewing credit balances and recent activity
 - Updated billing roadmap documentation to reflect completed milestones
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.13...v0.17.14
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.13...v0.17.14
 
 ---
 
@@ -18,7 +18,7 @@
 - Improved team ID validation for the API layer
 - Fixed Google image model configuration
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.12...v0.17.13
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.12...v0.17.13
 
 ---
 
@@ -26,7 +26,7 @@
 
 - Fixed authentication failure caused by missing JWT audience validation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.11...v0.17.12
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.11...v0.17.12
 
 ---
 
@@ -34,7 +34,7 @@
 
 - Fixed authentication failure in Team API where login always returned 401 due to JWT algorithm mismatch with modern Supabase signing keys
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.10...v0.17.11
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.10...v0.17.11
 
 ---
 
@@ -43,7 +43,7 @@
 - Fixed false positive alerts in account checking where zero-amount events were incorrectly flagged as orphaned
 - Fixed incorrect check count and singular/plural formatting in account checking alerts
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.9...v0.17.10
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.9...v0.17.10
 
 ---
 
@@ -51,7 +51,7 @@
 
 - Added startup notification alert when the autonomous service starts, including environment and release information.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.8...v0.17.9
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.8...v0.17.9
 
 ---
 
@@ -66,7 +66,7 @@
 ### Documentation
 - Updated documentation links and added a local deployment guide.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.7...v0.17.8
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.7...v0.17.8
 
 ---
 
@@ -89,7 +89,7 @@
 ## Improvements
 - Improved documentation with PyPI badge and security features in README.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.6...v0.17.7
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.6...v0.17.7
 
 ---
 
@@ -103,7 +103,7 @@
 ### Infrastructure
 - Optimized Docker health check intervals for better resource efficiency.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.4...v0.17.5
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.4...v0.17.5
 
 ---
 
@@ -121,7 +121,7 @@
 - Fixed and updated broken tests across the test suite to match the current implementation.
 - Resolved a circular import issue in the lead agent module.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.3...v0.17.4
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.3...v0.17.4
 
 ---
 
@@ -141,7 +141,7 @@
 ## Improvements
 - Minor gitignore improvements.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.1...v0.17.2
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.1...v0.17.2
 
 ---
 
@@ -156,7 +156,7 @@
 - Extracted shared code (health endpoint, metadata, chat helpers, autonomous helpers, WeChat helpers) from local API into a common module, reducing duplication between local and team API servers.
 - Synchronized team Docker Compose configuration with latest changes.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.0...v0.17.1
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.17.0...v0.17.1
 
 ---
 
@@ -186,7 +186,7 @@
 - New public endpoints: `GET /public/agents`, `GET /public/timeline`, `GET /public/posts`, `GET /public/posts/{post_id}`
 - New subscription endpoints: `POST /subscriptions/{agent_id}`, `DELETE /subscriptions/{agent_id}`, `GET /subscriptions`
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.16.6...v0.17.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.16.6...v0.17.0
 
 ---
 
@@ -277,7 +277,7 @@
 - Fixed lead cache invalidation and context propagation issues.
 - Resolved frontend dependency security alerts.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.15.0...v0.16.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.15.0...v0.16.0
 
 ---
 
@@ -294,7 +294,7 @@
 - Improved team API structure with dedicated routers for core and metadata operations.
 - Enhanced team membership and permission system.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.14.0...v0.15.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.14.0...v0.15.0
 
 ---
 
@@ -316,7 +316,7 @@
 
 - Fixed documentation site domain configuration.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.13.0...v0.14.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.13.0...v0.14.0
 
 ---
 
@@ -345,7 +345,7 @@
 - Fixed chat cancellation handling to cleanly remove dangling messages.
 - Fixed search pricing calculation.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.12.3...v0.13.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.12.3...v0.13.0
 
 ---
 
@@ -365,7 +365,7 @@
 
 - Fixed issues with thinking content not displaying for tool call responses.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.12.2...v0.12.3
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.12.2...v0.12.3
 
 ---
 
@@ -388,7 +388,7 @@
 - Removed unused debug components
 - Updated dependencies
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.12.1...v0.12.2
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.12.1...v0.12.2
 
 ---
 
@@ -409,7 +409,7 @@
 - Fixed issues in the agent management UI
 - Fixed various sub-agent related bugs
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.12.0...v0.12.1
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.12.0...v0.12.1
 
 ---
 
@@ -423,7 +423,7 @@
 
 - Minor code formatting fixes in tests.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.11.27...v0.12.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.11.27...v0.12.0
 
 ---
 
@@ -442,7 +442,7 @@
 - Removed legacy skill pattern mechanism to simplify the codebase.
 - Updated dependencies.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.11.25...v0.11.26
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.11.25...v0.11.26
 
 ---
 
@@ -458,7 +458,7 @@
 - **Removed Developer Fee System**: Removed the developer fee / author revenue sharing mechanism from the credit system, simplifying cost calculations for skill calls.
 - Updated project dependencies.
 
-Full Changelog: [v0.11.23...v0.11.24](https://github.com/crestalnetwork/intentkit/compare/v0.11.23...v0.11.24)
+Full Changelog: [v0.11.23...v0.11.24](https://github.com/xian-technology/xian-intentkit/compare/v0.11.23...v0.11.24)
 
 ---
 
@@ -474,7 +474,7 @@ Full Changelog: [v0.11.23...v0.11.24](https://github.com/crestalnetwork/intentki
 - Reorganized internal agent schema files for better maintainability.
 - Fixed a UI warning related to checkbox inputs in the agent editor.
 
-Full Changelog: [v0.11.22...v0.11.23](https://github.com/crestalnetwork/intentkit/compare/v0.11.22...v0.11.23)
+Full Changelog: [v0.11.22...v0.11.23](https://github.com/xian-technology/xian-intentkit/compare/v0.11.22...v0.11.23)
 
 ---
 
@@ -504,7 +504,7 @@ Full Changelog: [v0.11.22...v0.11.23](https://github.com/crestalnetwork/intentki
 - Fixed a bug in the asynchronous Web3 client to ensure smoother network interactions
 - Added missing configuration files for improved test suite organization
 
-Full Changelog: [v0.11.9...v0.11.10](https://github.com/crestalnetwork/intentkit/compare/v0.11.9...v0.11.10)
+Full Changelog: [v0.11.9...v0.11.10](https://github.com/xian-technology/xian-intentkit/compare/v0.11.9...v0.11.10)
 # Release v0.11.9
 
 ## New Features
@@ -513,7 +513,7 @@ Full Changelog: [v0.11.9...v0.11.10](https://github.com/crestalnetwork/intentkit
 ## Improvements & Bug Fixes
 - Refactored Safe spending limit internals to share a unified implementation
 
-Full Changelog: [v0.11.8...v0.11.9](https://github.com/crestalnetwork/intentkit/compare/v0.11.8...v0.11.9)
+Full Changelog: [v0.11.8...v0.11.9](https://github.com/xian-technology/xian-intentkit/compare/v0.11.8...v0.11.9)
 
 # Release v0.11.8
 
@@ -527,7 +527,7 @@ Full Changelog: [v0.11.8...v0.11.9](https://github.com/crestalnetwork/intentkit/
 - Refactor model provider implementation
 - Fix chat avatar display issues
 
-Full Changelog: [v0.11.7...v0.11.8](https://github.com/crestalnetwork/intentkit/compare/v0.11.7...v0.11.8)
+Full Changelog: [v0.11.7...v0.11.8](https://github.com/xian-technology/xian-intentkit/compare/v0.11.7...v0.11.8)
 
 # Release v0.11.7
 
@@ -546,7 +546,7 @@ Full Changelog: [v0.11.7...v0.11.8](https://github.com/crestalnetwork/intentkit/
 - Added heartbeat monitoring to local Docker Compose setup
 - Updated Go runtime to 1.26
 
-Full Changelog: [v0.11.6...v0.11.7](https://github.com/crestalnetwork/intentkit/compare/v0.11.6...v0.11.7)
+Full Changelog: [v0.11.6...v0.11.7](https://github.com/xian-technology/xian-intentkit/compare/v0.11.6...v0.11.7)
 
 # Release v0.11.6
 
@@ -558,7 +558,7 @@ Full Changelog: [v0.11.6...v0.11.7](https://github.com/crestalnetwork/intentkit/
 
 - Refactored the wallet interface to be fully asynchronous, improving performance and consistency across different wallet providers (Native, CDP, Safe).
 
-Full Changelog: [v0.11.5...v0.11.6](https://github.com/crestalnetwork/intentkit/compare/v0.11.5...v0.11.6)
+Full Changelog: [v0.11.5...v0.11.6](https://github.com/xian-technology/xian-intentkit/compare/v0.11.5...v0.11.6)
 
 # Release v0.11.5
 
@@ -575,7 +575,7 @@ Full Changelog: [v0.11.5...v0.11.6](https://github.com/crestalnetwork/intentkit/
 - Improved exception handling for system skills.
 - Updated project dependencies.
 
-Full Changelog: [v0.11.4...v0.11.5](https://github.com/crestalnetwork/intentkit/compare/v0.11.4...v0.11.5)
+Full Changelog: [v0.11.4...v0.11.5](https://github.com/xian-technology/xian-intentkit/compare/v0.11.4...v0.11.5)
 
 # Release v0.11.4
 
@@ -592,7 +592,7 @@ Full Changelog: [v0.11.4...v0.11.5](https://github.com/crestalnetwork/intentkit/
 
 - Updated project dependencies.
 
-Full Changelog: [v0.11.3...v0.11.4](https://github.com/crestalnetwork/intentkit/compare/v0.11.3...v0.11.4)
+Full Changelog: [v0.11.3...v0.11.4](https://github.com/xian-technology/xian-intentkit/compare/v0.11.3...v0.11.4)
 
 # Release v0.11.3
 
@@ -610,7 +610,7 @@ Full Changelog: [v0.11.3...v0.11.4](https://github.com/crestalnetwork/intentkit/
 - Updated image handling to use relative paths with CDN resolution.
 - Stabilized local API behavior and development reload flows.
 
-Full Changelog: [v0.11.2...v0.11.3](https://github.com/crestalnetwork/intentkit/compare/v0.11.2...v0.11.3)
+Full Changelog: [v0.11.2...v0.11.3](https://github.com/xian-technology/xian-intentkit/compare/v0.11.2...v0.11.3)
 
 # Release v0.11.2
 
@@ -623,7 +623,7 @@ Full Changelog: [v0.11.2...v0.11.3](https://github.com/crestalnetwork/intentkit/
 - Enhanced error logging in autonomous tasks with detailed exception information and stack traces for better debugging.
 - Updated model configurations to reflect the latest available models and their capabilities.
 
-Full Changelog: [v0.11.1...v0.11.2](https://github.com/crestalnetwork/intentkit/compare/v0.11.1...v0.11.2)
+Full Changelog: [v0.11.1...v0.11.2](https://github.com/xian-technology/xian-intentkit/compare/v0.11.1...v0.11.2)
 
 # Release v0.11.1
 
@@ -632,7 +632,7 @@ Full Changelog: [v0.11.1...v0.11.2](https://github.com/crestalnetwork/intentkit/
 - Introduced a unified base class for system skills, reducing code duplication and improving consistency across built-in agent capabilities.
 - Added detection and error reporting for cases where the AI model produces an empty response, preventing silent failures during conversations.
 
-Full Changelog: [v0.11.0...v0.11.1](https://github.com/crestalnetwork/intentkit/compare/v0.11.0...v0.11.1)
+Full Changelog: [v0.11.0...v0.11.1](https://github.com/xian-technology/xian-intentkit/compare/v0.11.0...v0.11.1)
 
 # Release v0.11.0
 
@@ -643,7 +643,7 @@ Full Changelog: [v0.11.0...v0.11.1](https://github.com/crestalnetwork/intentkit/
 - **DevOps**: Improved Docker Compose setup with version-aware builds.
 - **Telegram**: Optimized Telegram integration container setup.
 
-Full Changelog: [v0.10.5...v0.11.0](https://github.com/crestalnetwork/intentkit/compare/v0.10.5...v0.11.0)
+Full Changelog: [v0.10.5...v0.11.0](https://github.com/xian-technology/xian-intentkit/compare/v0.10.5...v0.11.0)
 
 # Release v0.10.5
 
@@ -651,7 +651,7 @@ Full Changelog: [v0.10.5...v0.11.0](https://github.com/crestalnetwork/intentkit/
 
 - **Telegram**: Added Telegram Go image service to docker-compose.
 
-Full Changelog: [v0.10.4...v0.10.5](https://github.com/crestalnetwork/intentkit/compare/v0.10.4...v0.10.5)
+Full Changelog: [v0.10.4...v0.10.5](https://github.com/xian-technology/xian-intentkit/compare/v0.10.4...v0.10.5)
 
 # Release v0.10.4
 
@@ -661,7 +661,7 @@ Full Changelog: [v0.10.4...v0.10.5](https://github.com/crestalnetwork/intentkit/
 - **Engine**: Addressed various engine bugs.
 - **Linting**: Resolved code linting errors.
 
-Full Changelog: [v0.10.3...v0.10.4](https://github.com/crestalnetwork/intentkit/compare/v0.10.3...v0.10.4)
+Full Changelog: [v0.10.3...v0.10.4](https://github.com/xian-technology/xian-intentkit/compare/v0.10.3...v0.10.4)
 
 # Release v0.10.3
 
@@ -677,7 +677,7 @@ Full Changelog: [v0.10.3...v0.10.4](https://github.com/crestalnetwork/intentkit/
 
 - **Dependencies**: Upgraded project dependencies.
 
-Full Changelog: [v0.10.2...v0.10.3](https://github.com/crestalnetwork/intentkit/compare/v0.10.2...v0.10.3)
+Full Changelog: [v0.10.2...v0.10.3](https://github.com/xian-technology/xian-intentkit/compare/v0.10.2...v0.10.3)
 # Release v0.10.2
 
 ## New Features
@@ -694,7 +694,7 @@ Full Changelog: [v0.10.2...v0.10.3](https://github.com/crestalnetwork/intentkit/
 
 - **Native Wallet**: Added tests for native wallet.
 
-Full Changelog: [v0.10.1...v0.10.2](https://github.com/crestalnetwork/intentkit/compare/v0.10.1...v0.10.2)
+Full Changelog: [v0.10.1...v0.10.2](https://github.com/xian-technology/xian-intentkit/compare/v0.10.1...v0.10.2)
 
 # Release v0.10.1
 
@@ -702,7 +702,7 @@ Full Changelog: [v0.10.1...v0.10.2](https://github.com/crestalnetwork/intentkit/
 
 - **LLM Models**: Added new LLM models to configuration
 
-Full Changelog: [v0.10.0...v0.10.1](https://github.com/crestalnetwork/intentkit/compare/v0.10.0...v0.10.1)
+Full Changelog: [v0.10.0...v0.10.1](https://github.com/xian-technology/xian-intentkit/compare/v0.10.0...v0.10.1)
 
 # Release v0.10.0
 
@@ -716,7 +716,7 @@ Full Changelog: [v0.10.0...v0.10.1](https://github.com/crestalnetwork/intentkit/
 - Removed deprecated agent plugin data
 - Removed some unused skills for cleaner codebase
 
-Full Changelog: [v0.9.31...v0.10.0](https://github.com/crestalnetwork/intentkit/compare/v0.9.31...v0.10.0)
+Full Changelog: [v0.9.31...v0.10.0](https://github.com/xian-technology/xian-intentkit/compare/v0.9.31...v0.10.0)
 
 # Release v0.9.31
 
@@ -735,7 +735,7 @@ Full Changelog: [v0.9.31...v0.10.0](https://github.com/crestalnetwork/intentkit/
 
 - **Diagnostic Tool**: Added `scripts/list_agent_assets.py` to list agent assets and wallet addresses for verification.
 
-Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/compare/v0.9.30...v0.9.31)## v0.9.30
+Full Changelog: [v0.9.30...v0.9.31](https://github.com/xian-technology/xian-intentkit/compare/v0.9.30...v0.9.31)## v0.9.30
 
 ### Bug Fixes
 
@@ -746,7 +746,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - **Logging**: Added summary logging to the CDP transfer script to show total agents processed and skipped.
 - **Logging**: Refined log levels to reduce noise; skipped transfers are now logged at DEBUG level.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.29...v0.9.30)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.29...v0.9.30)
 
 ## v0.9.28
 
@@ -766,14 +766,14 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - **Autonomous**: Fixed autonomous agent behaviors
 - **Tests**: Cleaned up data and improved test imports after agent module refactor
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.27...v0.9.28)## v0.9.27
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.27...v0.9.28)## v0.9.27
 
 ### Improvements
 
 - Refactored system skills to manager skills for better organization and scalability
 - Updated skill loading mechanism to support new structure
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.26...v0.9.27)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.26...v0.9.27)
 ## v0.9.26
 
 ### Improvements
@@ -788,7 +788,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed error handling in x402 skills to properly catch and convert IntentKitAPIError to ToolException
 - Fixed code linting issues
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.9.25...v0.9.26
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.9.25...v0.9.26
 
 ## v0.9.25
 
@@ -796,14 +796,14 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Fixed bugs in the credit module
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.9.24...v0.9.25
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.9.24...v0.9.25
 
 ## v0.9.24
 
 ### Improvements
 - **Privy Client**: Enhanced transaction handling by returning receipts and ensuring proper resource cleanup (disconnecting provider) to prevent unclosed session warnings.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.23...v0.9.24)## v0.9.23
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.23...v0.9.24)## v0.9.23
 
 ### New Features
 - **Native Wallet Support**: Added comprehensive native wallet functionality for agent operations, enabling direct blockchain interactions with native tokens
@@ -811,7 +811,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Fixed deployment issues in the Docker image configuration
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.22...v0.9.23)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.22...v0.9.23)
 
 ## v0.9.22
 
@@ -819,7 +819,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Enhanced error diagnostics in the x402 payment module for better troubleshooting
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.21...v0.9.22)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.21...v0.9.22)
 
 ## v0.9.21
 
@@ -829,7 +829,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Improved x402 payment requirement visibility with richer debug context and schema details for faster troubleshooting
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.20...v0.9.21)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.20...v0.9.21)
 
 ## v0.9.20
 
@@ -837,7 +837,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Fixed bugs in the X402 Twitter integration module
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.19...v0.9.20)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.19...v0.9.20)
 
 ## v0.9.19
 
@@ -856,7 +856,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Added test script for X402 check price functionality
 - Added jsonschema as development dependency for schema validation
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.18...v0.9.19)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.18...v0.9.19)
 
 ## v0.9.18
 
@@ -864,7 +864,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Unified alert system with support for both Telegram and Slack notifications
 - Improved alert handling mechanism across all application components
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.17...v0.9.18)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.17...v0.9.18)
 
 ## v0.9.17
 
@@ -874,14 +874,14 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Bug Fixes
 - Fixed minor issues in the budget and credit modules.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.16...v0.9.17)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.16...v0.9.17)
 
 ## v0.9.16
 
 ### New Features
 - Make Redis a required dependency: The project now strictly requires Redis for operation. Configuration and application entry points have been updated to enforce this.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.15...v0.9.16)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.15...v0.9.16)
 
 ## v0.9.15
 
@@ -892,7 +892,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Enhanced test coverage for credit calculations.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.14...v0.9.15)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.14...v0.9.15)
 
 ## v0.9.14
 
@@ -912,7 +912,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed prompt generation issues in Twitter-related functionality
 - Resolved missing context parameter issues in debug endpoints
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.13...v0.9.14)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.13...v0.9.14)
 
 ## v0.9.13
 
@@ -921,7 +921,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Add redundant agent info to activity and post models to optimize data retrieval and display.
 - Name and picture are now stored directly in AgentActivity and AgentPost records.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.12...v0.9.13)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.12...v0.9.13)
 
 ## v0.9.12
 
@@ -930,7 +930,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Made `payer` field in `X402Order` optional to support older records and cases where payer information is missing.
 - Added unit tests for ensuring `X402Order` creation works without `payer` field.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.11...v0.9.12)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.11...v0.9.12)
 
 ## v0.9.10
 
@@ -939,7 +939,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Updated release operations guide for better clarity and correct sequencing.
 - Synchronized dependency lock file with correct package version.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.9...v0.9.10)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.9...v0.9.10)
 
 ## v0.9.9
 
@@ -947,7 +947,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Fixed `pytest` failures in `tests/models/test_x402_order.py` by adding the missing required `payer` field to `X402OrderCreate` and `X402OrderTable` instantiations.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.8...v0.9.9)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.8...v0.9.9)
 
 ## v0.9.8
 
@@ -956,14 +956,14 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed `x402_order` table missing `payer` field, ensuring proper record of who paid.
 - Fixed `pay_to` field being "unknown" in some x402 payment scenarios by capturing it from payment requirements.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.7...v0.9.8)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.7...v0.9.8)
 
 ## v0.9.6
 
 ### Features
 - Added `force_admin_execution` parameter to Safe transfer methods (both ERC20 and gasless) to allow bypassing the Allowance Module when necessary.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.5...v0.9.6)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.5...v0.9.6)
 
 ## v0.9.5
 
@@ -971,7 +971,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed Privy error handling to correctly check for transaction failures using the correct error attribute.
 - Added `scripts/deploy_allowance.py` for Allowance Module deployment on non-canonical chains.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.4...v0.9.5)
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.4...v0.9.5)
 
 ## v0.9.4
 
@@ -979,21 +979,21 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Fixed missing canonical allowance module on Base Sepolia by deploying and configuring a custom one.
 
-[Full Changelog](https://github.com/crestalnetwork/intentkit/compare/v0.9.3...v0.9.4)## v0.9.3
+[Full Changelog](https://github.com/xian-technology/xian-intentkit/compare/v0.9.3...v0.9.4)## v0.9.3
 
 ### Bug Fixes
 - Fixed a critical security bypass in `transfer_erc20_gasless` where omitting the `privy_wallet_address` would cause the transfer to fall back to a direct owner transfer, bypassing the Allowance Module limits.
 - Added `get_wallet` method to `PrivyClient` to fetch wallet details by ID.
 - Automatically fetch wallet address in `transfer_erc20_gasless` if not provided, ensuring the secure Allowance Module path is always attempted first when enabled.
 
-[Diff v0.9.2...v0.9.3](https://github.com/crestalnetwork/intentkit/compare/v0.9.2...v0.9.3)
+[Diff v0.9.2...v0.9.3](https://github.com/xian-technology/xian-intentkit/compare/v0.9.2...v0.9.3)
 
 ## v0.9.2
 
 ### Bug Fixes
 - Fixed an issue in the Privy client where transfers would fail if the Allowance Module was not enabled or used incorrectly. Now implements a smart fallback to use the Allowance Module if available, and direct owner transfer otherwise.
 
-[Diff v0.9.1...v0.9.2](https://github.com/crestalnetwork/intentkit/compare/v0.9.1...v0.9.2)
+[Diff v0.9.1...v0.9.2](https://github.com/xian-technology/xian-intentkit/compare/v0.9.1...v0.9.2)
 
 ## v0.9.1
 
@@ -1002,7 +1002,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed timeline avatar display issue.
 - Fixed safe limit bug.
 
-[Diff](https://github.com/crestalnetwork/intentkit/compare/v0.9.0...v0.9.1)## v0.9.0
+[Diff](https://github.com/xian-technology/xian-intentkit/compare/v0.9.0...v0.9.1)## v0.9.0
 
 **Bug Fixes:**
 - Fixed JSON serialization errors in autonomous task storage that occurred when saving datetime fields to the database
@@ -1011,7 +1011,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Enhanced autonomous task model with proper datetime serialization for better database compatibility
 - Added comprehensive test coverage for autonomous task JSON serialization
 
-**Full Changelog:** https://github.com/crestalnetwork/intentkit/compare/v0.8.74...v0.9.0
+**Full Changelog:** https://github.com/xian-technology/xian-intentkit/compare/v0.8.74...v0.9.0
 
 ## v0.8.74
 
@@ -1023,7 +1023,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Enhanced autonomous task management with automatic status updates based on scheduler events
 - Improved task state consistency across the autonomous system
 
-**Full Changelog:** https://github.com/crestalnetwork/intentkit/compare/v0.8.73...v0.8.74
+**Full Changelog:** https://github.com/xian-technology/xian-intentkit/compare/v0.8.73...v0.8.74
 
 # v0.8.73
 
@@ -1036,7 +1036,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Enhanced x402 order tracking with description field to capture payment details from the x402 protocol
 - Improved amount display formatting to show human-readable decimal values based on asset type (USDC, USDT, DAI, WETH, etc.)
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.72...v0.8.73
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.72...v0.8.73
 
 ## v0.8.72
 
@@ -1053,7 +1053,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 
 - Fixed bugs in QuickNode network alias normalization module
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.71...v0.8.72
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.71...v0.8.72
 
 ## v0.8.71
 
@@ -1071,7 +1071,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Added copilot instruction file
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.70...v0.8.71
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.70...v0.8.71
 
 ## v0.8.70
 
@@ -1081,7 +1081,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Updated dependencies (async-lru, boto3, botocore)
 - Code formatting improvements
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.69...v0.8.70
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.69...v0.8.70
 
 ## v0.8.69
 
@@ -1090,21 +1090,21 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed x402 payment signing with Safe wallets by adding support for specifying the address that holds funds
 - Fixed chat memory clearing functionality to directly delete from database tables
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.68...v0.8.69
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.68...v0.8.69
 
 ## v0.8.66
 
 ### Bug Fixes
 - Fixed JSON serialization issues in x402 payment signing with Privy wallets
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.65...v0.8.66
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.65...v0.8.66
 
 ## v0.8.65
 
 ### Bug Fixes
 - Fixed x402 payment signing issues in Privy wallet integration
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.64...v0.8.65
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.64...v0.8.65
 
 ## v0.8.64
 
@@ -1112,7 +1112,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed autonomous task selection to correctly filter out archived agents
 - Improved test stability by removing unused variables in Safe deployment tests
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.63...v0.8.64
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.63...v0.8.64
 
 ## v0.8.63
 
@@ -1121,7 +1121,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Improved reliability of module configuration after Safe deployment
 - Added local nonce tracking to prevent race conditions with distributed RPC nodes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.62...v0.8.63
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.62...v0.8.63
 
 ## v0.8.62
 
@@ -1133,7 +1133,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Added `_wait_for_safe_deployed` function with retry logic to handle RPC node synchronization delays
 - Improved reliability of Safe wallet deployments in distributed RPC environments
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.61...v0.8.62
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.61...v0.8.62
 
 ## v0.8.61
 
@@ -1141,7 +1141,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Bug Fixes
 - Fixed Safe wallet deployment on L2 networks (Base, Base Sepolia, BNB Chain) by using correct L2 singleton addresses
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.60...v0.8.61
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.60...v0.8.61
 
 ## v0.8.60
 
@@ -1151,7 +1151,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Improved transaction reliability for multi-worker deployments
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.59...v0.8.60
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.59...v0.8.60
 
 ## v0.8.59 - 2026-01-14
 
@@ -1166,7 +1166,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Authorization signature support now applies to all Privy RPC calls including send_transaction
 - Enhanced logging with key fingerprints for easier debugging of authorization issues
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.58...v0.8.59
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.58...v0.8.59
 
 
 ## v0.8.58 - 2026-01-14
@@ -1178,7 +1178,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Fixed spending limit synchronization when agent configuration changes, ensuring allowance module settings are properly updated
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.57...v0.8.58
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.57...v0.8.58
 
 ## v0.8.57 - 2026-01-14
 
@@ -1196,7 +1196,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Improved Safe deployment event parsing for better address extraction
 - Updated test suite to match new agent model structure
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.56...v0.8.57
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.56...v0.8.57
 
 ## v0.8.56 - 2026-01-13
 
@@ -1204,7 +1204,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Added gasless transaction support for Safe wallets using the relayer pattern
 - Safe wallet owners can now execute transactions without holding ETH for gas
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.55...v0.8.56
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.55...v0.8.56
 
 ## v0.8.55 - 2026-01-13
 
@@ -1215,7 +1215,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Improvements
 - Refactored agent list endpoint to use dynamic template rendering
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.54...v0.8.55
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.54...v0.8.55
 
 ## v0.8.54 - 2026-01-13
 
@@ -1223,7 +1223,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Added BNB Smart Chain (bnb-mainnet) support across all chain configurations
 - Pass Privy user ID as wallet owner when creating agent wallet
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.53...v0.8.54
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.53...v0.8.54
 
 ## v0.8.53 - 2026-01-13
 
@@ -1233,21 +1233,21 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Dependencies
 - Updated dependencies via uv sync
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.52...v0.8.53
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.52...v0.8.53
 
 ## v0.8.52 - 2026-01-13
 
 ### Bug Fixes
 - Fixed Privy signMessage method to use correct API method and encoding parameters
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.51...v0.8.52
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.51...v0.8.52
 
 ## v0.8.51 - 2026-01-13
 
 ### Bug Fixes
 - Fixed Safe nonce retrieval to handle empty '0x' response from RPC, defaulting to 0 instead of failing
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.50...v0.8.51
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.50...v0.8.51
 
 ## v0.8.50 - 2026-01-13
 
@@ -1255,7 +1255,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed Safe CREATE2 address calculation bug - the initializer should only be included in the salt calculation, not in the deploymentData
 - Added address validation to ensure predicted address matches actual deployed address
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.49...v0.8.50
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.49...v0.8.50
 
 ## v0.8.49 - 2026-01-12
 
@@ -1263,7 +1263,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed wallet processing when creating agents from templates
 - Wallet initialization now properly triggered during template-based agent creation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.48...v0.8.49
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.48...v0.8.49
 
 ## v0.8.48 - 2026-01-12
 
@@ -1285,7 +1285,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Fixed UI bugs in agent update and skill state mapping
 - Patched Pydantic upgrade compatibility issues
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.47...v0.8.48
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.47...v0.8.48
 
 ## v0.8.45 - 2026-01-08
 
@@ -1294,7 +1294,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
   - `x402_check_price`: Check the price of a paid API resource before making a payment
   - `x402_pay`: Perform paid HTTP requests with configurable maximum payment limits
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.44...v0.8.45
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.44...v0.8.45
 
 ## v0.8.44 - 2026-01-07
 
@@ -1313,7 +1313,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Clarified documentation on folder structure and local development setup
 - Updated operational guides for release management
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.43...v0.8.44
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.43...v0.8.44
 
 ## v0.8.43 - 2026-01-07
 
@@ -1340,7 +1340,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Dependencies
 - Upgrade dependencies via uv sync
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.42...v0.8.43
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.42...v0.8.43
 
 ## v0.8.42 - 2025-01-31
 
@@ -1354,7 +1354,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Added descriptive field documentation for all parameters in agent creation from template
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.41...v0.8.42
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.41...v0.8.42
 
 ## v0.8.41 - 2025-01-29
 
@@ -1370,7 +1370,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Bug Fixes
 - **Template Agent Creation**: Fixed field mapping issues in template-based agent creation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.40...v0.8.41
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.40...v0.8.41
 
 ## v0.8.40 - 2025-01-31
 
@@ -1386,7 +1386,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Improved error handling for empty responses, system errors, and exceptions
 - Added proper logging for error activity creation failures
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.39...v0.8.40
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.39...v0.8.40
 
 ## v0.8.39 - 2026-01-04
 
@@ -1409,7 +1409,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Upgraded dependencies to latest versions
 - Fixed various lint issues
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.38...v0.8.39
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.38...v0.8.39
 
 ## v0.8.38 - 2025-12-31
 
@@ -1431,7 +1431,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Refactored `send_slack_message()` to have no return value for cleaner async handling
 - Enhanced code organization and maintainability
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.37...v0.8.38
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.37...v0.8.38
 
 ## v0.8.37 - 2025-12-27
 
@@ -1448,7 +1448,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Chores
 - Dependency updates
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.36...v0.8.37
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.36...v0.8.37
 
 ## v0.8.35 - 2025-11-30
 
@@ -1480,7 +1480,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Add AGENTS.md with detailed frontend architecture guidelines
 - Update CHANGELOG.md with recent changes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.34...v0.8.35
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.34...v0.8.35
 
 ## v0.8.34 - 2025-11-28
 
@@ -1518,7 +1518,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Remove x402 server
 - Upgrade dependencies (uv sync --upgrade)
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.33...v0.8.34
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.33...v0.8.34
 
 ## v0.8.33 - 2025-11-14
 
@@ -1529,7 +1529,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Updated changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.32...v0.8.33
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.32...v0.8.33
 
 ## v0.8.32 - 2025-11-14
 
@@ -1541,7 +1541,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Changed x402_price default from None to 0.01 in AgentPublicInfo model
 - Updated changelog with v0.8.31 release notes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.31...v0.8.32
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.31...v0.8.32
 
 ## v0.8.31 - 2025-11-14
 
@@ -1558,7 +1558,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Ruff: 0.14.4 → 0.14.5
 - Slack SDK: 3.37.0 → 3.38.0
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.30...v0.8.31
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.30...v0.8.31
 
 ## v0.8.30 - 2025-11-13
 
@@ -1568,7 +1568,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Updated changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.29...v0.8.30
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.29...v0.8.30
 
 ## v0.8.29 - 2025-11-13
 
@@ -1578,7 +1578,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Updated changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.28...v0.8.29
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.28...v0.8.29
 
 ## v0.8.28 - 2025-11-13
 
@@ -1586,7 +1586,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - chore: release prep
 - chore: uv sync
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.27...v0.8.28
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.27...v0.8.28
 
 ## v0.8.24 - 2025-11-11
 
@@ -1599,7 +1599,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Documentation
 - Updated CHANGELOG.md with recent changes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.23...v0.8.24
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.23...v0.8.24
 
 ## v0.8.23 - 2025-11-10
 
@@ -1621,7 +1621,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Dependency updates and optimizations
 - Improved code organization and structure
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.22...v0.8.23
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.22...v0.8.23
 
 ## v0.8.22
 
@@ -1645,7 +1645,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Multiple model updates for better structure and organization
 - Updated build workflows and configuration files
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.21...v0.8.22
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.21...v0.8.22
 
 ## v0.8.21
 
@@ -1654,7 +1654,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Updated related tests in tests/core/test_agent_asset.py
 - Updated changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.20...v0.8.21
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.20...v0.8.21
 ## v0.8.20
 
 ### Features
@@ -1665,7 +1665,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Enhanced GPT avatar generator with better error handling and functionality
 - Updated changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.19...v0.8.20
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.19...v0.8.20
 
 ## v0.8.19
 
@@ -1678,7 +1678,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - All linting checks passed
 - No breaking changes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.18...v0.8.19
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.18...v0.8.19
 
 ## v0.8.18
 
@@ -1691,7 +1691,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Updated `intentkit/skills/openai/gpt_image_mini_generator.py`
 - Added changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.17...v0.8.18
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.17...v0.8.18
 
 ## v0.8.17
 
@@ -1706,7 +1706,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 - Updated dependency lock file (uv.lock)
 - Code formatting and linting improvements
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.16...v0.8.17
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.16...v0.8.17
 
 ## v0.8.16
 
@@ -1720,7 +1720,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Other Changes
 - **doc: changelog** - Updated changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.15...v0.8.16
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.15...v0.8.16
 
 ## v0.8.15
 
@@ -1735,7 +1735,7 @@ Full Changelog: [v0.9.30...v0.9.31](https://github.com/crestalnetwork/intentkit/
 ### Summary
 This release focuses on improving the x402 integration with better error handling and message processing capabilities.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.14...v0.8.15
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.14...v0.8.15
 
 ## v0.8.14
 
@@ -1757,7 +1757,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Better model configurations for enhanced functionality
 - Cleaner codebase with removal of temporary files
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.13...v0.8.14
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.13...v0.8.14
 
 ## v0.8.13
 
@@ -1775,14 +1775,14 @@ This release focuses on improving the x402 integration with better error handlin
 - **X402 Input Schema**: Corrected x402 input schema validation
 - **API Routing**: Fixed x402 path commenting in API routing
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.12...v0.8.13
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.12...v0.8.13
 
 ## v0.8.12
 
 ### Features
 - **feat: update asset scheduler and llm model configuration** - Enhanced asset scheduler functionality, improved core scheduler operations, and updated LLM model configuration in CSV file
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.11...v0.8.12
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.11...v0.8.12
 
 ## v0.8.11
 
@@ -1808,14 +1808,14 @@ This release focuses on improving the x402 integration with better error handlin
 - Code formatting updates across 32+ skill module files
 - Enhanced development workflow with automated quality assurance tools
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.10...v0.8.11
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.10...v0.8.11
 
 ## v0.8.10
 
 ### Bug Fixes
 - **fix: improve token address handling in wallet prompt** - Updated the prompt message in `_build_wallet_section` to provide clearer guidance on when to use `token_search` skill. Improved the logic for token address resolution by specifying that the skill should be used when only a token symbol is provided and the address cannot be found in context. Added network_id reference to make the prompt more specific about which chain to search on.
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.9...v0.8.10
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.9...v0.8.10
 
 ## v0.8.9
 
@@ -1825,14 +1825,14 @@ This release focuses on improving the x402 integration with better error handlin
 ### Bug Fixes
 - **fix: update dockerfile configuration** - Updated Dockerfile configuration for better deployment
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.8...v0.8.9
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.8...v0.8.9
 
 ## v0.8.7
 
 ### Bug Fixes
 - **Telegram Event Loop Handling**: Improved stability and reliability of the telegram integration by fixing event loop handling
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.6...v0.8.7
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.6...v0.8.7
 
 ## v0.8.6
 
@@ -1843,7 +1843,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Maintenance
 - **Dependencies**: Upgraded dependencies with uv sync --upgrade
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.5...v0.8.6
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.5...v0.8.6
 
 ## v0.8.5
 
@@ -1855,7 +1855,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - **Changelog Updates**: Updated changelog documentation for better release tracking
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.4...v0.8.5
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.4...v0.8.5
 
 ## v0.8.4
 
@@ -1868,7 +1868,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Build Workflow**: Enhanced build workflow configuration
 - **Documentation**: Updated LLM documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.3...v0.8.4
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.3...v0.8.4
 
 ## v0.8.3
 
@@ -1879,7 +1879,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Dependencies**: Updated project dependencies and changelog to reflect recent changes
 - **Code quality**: Applied linting and formatting improvements
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.2...v0.8.3
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.2...v0.8.3
 
 ## v0.8.2
 
@@ -1890,7 +1890,7 @@ This release focuses on improving the x402 integration with better error handlin
   - Word boundary matching: Uses regex with  to ensure exact word matching
   - Trim support: Messages are trimmed before matching to handle whitespace
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.1...v0.8.2
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.1...v0.8.2
 
 ## v0.8.1
 
@@ -1901,7 +1901,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Updated uv.lock dependencies for improved compatibility and security
 - Updated project configuration and dependencies
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.8.0...v0.8.1
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.8.0...v0.8.1
 
 ## v0.8.0
 
@@ -1942,7 +1942,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Agent Documentation**: Added agents documentation symlink
 - **Changelog**: Updated changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.7.4...v0.8.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.7.4...v0.8.0
 
 ## v0.7.4
 
@@ -1952,7 +1952,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Bug Fixes
 - **Code Quality**: Lint improvements
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.7.3...v0.7.4
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.7.3...v0.7.4
 
 ## v0.7.3
 
@@ -1973,7 +1973,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Improved message routing and bot configuration
 - Better reaction handling and emoji formatting
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.7.2...v0.7.3
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.7.2...v0.7.3
 
 ## v0.7.2
 
@@ -1985,7 +1985,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Fixed credit system precision and transaction type handling
 - Added SQL script for fixing existing transaction types
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.7.1...v0.7.2
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.7.1...v0.7.2
 
 ## v0.7.1
 
@@ -2003,7 +2003,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - Update changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.7.0...v0.7.1
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.7.0...v0.7.1
 
 ## v0.7.0
 
@@ -2026,14 +2026,14 @@ This release focuses on improving the x402 integration with better error handlin
 - **Documentation**: Update LLM rules and guidelines
 - **Migration Scripts**: Fix and improve migration scripts
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.26...v0.7.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.26...v0.7.0
 
 ## v0.6.26
 
 ### Refactoring
 - Move asyncio import to top of file in account_checking.py
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.25...v0.6.26
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.25...v0.6.26
 
 ## v0.6.25
 
@@ -2047,7 +2047,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - Updated changelog for v0.6.23 release
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.23...v0.6.25
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.23...v0.6.25
 
 ## v0.6.23
 
@@ -2057,7 +2057,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - Update changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.22...v0.6.23
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.22...v0.6.23
 
 ## v0.6.22
 
@@ -2078,7 +2078,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Dependencies
 - Updated project dependencies for better compatibility and security
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.21...v0.6.22
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.21...v0.6.22
 
 ## v0.6.21
 
@@ -2096,7 +2096,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - Updated changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.20...v0.6.21
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.20...v0.6.21
 
 ## v0.6.20
 
@@ -2118,7 +2118,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Code quality improvements and lint fixes
 - Minor performance optimizations
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.19...v0.6.20
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.19...v0.6.20
 
 ## v0.6.19
 
@@ -2138,7 +2138,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Improved network compatibility for CDP mainnet operations
 - Better transaction fee tracking and reporting
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.18...v0.6.19
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.18...v0.6.19
 
 ## v0.6.18
 
@@ -2150,7 +2150,7 @@ This release focuses on improving the x402 integration with better error handlin
     - **State Management**: Persistent game sessions with deck tracking and rate limiting
     - **Gaming APIs**: Integration with Deck of Cards API and QRandom quantum random number generator
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.17...v0.6.18
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.17...v0.6.18
 
 ## v0.6.17
 
@@ -2169,7 +2169,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### 📚 Documentation
 - Update changelog documentation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.16...v0.6.17
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.16...v0.6.17
 
 ## v0.6.16
 
@@ -2181,7 +2181,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Enhanced agent generator to include CDP wallet provider as default
 - Improved agent configuration consistency
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.15...v0.6.16
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.15...v0.6.16
 
 ## v0.6.15
 
@@ -2192,7 +2192,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### 🐛 Bug Fixes
 - Improved error handling and logging in generator validation
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.14...v0.6.15
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.14...v0.6.15
 
 ## v0.6.14
 
@@ -2202,7 +2202,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### 🔧 Changes
 - Fixed readonly wallet address handling
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.13...v0.6.14
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.13...v0.6.14
 
 ## v0.6.13
 
@@ -2222,7 +2222,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Error Messages**: Improved error message handling
 
 ### Diff
-[Compare v0.6.12...v0.6.13](https://github.com/crestalnetwork/intentkit/compare/v0.6.12...v0.6.13)
+[Compare v0.6.12...v0.6.13](https://github.com/xian-technology/xian-intentkit/compare/v0.6.12...v0.6.13)
 
 ## v0.6.12
 
@@ -2231,7 +2231,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Documentation**: Updated changelog entries
 
 ### Diff
-[Compare v0.6.11...v0.6.12](https://github.com/crestalnetwork/intentkit/compare/v0.6.11...v0.6.12)
+[Compare v0.6.11...v0.6.12](https://github.com/xian-technology/xian-intentkit/compare/v0.6.11...v0.6.12)
 
 ## v0.6.11
 
@@ -2259,7 +2259,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Enhanced documentation for new features
 
 ### Diff
-[Compare v0.6.10...v0.6.11](https://github.com/crestalnetwork/intentkit/compare/v0.6.10...v0.6.11)
+[Compare v0.6.10...v0.6.11](https://github.com/xian-technology/xian-intentkit/compare/v0.6.10...v0.6.11)
 
 ## v0.6.10
 
@@ -2297,7 +2297,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Changelog**: Updated changelog documentation with comprehensive release notes
 
 ### Diff
-[Compare v0.6.9...v0.6.10](https://github.com/crestalnetwork/intentkit/compare/v0.6.9...v0.6.10)
+[Compare v0.6.9...v0.6.10](https://github.com/xian-technology/xian-intentkit/compare/v0.6.9...v0.6.10)
 
 ## v0.6.9
 
@@ -2308,7 +2308,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Sentry Configuration**: Updated sentry configuration settings
 
 ### Diff
-[Compare v0.6.8...v0.6.9](https://github.com/crestalnetwork/intentkit/compare/v0.6.8...v0.6.9)
+[Compare v0.6.8...v0.6.9](https://github.com/xian-technology/xian-intentkit/compare/v0.6.8...v0.6.9)
 
 ## v0.6.8
 
@@ -2333,7 +2333,7 @@ This release focuses on improving the x402 integration with better error handlin
 - **Documentation**: Various changelog and documentation updates
 
 ### Diff
-[Compare v0.6.7...v0.6.8](https://github.com/crestalnetwork/intentkit/compare/v0.6.7...v0.6.8)
+[Compare v0.6.7...v0.6.8](https://github.com/xian-technology/xian-intentkit/compare/v0.6.7...v0.6.8)
 
 ## v0.6.7
 
@@ -2355,7 +2355,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### 📚 Documentation
 - Updated changelog with comprehensive release notes
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.6...v0.6.7
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.6...v0.6.7
 
 ## v0.6.6
 
@@ -2366,7 +2366,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Modified twitter timeline skill to filter out reply tweets by default
 - This change improves the signal-to-noise ratio when fetching timeline data
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.5...v0.6.6
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.5...v0.6.6
 
 ## v0.6.5
 
@@ -2391,7 +2391,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Updated changelog entries
 - Better agent documentation structure
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.4...v0.6.5
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.4...v0.6.5
 
 ## v0.6.4
 
@@ -2406,7 +2406,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### 🚀 Improvements
 - **Stability**: Enhanced system stability with dependency rollbacks
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.3...v0.6.4
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.3...v0.6.4
 
 ## v0.6.3
 
@@ -2423,7 +2423,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Updated package versions
 - Documentation changelog updates
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.2...v0.6.3
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.2...v0.6.3
 
 ## v0.6.2
 
@@ -2451,7 +2451,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Various code refactoring for better code quality
 - Fixed typos in chat message handling
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.1...v0.6.2
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.1...v0.6.2
 
 ## v0.6.1
 
@@ -2466,7 +2466,7 @@ This release focuses on improving the x402 integration with better error handlin
 ### Documentation
 - doc: changelog
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.6.0...v0.6.1
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.6.0...v0.6.1
 
 ## v0.6.0
 
@@ -2508,7 +2508,7 @@ This release focuses on improving the x402 integration with better error handlin
 - Review skill implementations if using custom skills
 - Check agent creation code for any compatibility issues
 
-**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.5.9...v0.6.0
+**Full Changelog**: https://github.com/xian-technology/xian-intentkit/compare/v0.5.9...v0.6.0
 
 ## v0.5.0
 

@@ -9,9 +9,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/crestalnetwork/intentkit/integrations/telegram/api"
-	"github.com/crestalnetwork/intentkit/integrations/telegram/config"
-	"github.com/crestalnetwork/intentkit/integrations/telegram/store"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/api"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/config"
+	"github.com/xian-technology/xian-intentkit/integrations/telegram/store"
 	"github.com/mymmrac/telego"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
@@ -599,4 +599,3 @@ func getChatName(chat telego.Chat) string {
 	}
 	return name
 }
-

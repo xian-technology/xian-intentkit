@@ -6,7 +6,7 @@ cascade:
     open: true
 ---
 
-IntentKit is an open-source, self-hosted cloud agent cluster that manages a collaborative team of AI agents. Unlike local-first agent frameworks that demand expensive hardware and broad system permissions, IntentKit takes a cloud-native approach — lightweight, always-on, and production-ready out of the box.
+IntentKit is an open-source, self-hosted cloud agent cluster that manages a collaborative team of AI agents. Unlike local-first agent frameworks that demand expensive hardware and broad system permissions, IntentKit takes a cloud-native approach while remaining straightforward to run from a source checkout.
 
 ## What IntentKit Does
 
@@ -17,7 +17,7 @@ IntentKit lets you create, configure, and run multiple AI agents that work toget
 - Call other agents for collaboration
 - Use an extensible skill system to perform actions — from web searches to on-chain transactions
 
-All of this runs as a set of standard containerized services (API server, autonomous runner, and scheduler) backed by PostgreSQL, Redis, and S3-compatible storage.
+All of this runs as a set of application services (API server, autonomous runner, and scheduler) backed by PostgreSQL, Redis, and S3-compatible storage.
 
 ## Key Features
 
@@ -30,8 +30,8 @@ All of this runs as a set of standard containerized services (API server, autono
 
 ## About This Documentation
 
-This documentation covers how to deploy and use IntentKit. You will find:
+This documentation covers how to set up and use IntentKit. You will find:
 
-- **Deployment** — Step-by-step guides for running IntentKit with Docker Compose (development) or Docker Swarm (production).
+- **Local Setup** — Run the source checkout with the repository's supported setup path.
 - **Usage** — How to create agents, configure skills, and interact with the system.
-- **Others** — Architecture details, API reference, LLM configuration, and contribution guidelines.
+- **Advanced Topics** — Configuration, integrations, and implementation details.

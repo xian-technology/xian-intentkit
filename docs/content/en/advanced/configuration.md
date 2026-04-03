@@ -9,4 +9,4 @@ The application can be configured using environment variables or AWS Secrets Man
 - `OPENAI_API_KEY`: OpenAI API key for agent interactions (Required)
 - `CDP_*`: Coinbase Developer Platform configuration (Optional)
 
-See [example.env](../example.env) for all available options.
+See [`.env.example`](https://github.com/xian-technology/xian-intentkit/blob/main/.env.example) for all available options.

@@ -1,9 +1,9 @@
 [project]
 name = "xian-tech-intentkit"
-version = "0.0.0"
+version = "0.17.19"
 description = "Intent-based AI Agent Platform - Core Package"
 authors = [
-    { name = "Ruihua", email = "ruihua@crestal.network" },
+    { name = "xian-technology" },
 ]
 requires-python = "==3.13.*"
 readme = "intentkit/README.md"

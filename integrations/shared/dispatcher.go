@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 )
 
 type MessageSender interface {

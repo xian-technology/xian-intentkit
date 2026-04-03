@@ -34,7 +34,7 @@ Import and index document content directly to the vector database. Perfect for a
 
 **Agent Prompt:**
 ```
-Please scrape and index this URL: https://docs.crestal.network/introduction
+Please scrape and index this URL: https://intentcat.com/docs/
 ```
 
 **Expected Response:**
@@ -46,14 +46,14 @@ Please scrape and index this URL: https://docs.crestal.network/introduction
 
 **Agent Prompt:**
 ```
-Scrape and index https://docs.crestal.network/introduction with chunk size 500 and overlap 100.
+Scrape and index https://intentcat.com/docs/ with chunk size 500 and overlap 100.
 ```
 
 ### 3. Complete Website Indexing
 
 **Agent Prompt:**
 ```
-Index the entire documentation site at https://docs.crestal.network using its sitemap. Include only pages with '/docs/' and '/guides/' in the URL, exclude '/admin/' pages, and limit to 50 URLs.
+Index the entire documentation site at https://intentcat.com using its sitemap. Include only pages with '/docs/' in the URL, exclude '/admin/' pages, and limit to 50 URLs.
 ```
 
 ### 4. Document Content Import
@@ -91,7 +91,7 @@ Based on the indexed documentation, what are the main items in it?
 curl -X POST "http://localhost:8000/agents/your-agent-id/chat" \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Scrape and index https://docs.crestal.network/introduction"
+    "message": "Scrape and index https://intentcat.com/docs/"
   }'
 
 # Test querying via API  

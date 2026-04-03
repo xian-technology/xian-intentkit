@@ -59,11 +59,7 @@ sh import.sh YOUR_AGENT_ID
 ### 3. Run Discord Service
 
 ```bash
-# Using uv
 uv run python -m app.discord
-
-# Or with Docker
-docker-compose up intent-discord
 ```
 
 ### 4. Invite Bot to Server
@@ -109,7 +105,7 @@ https://discord.com/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=68608&
 ### Environment Variables
 
 ```bash
-# .env or example.env
+# .env or .env.example
 DISCORD_NEW_AGENT_POLL_INTERVAL=30  # How often to sync agents (seconds)
 ```
 
@@ -241,28 +237,6 @@ curl -X PATCH "http://localhost:8000/agents/AGENT_ID" \
   -d '{"discord_entrypoint_enabled": false}'
 ```
 
-## Production Deployment
-
-### Docker Compose
-
-```yaml
-intent-discord:
-  image: crestal/intentkit:latest
-  depends_on:
-    db:
-      condition: service_healthy
-  environment:
-    - ENV=${ENV:-local}
-    - DB_USERNAME=${POSTGRES_USER:-postgres}
-    - DB_PASSWORD=${POSTGRES_PASSWORD:-postgres}
-    - DB_HOST=db
-    - DB_PORT=5432
-    - DB_NAME=${POSTGRES_DB:-intentkit}
-    - OPENAI_API_KEY=${OPENAI_API_KEY}
-    - DISCORD_NEW_AGENT_POLL_INTERVAL=30
-  command: python -m app.discord
-```
-
 ### Resource Considerations
 
 - **Memory**: ~10-20MB per bot
@@ -279,10 +253,6 @@ Check logs for:
 - Reconnection events
 
 ```bash
-# View logs
-docker-compose logs -f intent-discord
-
-# Or if running directly
 uv run python -m app.discord
 ```
 

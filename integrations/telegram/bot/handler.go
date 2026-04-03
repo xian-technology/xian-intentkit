@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/crestalnetwork/intentkit/integrations/shared"
-	"github.com/crestalnetwork/intentkit/integrations/types"
+	"github.com/xian-technology/xian-intentkit/integrations/shared"
+	"github.com/xian-technology/xian-intentkit/integrations/types"
 	"github.com/mymmrac/telego"
 	tu "github.com/mymmrac/telego/telegoutil"
 	"github.com/redis/go-redis/v9"

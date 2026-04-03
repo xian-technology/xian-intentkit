@@ -3,9 +3,9 @@
 A powerful platform for building AI agents with blockchain and cryptocurrency capabilities.
 """
 
-__version__ = "0.10.3"
-__author__ = "Ruihua"
-__email__ = "ruihua@crestal.network"
+__version__ = "0.17.19"
+__author__ = "xian-technology"
+__email__ = ""
 
 # Core components
 # Abstract base classes
