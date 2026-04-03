@@ -3186,7 +3186,7 @@ requires-dist = [{ name = "pynacl", specifier = ">=1.5.0,<2" }]
 
 [[package]]
 name = "xian-tech-intentkit"
-version = "0.17.19"
+version = "0.17.20"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
