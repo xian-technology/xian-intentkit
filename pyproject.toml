@@ -84,10 +84,10 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/crestalnetwork/intentkit"
-Repository = "https://github.com/crestalnetwork/intentkit"
-Documentation = "https://github.com/crestalnetwork/intentkit/tree/main/docs"
-"Bug Tracker" = "https://github.com/crestalnetwork/intentkit/issues"
+Homepage = "https://github.com/xian-technology/xian-intentkit"
+Repository = "https://github.com/xian-technology/xian-intentkit"
+Documentation = "https://github.com/xian-technology/xian-intentkit/tree/main/docs"
+"Bug Tracker" = "https://github.com/xian-technology/xian-intentkit/issues"
 
 [dependency-groups]
 # App runtime dependencies (app/ folder needs these beyond intentkit)
