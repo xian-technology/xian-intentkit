@@ -140,7 +140,7 @@ jobs:
               f"xian_tech_intentkit-{version}.tar.gz",
               f"xian_tech_intentkit-{version}-py3-none-any.whl",
           ]
-          if files != expected:
+          if files != sorted(expected):
               raise SystemExit(f"Built artifacts do not match {version}: {files}")
           PY
 
