@@ -164,7 +164,7 @@ jobs:
       url: https://pypi.org/p/xian-tech-intentkit
     steps:
       - name: Download release artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: release-dist
           path: dist
@@ -182,7 +182,7 @@ jobs:
       contents: write
     steps:
       - name: Download release artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
         with:
           name: release-dist
           path: dist
