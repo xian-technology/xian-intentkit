@@ -3,11 +3,25 @@ name: Build Docker Image and Deploy
 on:
   release:
     types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Release tag to build and publish
+        required: true
+        type: string
+      release_type:
+        description: Release channel for extra Docker tags
+        required: true
+        type: choice
+        default: released
+        options:
+          - released
+          - prereleased
 
 jobs:
   publish-package:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
+    if: ${{ github.event_name == 'release' || github.event_name == 'workflow_dispatch' }}
     permissions:
       contents: read
       id-token: write
@@ -26,7 +40,7 @@ jobs:
       - name: Extract version from tag
         id: version
         run: |
-          VERSION=${{ github.event.release.tag_name }}
+          VERSION=${{ github.event.release.tag_name || inputs.release_tag }}
           VERSION_NO_V=${VERSION#v}
           echo "version=${VERSION_NO_V}" >> $GITHUB_OUTPUT
 
@@ -71,8 +85,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=dev,enable=${{ github.event_name == 'release' && github.event.action == 'prereleased' }}
-            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'released' }}
+            type=raw,value=dev,enable=${{ (github.event_name == 'release' && github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prereleased') }}
+            type=raw,value=prod,enable=${{ (github.event_name == 'release' && !github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'released') }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5
@@ -94,7 +108,7 @@ jobs:
         uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
         with:
           build-args: |
-            RELEASE=${{ github.event.release.tag_name || 'latest'}}
+            RELEASE=${{ github.event.release.tag_name || inputs.release_tag || 'latest' }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -112,8 +126,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=dev,enable=${{ github.event_name == 'release' && github.event.action == 'prereleased' }}
-            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'released' }}
+            type=raw,value=dev,enable=${{ (github.event_name == 'release' && github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prereleased') }}
+            type=raw,value=prod,enable=${{ (github.event_name == 'release' && !github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'released') }}
 
       - name: Build and push Frontend
         uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
@@ -121,7 +135,7 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           build-args: |
-            NEXT_PUBLIC_VERSION=${{ github.event.release.tag_name || 'dev' }}
+            NEXT_PUBLIC_VERSION=${{ github.event.release.tag_name || inputs.release_tag || 'dev' }}
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
@@ -139,8 +153,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=dev,enable=${{ github.event_name == 'release' && github.event.action == 'prereleased' }}
-            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'released' }}
+            type=raw,value=dev,enable=${{ (github.event_name == 'release' && github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prereleased') }}
+            type=raw,value=prod,enable=${{ (github.event_name == 'release' && !github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'released') }}
 
       - name: Build and push Telegram Integration
         uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
@@ -148,7 +162,7 @@ jobs:
           context: ./integrations
           file: ./integrations/Dockerfile.telegram
           build-args: |
-            RELEASE=${{ github.event.release.tag_name || 'latest'}}
+            RELEASE=${{ github.event.release.tag_name || inputs.release_tag || 'latest' }}
           push: true
           tags: ${{ steps.meta-telegram.outputs.tags }}
           labels: ${{ steps.meta-telegram.outputs.labels }}
@@ -166,8 +180,8 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=dev,enable=${{ github.event_name == 'release' && github.event.action == 'prereleased' }}
-            type=raw,value=prod,enable=${{ github.event_name == 'release' && github.event.action == 'released' }}
+            type=raw,value=dev,enable=${{ (github.event_name == 'release' && github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prereleased') }}
+            type=raw,value=prod,enable=${{ (github.event_name == 'release' && !github.event.release.prerelease) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'released') }}
 
       - name: Build and push WeChat Integration
         uses: docker/build-push-action@48aba3b46d1b1fec4febb7c5d0c644b249a11355
@@ -175,7 +189,7 @@ jobs:
           context: ./integrations
           file: ./integrations/Dockerfile.wechat
           build-args: |
-            RELEASE=${{ github.event.release.tag_name || 'latest'}}
+            RELEASE=${{ github.event.release.tag_name || inputs.release_tag || 'latest' }}
           push: true
           tags: ${{ steps.meta-wechat.outputs.tags }}
           labels: ${{ steps.meta-wechat.outputs.labels }}
