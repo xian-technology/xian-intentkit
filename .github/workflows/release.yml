@@ -112,8 +112,8 @@ jobs:
               raise SystemExit("No distribution artifacts were built")
 
           expected = [
-              f"intentkit-{version}.tar.gz",
-              f"intentkit-{version}-py3-none-any.whl",
+              f"xian_tech_intentkit-{version}.tar.gz",
+              f"xian_tech_intentkit-{version}-py3-none-any.whl",
           ]
           if files != expected:
               raise SystemExit(f"Built artifacts do not match {version}: {files}")
@@ -136,7 +136,7 @@ jobs:
       id-token: write
     environment:
       name: pypi
-      url: https://pypi.org/p/intentkit
+      url: https://pypi.org/p/xian-tech-intentkit
     steps:
       - name: Download release artifacts
         uses: actions/download-artifact@v6

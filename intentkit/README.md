@@ -14,7 +14,7 @@ IntentKit is a powerful intent-based AI agent platform that enables developers t
 ## Installation
 
 ```bash
-pip install intentkit
+pip install xian-tech-intentkit
 ```
 
 ## Development

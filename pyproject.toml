@@ -1,5 +1,5 @@
 [project]
-name = "intentkit"
+name = "xian-tech-intentkit"
 version = "0.0.0"
 description = "Intent-based AI Agent Platform - Core Package"
 authors = [
