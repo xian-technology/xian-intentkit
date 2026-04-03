@@ -2,7 +2,7 @@ name: Build Docker Image and Deploy
 
 on:
   release:
-    types: [prereleased, released]
+    types: [published]
 
 jobs:
   publish-package:
