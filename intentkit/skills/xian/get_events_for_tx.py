@@ -11,7 +11,9 @@ from intentkit.skills.xian.utils import format_structured
 
 
 class XianGetEventsForTxInput(BaseModel):
-    tx_hash: str = Field(..., description="Transaction hash to inspect for indexed events.")
+    tx_hash: str = Field(
+        ..., description="Transaction hash to inspect for indexed events."
+    )
 
 
 class XianGetEventsForTx(XianBaseTool):

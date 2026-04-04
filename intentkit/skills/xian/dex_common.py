@@ -150,9 +150,9 @@ async def quote_trade(
         fee_multiplier = Decimal(10000 - context.fee_bps) / Decimal(10000)
         if fee_multiplier <= 0:
             raise ToolException("Invalid trade fee configuration for this pair.")
-        estimated_input = (
-            context.reserve_sell * amount
-        ) / ((context.reserve_buy - amount) * fee_multiplier)
+        estimated_input = (context.reserve_sell * amount) / (
+            (context.reserve_buy - amount) * fee_multiplier
+        )
         # Match con_dex_helper.buy(...) behavior: slippage expansion plus tiny buffer.
         max_input = estimated_input * slippage_factor * Decimal("1.0001")
         return DexQuote(

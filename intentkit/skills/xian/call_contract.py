@@ -36,10 +36,7 @@ class XianCallContract(XianBaseTool):
         try:
             provider = await self.get_xian_provider()
             result = await provider.call_contract(contract, function, kwargs or {})
-            return (
-                f"Result from {contract}.{function}:\n"
-                f"{format_structured(result)}"
-            )
+            return f"Result from {contract}.{function}:\n{format_structured(result)}"
         except ToolException:
             raise
         except Exception as exc:

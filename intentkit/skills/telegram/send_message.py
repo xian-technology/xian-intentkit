@@ -70,16 +70,9 @@ class TelegramSendMessage(TelegramBaseTool):
             raise ToolException(f"Error sending Telegram message: {exc}") from exc
 
         if not isinstance(body, dict) or not body.get("ok", False):
-            raise ToolException(
-                f"Telegram sendMessage failed with response: {body!r}"
-            )
+            raise ToolException(f"Telegram sendMessage failed with response: {body!r}")
         result = body.get("result") or {}
         message_id = result.get("message_id")
-        return (
-            f"Telegram message sent successfully to {target_chat_id}."
-            + (
-                f" Message ID: {message_id}."
-                if message_id is not None
-                else ""
-            )
+        return f"Telegram message sent successfully to {target_chat_id}." + (
+            f" Message ID: {message_id}." if message_id is not None else ""
         )
