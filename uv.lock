@@ -3377,7 +3377,7 @@ dev = [
 
 [[package]]
 name = "xian-tech-py"
-version = "0.4.9"
+version = "0.4.10"
 source = { editable = "../xian-py" }
 dependencies = [
     { name = "aiohttp" },

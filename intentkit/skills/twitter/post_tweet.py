@@ -55,10 +55,7 @@ class TwitterPostTweet(TwitterBaseTool):
                         },
                     )
                     response.raise_for_status()
-                return (
-                    "Tweet captured by mock webhook. "
-                    f"Response: {response.text}"
-                )
+                return f"Tweet captured by mock webhook. Response: {response.text}"
 
             twitter = get_twitter_client(
                 agent_id=context.agent_id,

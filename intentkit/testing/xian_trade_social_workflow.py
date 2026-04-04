@@ -189,7 +189,9 @@ class MockSocialSink:
     async def _handle_twitter(self, request: web.Request) -> web.Response:
         payload = await request.json()
         self.twitter_payloads.append(payload)
-        return web.json_response({"ok": True, "id": f"tweet-{len(self.twitter_payloads)}"})
+        return web.json_response(
+            {"ok": True, "id": f"tweet-{len(self.twitter_payloads)}"}
+        )
 
 
 def _extract_event_context(prompt: str) -> dict[str, Any]:
@@ -258,7 +260,9 @@ async def _workflow_runner(
         await twitter_tool._arun(text=message)
 
 
-async def run_trade_social_workflow_test(*, threshold_pct: float = 3.0) -> dict[str, Any]:
+async def run_trade_social_workflow_test(
+    *, threshold_pct: float = 3.0
+) -> dict[str, Any]:
     redis = FakeRedis()
     service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
     provider = FakeDexProvider()

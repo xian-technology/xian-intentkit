@@ -13,12 +13,17 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up Python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v6
       with:
-        python-version-file: "pyproject.toml"
+        python-version: "3.13"
 
     - name: Install uv
       uses: astral-sh/setup-uv@v5
+
+    - name: Fetch local source overrides
+      run: |
+        git clone --depth 1 https://github.com/xian-technology/xian-py.git ../xian-py
+        git clone --depth 1 https://github.com/xian-technology/xian-contracting.git ../xian-contracting
         
     - name: Install dependencies
       run: |
@@ -30,4 +35,4 @@ jobs:
 
     - name: Unit Tests
       run: |
-        uv run pytest -m "not bdd"
+        uv run pytest --ignore=tests/bdd

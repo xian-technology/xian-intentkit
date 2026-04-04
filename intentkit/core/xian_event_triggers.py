@@ -266,7 +266,7 @@ class XianEventTriggerService:
             task.cancel()
         await asyncio.gather(
             *self._network_listeners.values(),
-            *( [self._periodic_task] if self._periodic_task else [] ),
+            *([self._periodic_task] if self._periodic_task else []),
             *self._task_drains.values(),
             return_exceptions=True,
         )
@@ -292,8 +292,7 @@ class XianEventTriggerService:
             for autonomous in agent.autonomous:
                 if (
                     not autonomous.enabled
-                    or autonomous.trigger_type
-                    != AgentAutonomousTriggerType.XIAN_EVENT
+                    or autonomous.trigger_type != AgentAutonomousTriggerType.XIAN_EVENT
                     or autonomous.xian_event is None
                 ):
                     continue
@@ -361,7 +360,9 @@ class XianEventTriggerService:
         contract: str,
         event: str,
     ) -> None:
-        for runtime_id in self._tasks_by_source.get((network_id, contract, event), set()):
+        for runtime_id in self._tasks_by_source.get(
+            (network_id, contract, event), set()
+        ):
             await self.request_sync(runtime_id)
 
     async def request_sync_all(self) -> None:
@@ -444,7 +445,9 @@ class XianEventTriggerService:
         latest_matching: IndexedEvent | None = None
         for item in latest:
             if event_matches_trigger(task, item):
-                if latest_matching is None or (item.id or 0) > (latest_matching.id or 0):
+                if latest_matching is None or (item.id or 0) > (
+                    latest_matching.id or 0
+                ):
                     latest_matching = item
         if latest_matching is not None:
             await self._update_dex_baseline_from_event(task, latest_matching)
@@ -605,7 +608,13 @@ class XianEventTriggerService:
         try:
             baseline_data = json.loads(str(baseline_raw))
             baseline_price = Decimal(str(baseline_data["price"]))
-        except (KeyError, TypeError, ValueError, InvalidOperation, json.JSONDecodeError):
+        except (
+            KeyError,
+            TypeError,
+            ValueError,
+            InvalidOperation,
+            json.JSONDecodeError,
+        ):
             await self._update_dex_baseline_from_event(task, event)
             return None
 
