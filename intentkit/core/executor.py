@@ -138,19 +138,79 @@ async def build_executor(
     if custom_skills and len(custom_skills) > 0:
         private_tools.extend(custom_skills)
 
-    # add system skills
-    from intentkit.core.system_skills import get_system_skills
+    # add system skills — each conditionally based on agent config and provider
+    from intentkit.core.system_skills import (
+        call_agent,
+        create_activity,
+        create_post,
+        current_time,
+        get_post,
+        read_webpage_cloudflare,
+        read_webpage_zai,
+        recent_activities,
+        recent_posts,
+        search_web_zai,
+        update_memory,
+    )
 
-    system_skills = get_system_skills(agent)
-    # Skip read_webpage for providers that have native search capabilities
     model_provider = llm_model.info.provider
-    if model_provider in (LLMProvider.GOOGLE, LLMProvider.OPENAI):
-        system_skills = [s for s in system_skills if s.name != "read_webpage"]
-    # current_time is available to all users (public), other system skills are private-only
-    for skill in system_skills:
-        if skill.name == "current_time":
-            tools.append(skill)
-    private_tools.extend(system_skills)
+
+    # current_time: public skill, but OpenRouter uses server tool instead
+    if model_provider == LLMProvider.OPENROUTER:
+        datetime_tool: dict[str, Any] = {"type": "openrouter:datetime"}
+        tools.append(datetime_tool)
+        private_tools.append(datetime_tool)
+    else:
+        tools.append(current_time)
+        private_tools.append(current_time)
+
+    # call_agent: only when sub-agents are configured
+    if agent.sub_agents:
+        private_tools.append(call_agent)
+
+    # activity skills: enabled by default
+    if agent.is_activity_enabled:
+        private_tools.append(create_activity)
+        private_tools.append(recent_activities)
+
+    # post skills: enabled by default
+    if agent.is_post_enabled:
+        private_tools.append(create_post)
+        private_tools.append(get_post)
+        private_tools.append(recent_posts)
+
+    # long-term memory
+    if agent.enable_long_term_memory:
+        private_tools.append(update_memory)
+
+    # search-related tools based on provider
+    extra_llm_params: dict[str, Any] = {}
+    if agent.search_internet:
+        if model_provider == LLMProvider.OPENAI:
+            search_tools: list[dict[str, Any]] = [{"type": "web_search"}]
+            tools.extend(search_tools)
+            private_tools.extend(search_tools)
+        elif model_provider == LLMProvider.XAI:
+            search_tools = [{"type": "web_search"}, {"type": "x_search"}]
+            tools.extend(search_tools)
+            private_tools.extend(search_tools)
+        elif model_provider == LLMProvider.OPENROUTER:
+            search_tool: dict[str, Any] = {"type": "openrouter:web_search"}
+            tools.append(search_tool)
+            private_tools.append(search_tool)
+            # OpenRouter doesn't have native webpage reading
+            if config.cloudflare_account_id and config.cloudflare_api_token:
+                tools.append(read_webpage_cloudflare)
+                private_tools.append(read_webpage_cloudflare)
+        elif model_provider == LLMProvider.GOOGLE:
+            search_tools = [{"google_search": {}}, {"url_context": {}}]
+            tools.extend(search_tools)
+            private_tools.extend(search_tools)
+        else:
+            # For other providers (e.g. compatible), use zai skills if configured
+            if config.zai_plan_api_key:
+                tools.extend([search_web_zai, read_webpage_zai])
+                private_tools.extend([search_web_zai, read_webpage_zai])
 
     # filter out unavailable skills
     tools = [t for t in tools if not isinstance(t, IntentKitSkill) or t.available()]
@@ -159,18 +219,13 @@ async def build_executor(
     ]
 
     # filter the duplicate tools
-    tools = list(
-        {
-            (tool.name if isinstance(tool, BaseTool) else str(tool.get("name"))): tool
-            for tool in tools
-        }.values()
-    )
-    private_tools = list(
-        {
-            (tool.name if isinstance(tool, BaseTool) else str(tool.get("name"))): tool
-            for tool in private_tools
-        }.values()
-    )
+    def _tool_key(tool: BaseTool | dict[str, Any]) -> str:
+        if isinstance(tool, BaseTool):
+            return tool.name
+        return str(tool.get("name") or tool.get("type") or tool)
+
+    tools = list({_tool_key(t): t for t in tools}.values())
+    private_tools = list({_tool_key(t): t for t in private_tools}.values())
 
     for tool in private_tools:
         logger.info(
@@ -182,7 +237,7 @@ async def build_executor(
     base_model = await llm_model.create_instance()
 
     middleware: list[Any] = [
-        ToolBindingMiddleware(llm_model, tools, private_tools),
+        ToolBindingMiddleware(llm_model, tools, private_tools, extra_llm_params),
         DynamicPromptMiddleware(agent, agent_data),
         StepTrackingMiddleware(),
         ToolRetryMiddleware(),

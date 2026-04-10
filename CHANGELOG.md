@@ -1,3 +1,184 @@
+# Release v0.17.30
+
+## New Features
+
+- Activity push notifications on WeChat and Telegram now include a direct link back to the original post, so recipients can jump straight to the source.
+
+## Improvements
+
+- The team lead agent has a clearer role definition and a refined decision-making workflow, helping it more reliably choose between answering directly, delegating to a built-in helper, calling an existing team agent, or creating a new specialized agent when needed.
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.29...v0.17.30
+
+---
+
+# Release v0.17.29
+
+## Improvements
+
+- Free credit refills now happen once a day instead of every hour, giving a clearer daily allowance experience
+- Upgraded the web frontend to the latest Tailwind CSS v4 for a smoother styling pipeline
+
+## Bug Fixes
+
+- Fixed an issue where updates to the team lead agent's long-term memory would not take effect until the next cache refresh
+- Fixed a compatibility issue with older team plan data that could cause errors when loading teams
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.28...v0.17.29
+
+---
+
+# Release v0.17.28
+
+## New Features
+
+- Added a read-only default channel conversation view in the lead agent sidebar, allowing you to browse message history from the default channel (Telegram/WeChat) directly in the web UI
+
+## Improvements
+
+- Improved channel-related API path naming for consistency
+- Added proper WeChat type support in the frontend
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.27...v0.17.28
+
+---
+
+# Release v0.17.27
+
+## New Features
+
+- Redesigned the team lead agent with a coordinator and sub-agents architecture, improving task delegation and specialization
+- Added self-updater and content-manager sub-agents, allowing the team lead to better manage its own configuration and content workflows
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.26...v0.17.27
+
+---
+
+# Release v0.17.26
+
+## New Features
+
+- Added ACP (Agentic Commerce Protocol) skill category, enabling agents to browse and purchase products from ACP merchants using x402 crypto payments
+
+## Bug Fixes
+
+- Fixed form validation errors for optional fields with enum constraints in the agent creation form
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.25...v0.17.26
+
+---
+
+# Release v0.17.25
+
+## Improvements
+
+- Avatar images are now automatically normalized to a consistent 512x512 square format before uploading to CDN, ensuring uniform display across all platforms
+- Updated various dependencies to latest versions
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.24...v0.17.25
+
+---
+
+# Release v0.17.24
+
+## Bug Fixes
+
+- Fixed an issue where the team reward script failed to run due to uninitialized database connection
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.23...v0.17.24
+
+---
+
+# Release v0.17.23
+
+## New Features
+
+- OpenRouter agents now use native server tools for web search and datetime, improving response speed and accuracy
+- Added new LLM models: Gemma 4 31B, upgraded GLM 5.1, and updated Qwen 3.6 Plus pricing
+
+## Improvements
+
+- Streamlined internal system skills architecture for cleaner conditional loading
+- Various bug fixes and test improvements
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.22...v0.17.23
+
+---
+
+# Release v0.17.22
+
+## New Features
+
+- Users can now leave a team from their account page (owners must transfer ownership first)
+- Teams now include plan details (name, description, seats, pricing) for frontend display
+- Team list API now returns each user's role for proper role-based UI
+
+## Improvements
+
+- Improved EVM wallet detection for users who registered via Web3 login
+- Simplified account linking by removing unused EVM wallet unlink flow
+- Enriched team members API with additional user details
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.21...v0.17.22
+
+---
+
+# Release v0.17.21
+
+- Added push channel system for team lead agents, enabling proactive notifications
+- Adjusted account monitoring schedule for improved efficiency
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.20...v0.17.21
+
+---
+
+# Release v0.17.20
+
+- Migrated Z.AI web search and webpage reader from REST API to MCP protocol for improved reliability
+- Optimized LLM model selection priority for better performance and cost efficiency
+- Fixed an issue with team plan handling that could cause errors in certain configurations
+- Improved conversation cancellation reliability
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.19...v0.17.20
+
+---
+
+# Release v0.17.19
+
+- Provider-based web search: web search and webpage reading now use provider-native capabilities (OpenAI, xAI, Google, OpenRouter), with Z.AI fallback for other providers
+- Added Z.AI web search and webpage reader skills
+- Consolidated search logic from middleware into executor for cleaner architecture
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.18...v0.17.19
+
+---
+
+# Release v0.17.18
+
+- Added Qwen 3.6 Plus model support
+- Fixed an issue where team agent chat was not working due to missing billing context
+- Updated dependencies
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.17...v0.17.18
+
+---
+
+# Release v0.17.17
+
+- Added Anthropic Compatible LLM provider, allowing connection to any Anthropic-API-compatible service via environment variables
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.16...v0.17.17
+
+---
+
+# Release v0.17.16
+
+- Fixed a crash on the agent chat page that could occur when loading agents
+
+**Full Changelog**: https://github.com/crestalnetwork/intentkit/compare/v0.17.15...v0.17.16
+
+---
+
 # Release v0.17.14
 
 - Added team usage page API for viewing credit balances and recent activity

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 from collections.abc import AsyncGenerator
@@ -19,19 +20,13 @@ from intentkit.core.lead.cache import (
     lead_cached_at,
     lead_executors,
 )
-from intentkit.core.lead.service import get_team_agents, verify_team_membership
+from intentkit.core.lead.constants import LEAD_DEFAULT_NAME, LEAD_DEFAULT_PERSONALITY
+from intentkit.core.lead.service import verify_team_membership
 from intentkit.core.lead.skills import (
-    create_team_agent_skill,
-    get_team_agent_skill,
     get_team_info_skill,
-    lead_add_autonomous_task_skill,
-    lead_delete_autonomous_task_skill,
-    lead_edit_autonomous_task_skill,
-    lead_get_available_llms_skill,
-    lead_list_autonomous_tasks_skill,
     list_team_agents_skill,
-    update_team_agent_skill,
 )
+from intentkit.core.lead.skills.call_agent import lead_call_agent_skill
 from intentkit.models.agent import Agent
 from intentkit.models.agent_data import AgentData
 from intentkit.models.chat import ChatMessage, ChatMessageCreate
@@ -73,92 +68,66 @@ async def _build_lead_agent(team_id: str) -> Agent:
     now = datetime.now(timezone.utc)
 
     prompt = (
-        "### Team Lead Agent\n\n"
-        "You are the team lead agent that manages all agents in the team.\n"
-        "You help team members create, configure, update, and monitor agents.\n\n"
+        "### Sub-Agents\n\n"
+        "Use `lead_call_agent` to delegate:\n\n"
+        "- `agent-manager`: Agent CRUD.\n"
+        "- `task-manager`: Autonomous task scheduling and management.\n"
+        "- `self-updater`: Update your own name, avatar, personality, or memory.\n"
+        "- `content-manager`: Read team activities and posts.\n\n"
+        "You can also use `lead_call_agent` to delegate to any team agent "
+        "discovered via `lead_list_team_agents`.\n\n"
         "### Workflow\n\n"
-        "When a user starts a conversation, always call `lead_list_team_agents` first "
-        "to understand the current team context and existing agents.\n\n"
-        "### Agent Creation\n\n"
-        "When creating a new agent, guide the user through:\n"
-        "1. Name and purpose\n"
-        "2. Model selection (use `gpt-5.4-mini` for normal, `gpt-5` for complex tasks; "
-        "call `lead_get_available_llms` if user specifies a particular model)\n"
-        "3. Skill configuration\n"
-        "4. Additional settings as needed\n\n"
-        "### Agent Updates\n\n"
-        "Use `lead_update_team_agent` for direct deployment of changes (no draft flow).\n"
-        "Always call `lead_get_team_agent` first to see the current config before updating.\n"
-        "The update function is efficient and safe, only updating fields you explicitly provide.\n\n"
-        "### Skill Configuration\n\n"
-        "Because skills consume context, too much context can lead to a decline in LLM performance. "
-        "Please use skills sparingly, ideally keeping the number below 20. "
-        "If multiple skills are available for a single function, choose the most reliable one. "
-        "In a category, there are often many skills. Please select only the ones that are definitely useful.\n\n"
-        "A typical skill configuration looks like:\n"
-        '```\n"skills": {"category1": {"states": {"skill1": "public"}, "enabled": true}}\n```\n'
-        "The `enabled` flag is at the category level, and `states` refers to specific skills. "
-        "For sensitive content, select `private`. For content suitable for all users, select `public`.\n\n"
-        "### Agent Fields Reference\n\n"
-        "- `name`: Display name (max 50 chars)\n"
-        "- `purpose`: Purpose or role\n"
-        "- `personality`: Personality traits\n"
-        "- `principles`: Principles or values\n"
-        "- `model`: LLM model ID\n"
-        "- `prompt`: Base system prompt\n"
-        "- `prompt_append`: Additional system prompt (higher priority)\n"
-        "- `temperature`: Randomness (0.0~2.0, lower for rigorous tasks)\n"
-        "- `skills`: Skill configurations dict\n"
-        "- `slug`: URL-friendly slug (immutable once set)\n"
-        "- `sub_agents`: List of sub-agent IDs or slugs\n"
-        "- `sub_agent_prompt`: Instructions for how to use sub-agents\n"
-        "- `enable_todo`: Enable todo list for complex multi-step tasks\n"
-        "- `enable_activity`: Enable activity skills\n"
-        "- `enable_post`: Enable post skills\n"
-        "- `enable_long_term_memory`: Enable long-term memory\n"
-        "- `super_mode`: Enable super mode with higher recursion limit\n"
-        "- `search_internet`: Enable LLM native internet search\n"
-        "- `visibility`: PRIVATE(0), TEAM(10), PUBLIC(20)\n"
+        "1. For casual chat or simple questions, answer directly.\n"
+        "2. If the request fits one of the built-in sub-agents above, delegate it.\n"
+        "3. For more complex requests, if `lead_list_team_agents` has not yet been "
+        "called in this conversation, call it to see whether an existing team agent "
+        "can handle the task, then delegate via `lead_call_agent`.\n"
+        "4. If no existing agent fits, ask the user for permission to create one. "
+        "Once approved, use `agent-manager` to create a suitable agent and delegate "
+        "the task to it. Iterate on the agent's configuration as needed.\n"
+        "5. If `agent-manager` cannot produce a working agent, or you hit "
+        "authentication/account issues, ask the user for help.\n\n"
+        "Note: always pass full user context when delegating, including agent "
+        "IDs/names if provided.\n"
     )
 
-    owner = await Team.get_owner(team_id)
+    # Parallelize independent DB lookups
+    owner, lead_config = await asyncio.gather(
+        Team.get_owner(team_id),
+        Team.get_lead_agent_config(team_id),
+    )
     if not owner:
         raise IntentKitAPIError(
             500, "TeamOwnerNotFound", f"Team '{team_id}' has no owner"
         )
-
-    # Populate sub_agents with all active agents in the team
-    team_agents = await get_team_agents(team_id)
-    sub_agent_ids = [a.id for a in team_agents]
+    lead_config = lead_config or {}
 
     agent_data = {
         "id": "team-" + team_id,
         "owner": owner,
         "team_id": team_id,
-        "name": "Team Lead",
-        "purpose": "Manage all agents in the team, create new agents, and assist team members.",
-        "personality": "Organized, helpful, and proactive about team agent management.",
-        "principles": (
-            "1. Keep team members informed about every change.\n"
-            "2. Always check existing agents before creating new ones.\n"
-            "3. Use direct deployment (no draft flow) for all changes.\n"
-            "4. Speak to users in the language they ask their questions, but always use English in Agent configuration.\n"
-            "5. When configuring skills, be selective. Don't pick too many, just enough to meet user needs.\n"
-            "6. Update skill is override update, you must put the whole fields to input data, not only changed fields."
+        "name": lead_config.get("name", LEAD_DEFAULT_NAME),
+        "purpose": (
+            "You are the lead of all agents in the team. Help human users in the "
+            "team solve their problems — by using your own abilities, searching the "
+            "internet, delegating to existing team agents, or creating new agents "
+            "specialized for particular domains."
         ),
+        "personality": lead_config.get("personality", LEAD_DEFAULT_PERSONALITY),
+        "principles": "Speak to users in the language they ask their questions.",
         "model": pick_default_model(),
         "prompt": prompt,
         "prompt_append": None,
-        "temperature": 0.2,
+        "temperature": 0.5,
         "frequency_penalty": 0.0,
         "presence_penalty": 0.0,
         "search_internet": True,
-        "super_mod": False,
+        "super_mode": False,
         "enable_todo": False,
         "enable_activity": False,
         "enable_post": False,
         "enable_long_term_memory": True,
-        "sub_agents": sub_agent_ids or None,
+        "sub_agents": None,
         "skills": {
             "ui": {
                 "enabled": True,
@@ -172,7 +141,13 @@ async def _build_lead_agent(team_id: str) -> Agent:
         "updated_at": now,
     }
 
-    return Agent.model_validate(agent_data)
+    agent = Agent.model_validate(agent_data)
+
+    # Apply persisted avatar override
+    if lead_config.get("avatar"):
+        agent.picture = lead_config["avatar"]
+
+    return agent
 
 
 async def _get_lead_executor(
@@ -188,29 +163,33 @@ async def _get_lead_executor(
     if not executor or not lead_agent:
         start = time.perf_counter()
 
-        if not lead_agent:
-            lead_agent = await _build_lead_agent(team_id)
-            lead_agents[team_id] = lead_agent
-
+        # The executor needs a real AgentData so DynamicPromptMiddleware can
+        # render long_term_memory into the system prompt. When both the agent
+        # and executor are cold, fetch agent_data in parallel with the build.
         if not executor:
+            if not lead_agent:
+                lead_agent, agent_data = await asyncio.gather(
+                    _build_lead_agent(team_id),
+                    AgentData.get(f"team-{team_id}"),
+                )
+                lead_agents[team_id] = lead_agent
+            else:
+                agent_data = await AgentData.get(lead_agent.id)
+
             custom_skills = [
+                lead_call_agent_skill,
                 get_team_info_skill,
                 list_team_agents_skill,
-                create_team_agent_skill,
-                get_team_agent_skill,
-                update_team_agent_skill,
-                lead_list_autonomous_tasks_skill,
-                lead_add_autonomous_task_skill,
-                lead_edit_autonomous_task_skill,
-                lead_delete_autonomous_task_skill,
-                lead_get_available_llms_skill,
             ]
             executor = await build_executor(
                 lead_agent,
-                AgentData.model_construct(id=lead_agent.id),
+                agent_data,
                 custom_skills,
             )
             lead_executors[team_id] = executor
+        elif not lead_agent:
+            lead_agent = await _build_lead_agent(team_id)
+            lead_agents[team_id] = lead_agent
 
         cold_start_cost = time.perf_counter() - start
         lead_cached_at[team_id] = now

@@ -129,36 +129,109 @@ async def get_team_channels(team_id: str) -> list[TeamChannel]:
         return [TeamChannel.model_validate(row) for row in result]
 
 
+async def _require_enabled_channel_and_team(db, team_id: str, channel_type: str):
+    """Validate that the channel exists, is enabled, and the team exists.
+
+    Returns the TeamTable row. Raises ValueError on failure.
+    """
+    channel = await db.get(
+        TeamChannelTable, {"team_id": team_id, "channel_type": channel_type}
+    )
+    if not channel:
+        raise ValueError(f"Channel '{channel_type}' is not configured for this team")
+    if not channel.enabled:
+        raise ValueError(f"Channel '{channel_type}' is not enabled for this team")
+
+    team = await db.get(TeamTable, team_id)
+    if not team:
+        raise ValueError(f"Team '{team_id}' not found")
+    return team
+
+
 async def set_default_channel(team_id: str, channel_type: str) -> None:
     """Set the default notification channel for a team.
 
     Validates that the channel exists and is enabled for the team.
     """
     async with get_session() as db:
-        # Verify the channel exists and is enabled
-        channel = await db.get(
-            TeamChannelTable, {"team_id": team_id, "channel_type": channel_type}
-        )
-        if not channel:
-            raise ValueError(
-                f"Channel '{channel_type}' is not configured for this team"
-            )
-        if not channel.enabled:
-            raise ValueError(f"Channel '{channel_type}' is not enabled for this team")
-
-        team = await db.get(TeamTable, team_id)
-        if not team:
-            raise ValueError(f"Team '{team_id}' not found")
-
+        team = await _require_enabled_channel_and_team(db, team_id, channel_type)
         team.default_channel = channel_type
         db.add(team)
         await db.commit()
 
 
-async def get_default_channel(team_id: str) -> str | None:
-    """Get the default notification channel for a team."""
+async def get_default_channel(team_id: str) -> dict[str, str | None]:
+    """Get the default notification channel and chat ID for a team."""
     async with get_session() as db:
         team = await db.get(TeamTable, team_id)
         if not team:
+            return {
+                "default_channel": None,
+                "default_channel_chat_id": None,
+            }
+        return {
+            "default_channel": team.default_channel,
+            "default_channel_chat_id": team.default_channel_chat_id,
+        }
+
+
+async def set_push_channel(team_id: str, channel_type: str, chat_id: str) -> None:
+    """Set the push target for a team (channel_type + specific chat_id).
+
+    Validates that the channel exists and is enabled.
+    """
+    async with get_session() as db:
+        team = await _require_enabled_channel_and_team(db, team_id, channel_type)
+        team.default_channel = channel_type
+        team.default_channel_chat_id = chat_id
+        db.add(team)
+        await db.commit()
+
+
+async def set_push_channel_if_empty(
+    team_id: str, channel_type: str, chat_id: str
+) -> bool:
+    """Set the push target only if not already set. Returns True if set."""
+    async with get_session() as db:
+        team = await db.get(TeamTable, team_id)
+        if not team:
+            return False
+
+        if team.default_channel_chat_id is not None:
+            return False
+
+        # Verify channel exists
+        channel = await db.get(
+            TeamChannelTable, {"team_id": team_id, "channel_type": channel_type}
+        )
+        if not channel or not channel.enabled:
+            return False
+
+        team.default_channel = channel_type
+        team.default_channel_chat_id = chat_id
+        db.add(team)
+        await db.commit()
+        return True
+
+
+CHANNEL_CHAT_ID_PREFIXES: dict[str, str] = {
+    "telegram": "tg_team",
+    "wechat": "wx_team",
+}
+
+
+def build_channel_chat_id(channel_type: str, team_id: str, raw_chat_id: str) -> str:
+    """Build the full chat_id used in chat_messages for a channel conversation."""
+    prefix = CHANNEL_CHAT_ID_PREFIXES.get(channel_type)
+    if prefix is None:
+        raise ValueError(f"Unknown channel type: {channel_type!r}")
+    return f"{prefix}:{team_id}:{raw_chat_id}"
+
+
+async def get_push_channel(team_id: str) -> tuple[str, str] | None:
+    """Get the push target (channel_type, chat_id) or None if unset."""
+    async with get_session() as db:
+        team = await db.get(TeamTable, team_id)
+        if not team or not team.default_channel or not team.default_channel_chat_id:
             return None
-        return team.default_channel
+        return (team.default_channel, team.default_channel_chat_id)

@@ -180,7 +180,7 @@ class CreditAccount(BaseModel):
         Decimal,
         Field(
             default=Decimal("0"),
-            description="Amount to refill hourly, not exceeding free_quota",
+            description="Amount to refill daily, not exceeding free_quota",
         ),
     ]
     free_credits: Annotated[
@@ -646,7 +646,7 @@ class CreditAccount(BaseModel):
             owner_type: Type of the owner
             owner_id: ID of the owner
             free_quota: Daily quota for a new account if created (if None, reads from payment settings)
-            refill_amount: Hourly refill amount (if None, reads from payment settings)
+            refill_amount: Daily refill amount (if None, reads from payment settings)
 
         Returns:
             CreditAccount: The existing or newly created credit account
@@ -657,7 +657,14 @@ class CreditAccount(BaseModel):
                 from intentkit.models.team import PLAN_CONFIGS, TeamPlan, TeamTable
 
                 team_record = await session.get(TeamTable, owner_id)
-                plan = TeamPlan(team_record.plan) if team_record else TeamPlan.NONE
+                if team_record:
+                    plan_value = team_record.plan
+                    # Handle legacy data where str(TeamPlan.NONE) was stored
+                    if plan_value.startswith("TeamPlan."):
+                        plan_value = plan_value.removeprefix("TeamPlan.").lower()
+                    plan = TeamPlan(plan_value)
+                else:
+                    plan = TeamPlan.NONE
                 plan_config = PLAN_CONFIGS[plan]
                 if free_quota is None:
                     free_quota = plan_config.free_quota
@@ -795,7 +802,7 @@ class CreditAccount(BaseModel):
             session: Async session to use for database operations
             user_id: ID of the user to update
             free_quota: Optional new daily quota value
-            refill_amount: Optional amount to refill hourly, not exceeding free_quota
+            refill_amount: Optional amount to refill daily, not exceeding free_quota
             upstream_tx_id: ID of the upstream transaction (for logging purposes)
             note: Explanation for changing the daily quota
 

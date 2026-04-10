@@ -40,12 +40,12 @@ class TestValidateTeamIdFormat:
         self.validate = validate_team_id_format
 
     def test_too_short(self):
-        result = self.validate("a")
+        result = self.validate("ab")
         assert result["valid"] is False
         assert "at least 3" in result["reason"]
 
     def test_too_long(self):
-        result = self.validate("a" * 61)
+        result = self.validate("a" * 21)
         assert result["valid"] is False
         assert "at most 20" in result["reason"]
 
@@ -92,7 +92,7 @@ class TestValidateTeamId:
     async def test_invalid_format_returns_format_error(self):
         from intentkit.core.team.membership import validate_team_id
 
-        result = await validate_team_id("A")
+        result = await validate_team_id("ab")
         assert result["valid"] is False
         assert "at least 3" in result["reason"]
 
@@ -433,6 +433,8 @@ class TestJoinTeam:
         mock_session.execute = AsyncMock(
             side_effect=[mock_result_invite, mock_result_member, mock_result_update]
         )
+        # seats check: scalar returns current member count (0 < seats limit)
+        mock_session.scalar = AsyncMock(return_value=0)
 
         team = _make_team()
         mock_team_get.return_value = team

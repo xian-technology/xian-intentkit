@@ -10,16 +10,10 @@ def pick_summarize_model() -> str:
     """
     Pick the best available summarize model based on configured API keys.
     """
-    # Priority order based on performance and cost effectiveness:
-    # 1. Google Gemini 3 Flash: Best blend of speed and quality for summarization
-    # 2. GPT-5 Mini: High quality fallback
-    # 3. GLM 4.7 Flash: Fast and cheap alternative
-    # 4. Grok: Good performance if available
-    # 5. DeepSeek: Final fallback
     order: list[tuple[str, LLMProvider]] = [
         ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
-        ("z-ai/glm-4.7-flash", LLMProvider.OPENROUTER),
         ("gemini-3.1-flash-lite-preview", LLMProvider.GOOGLE),
+        ("z-ai/glm-4.7-flash", LLMProvider.OPENROUTER),
         ("gpt-5.4-mini", LLMProvider.OPENAI),
         ("grok-4-1-fast-non-reasoning", LLMProvider.XAI),
         ("deepseek-chat", LLMProvider.DEEPSEEK),
@@ -29,8 +23,16 @@ def pick_summarize_model() -> str:
         LLMProvider.OPENAI_COMPATIBLE.is_configured
         and config.openai_compatible_model_lite
     ):
-        order.append(
-            (config.openai_compatible_model_lite, LLMProvider.OPENAI_COMPATIBLE)
+        order.insert(
+            0, (config.openai_compatible_model_lite, LLMProvider.OPENAI_COMPATIBLE)
+        )
+    if (
+        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
+        and config.anthropic_compatible_model_lite
+    ):
+        order.insert(
+            0,
+            (config.anthropic_compatible_model_lite, LLMProvider.ANTHROPIC_COMPATIBLE),
         )
 
     for model_id, provider in order:
@@ -45,23 +47,24 @@ def pick_default_model() -> str:
     Pick the best available default model for agents based on configured API keys.
     Used as the default_factory for the agent model field.
     """
-    # Priority order based on general-purpose capability:
-    # 1. MiniMax M2.7: Best blend of quality and cost
-    # 2. Google Gemini 3 Flash: Best blend of speed and quality
-    # 3. GPT-5 Mini: High quality fallback
-    # 4. Grok: Good performance if available
-    # 5. DeepSeek: Final fallback
     order: list[tuple[str, LLMProvider]] = [
         ("claude-sonnet-4-6", LLMProvider.ANTHROPIC),
+        ("google/gemini-3-flash-preview", LLMProvider.GOOGLE),
         ("MiniMax-M2.7", LLMProvider.MINIMAX),
         ("minimax/minimax-m2.7", LLMProvider.OPENROUTER),
-        ("google/gemini-3-flash-preview", LLMProvider.GOOGLE),
         ("gpt-5.4-mini", LLMProvider.OPENAI),
         ("grok-4-1-fast-non-reasoning", LLMProvider.XAI),
         ("deepseek-chat", LLMProvider.DEEPSEEK),
     ]
     if LLMProvider.OPENAI_COMPATIBLE.is_configured and config.openai_compatible_model:
-        order.insert(0, (config.openai_compatible_model, LLMProvider.OPENAI_COMPATIBLE))
+        order.insert(1, (config.openai_compatible_model, LLMProvider.OPENAI_COMPATIBLE))
+    if (
+        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
+        and config.anthropic_compatible_model
+    ):
+        order.insert(
+            1, (config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE)
+        )
 
     for model_id, provider in order:
         if provider.is_configured:
@@ -89,6 +92,13 @@ def pick_long_context_model() -> str:
     ]
     if LLMProvider.OPENAI_COMPATIBLE.is_configured and config.openai_compatible_model:
         order.append((config.openai_compatible_model, LLMProvider.OPENAI_COMPATIBLE))
+    if (
+        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
+        and config.anthropic_compatible_model
+    ):
+        order.append(
+            (config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE)
+        )
 
     for model_id, provider in order:
         if provider.is_configured:

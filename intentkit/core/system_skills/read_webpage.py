@@ -1,5 +1,6 @@
-"""Skill for reading webpage content as markdown via Cloudflare Browser Rendering."""
+"""Skills for reading webpage content as markdown via different providers."""
 
+import json
 import logging
 import re
 from typing import Annotated, override
@@ -9,6 +10,8 @@ from langchain_core.tools import ArgsSchema, InjectedToolCallId
 from langchain_core.tools.base import ToolException
 from pydantic import BaseModel, Field
 
+from intentkit.clients.mcp.client import McpToolError, call_mcp_tool
+from intentkit.clients.mcp.registry import McpServerDef
 from intentkit.core.system_skills.base import SystemSkill
 
 logger = logging.getLogger(__name__)
@@ -25,22 +28,71 @@ Return ONLY the clean, readable main content in markdown format. \
 Do not add any commentary or explanation."""
 
 
+# MCP server definition for Z.AI web reader
+_ZAI_READER_SERVER = McpServerDef(
+    name="zai_web_reader",
+    display_name="Z.AI Web Reader",
+    description="Web page reader via Z.AI MCP",
+    url="https://api.z.ai/api/mcp/web_reader/mcp",
+    transport="streamable_http",
+    api_key_config_attr="zai_plan_api_key",
+    api_key_header="Authorization",
+    api_key_prefix="Bearer",
+)
+
+_MAX_CONTENT_CHARS = 50000
+
+
+def _normalize_whitespace(text: str) -> str:
+    """Collapse redundant whitespace in markdown content."""
+    cleaned = re.sub(r" {2,}", " ", text)
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned
+
+
+def _truncate(text: str) -> str:
+    """Truncate content that exceeds the maximum length."""
+    if len(text) > _MAX_CONTENT_CHARS:
+        return text[:_MAX_CONTENT_CHARS] + "\n\n... (content truncated)"
+    return text
+
+
+def _extract_mcp_reader_content(raw: str) -> str:
+    """Extract content from Z.AI MCP reader response.
+
+    The MCP reader returns double-encoded JSON: the text content is a JSON
+    string that, when decoded, yields another JSON string containing a dict
+    with a ``content`` key.
+    """
+    try:
+        decoded = json.loads(raw)
+        if isinstance(decoded, dict):
+            return decoded.get("content", raw)
+        if isinstance(decoded, str):
+            inner = json.loads(decoded)
+            if isinstance(inner, dict):
+                return inner.get("content", raw)
+    except (json.JSONDecodeError, TypeError):
+        pass
+    return raw
+
+
 class ReadWebpageInput(BaseModel):
     """Input schema for reading a webpage."""
 
     url: str = Field(..., description="The URL of the webpage to read")
 
 
-class ReadWebpageSkill(SystemSkill):
-    """Skill for reading webpage content as markdown.
+class ReadWebpageCloudflareSkill(SystemSkill):
+    """Skill for reading webpage content as markdown via Cloudflare.
 
     Uses Cloudflare Browser Rendering REST API to fetch and convert
     webpages to markdown format, then cleans the content with an LLM.
     """
 
-    name: str = "read_webpage"
+    name: str = "read_webpage_cloudflare"
     description: str = (
-        "Read a webpage and return its content as markdown. "
+        "Read a webpage using Cloudflare Browser Rendering and return its content as markdown. "
         "Useful when you need to read and understand the content of a specific URL."
     )
     args_schema: ArgsSchema | None = ReadWebpageInput
@@ -76,20 +128,12 @@ class ReadWebpageSkill(SystemSkill):
             if not raw_markdown:
                 return "The webpage returned no content."
 
-            # Clean whitespace: collapse multiple spaces into one
-            cleaned = re.sub(r" {2,}", " ", raw_markdown)
-            # Also collapse 3+ consecutive newlines into 2
-            cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+            cleaned = _normalize_whitespace(raw_markdown)
 
             # Clean content with LLM
             cleaned = await self._clean_with_llm(cleaned, tool_call_id)
 
-            # Truncate very long content
-            max_chars = 50000
-            if len(cleaned) > max_chars:
-                cleaned = cleaned[:max_chars] + "\n\n... (content truncated)"
-
-            return cleaned
+            return _truncate(cleaned)
 
         except ToolException:
             raise
@@ -182,3 +226,53 @@ class ReadWebpageSkill(SystemSkill):
 
         result = response.content
         return str(result) if result else content
+
+
+class ReadWebpageZaiSkill(SystemSkill):
+    """Skill for reading webpage content as markdown via Z.AI MCP web reader."""
+
+    name: str = "read_webpage_zai"
+    description: str = (
+        "Read a webpage using Z.AI reader and return its content as markdown. "
+        "Useful when you need to read and understand the content of a specific URL."
+    )
+    args_schema: ArgsSchema | None = ReadWebpageInput
+
+    @override
+    async def _arun(
+        self,
+        url: str,
+        tool_call_id: Annotated[str | None, InjectedToolCallId] = None,
+    ) -> str:
+        """Read a webpage via Z.AI MCP web reader and return its content."""
+        try:
+            from intentkit.config.config import config
+
+            api_key = config.zai_plan_api_key
+            if not api_key:
+                raise ToolException(
+                    "Z.AI Plan API is not configured. Set ZAI_PLAN_API_KEY."
+                )
+
+            raw = await call_mcp_tool(
+                _ZAI_READER_SERVER,
+                api_key,
+                "webReader",
+                {"url": url, "return_format": "markdown"},
+            )
+            if not raw:
+                return "The webpage returned no content."
+
+            content = _extract_mcp_reader_content(raw)
+            if not content:
+                return "The webpage returned no content."
+
+            return _truncate(_normalize_whitespace(content))
+
+        except ToolException:
+            raise
+        except McpToolError as e:
+            raise ToolException(str(e)) from e
+        except Exception as e:
+            logger.error("read_webpage_zai failed: %s", e, exc_info=True)
+            raise ToolException(f"Failed to read webpage: {e}") from e

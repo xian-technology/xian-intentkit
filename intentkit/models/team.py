@@ -8,8 +8,16 @@ from enum import Enum
 from typing import Annotated, Any, ClassVar
 
 from epyxid import XID
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    computed_field,
+    field_serializer,
+    field_validator,
+)
 from sqlalchemy import DateTime, Index, Integer, String, func, select
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from intentkit.config.base import Base
@@ -37,31 +45,65 @@ class TeamPlan(str, Enum):
 class PlanConfig:
     """Configuration for a pricing plan tier."""
 
+    name: str
+    description: str
     free_quota: Decimal
     refill_amount: Decimal
     monthly_permanent_credits: Decimal
+    seats: int
+    month_price_cents: int
+    year_price_cents: int
 
 
 PLAN_CONFIGS: dict[TeamPlan, PlanConfig] = {
     TeamPlan.NONE: PlanConfig(
+        name="No Plan",
+        description="No active plan.",
         free_quota=Decimal("0"),
         refill_amount=Decimal("0"),
         monthly_permanent_credits=Decimal("0"),
+        seats=1,
+        month_price_cents=0,
+        year_price_cents=0,
     ),
     TeamPlan.FREE: PlanConfig(
+        name="Free",
+        description=(
+            "Basic plan with limited credits. "
+            "Refills 10 credits/day. No monthly permanent credits."
+        ),
         free_quota=Decimal("50"),
-        refill_amount=Decimal("1"),
+        refill_amount=Decimal("10"),
         monthly_permanent_credits=Decimal("0"),
+        seats=1,
+        month_price_cents=0,
+        year_price_cents=0,
     ),
     TeamPlan.PRO: PlanConfig(
-        free_quota=Decimal("500"),
-        refill_amount=Decimal("10"),
+        name="Pro",
+        description=(
+            "Professional plan with enhanced credits. "
+            "Refills 500 credits/day. 10,000 permanent credits/month."
+        ),
+        free_quota=Decimal("1000"),
+        refill_amount=Decimal("500"),
         monthly_permanent_credits=Decimal("10000"),
+        seats=3,
+        month_price_cents=1900,
+        year_price_cents=19000,
     ),
     TeamPlan.MAX: PlanConfig(
-        free_quota=Decimal("5000"),
-        refill_amount=Decimal("100"),
+        name="Max",
+        description=(
+            "Maximum plan with full credits. "
+            "Refills 5,000 credits/day. 100,000 permanent credits/month."
+        ),
+        free_quota=Decimal("10000"),
+        refill_amount=Decimal("5000"),
         monthly_permanent_credits=Decimal("100000"),
+        seats=15,
+        month_price_cents=19900,
+        year_price_cents=199000,
     ),
 }
 
@@ -118,10 +160,14 @@ class TeamTable(Base):
         String,
         nullable=True,
     )
+    default_channel_chat_id: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True,
+    )
     plan: Mapped[str] = mapped_column(
         String,
         nullable=False,
-        default=TeamPlan.NONE,
+        default=TeamPlan.NONE.value,
         server_default=TeamPlan.NONE.value,
     )
     plan_expires_at: Mapped[datetime | None] = mapped_column(
@@ -131,6 +177,11 @@ class TeamTable(Base):
     next_credit_issue_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
+    )
+    lead_agent: Mapped[dict[str, Any] | None] = mapped_column(
+        JSONB(),
+        nullable=True,
+        comment="Persisted lead agent config (name, avatar, personality)",
     )
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -199,6 +250,9 @@ class TeamMember(BaseModel):
     team_id: str
     role: TeamRole
     joined_at: datetime
+    name: str | None = None
+    email: str | None = None
+    evm_wallet_address: str | None = None
 
     @field_serializer("joined_at")
     @classmethod
@@ -242,6 +296,13 @@ class TeamCreate(BaseModel):
             description="Default notification channel (telegram, wechat)",
         ),
     ]
+    default_channel_chat_id: Annotated[
+        str | None,
+        Field(
+            default=None,
+            description="Default push chat ID within the channel",
+        ),
+    ]
 
     async def save(self, creator_user_id: str) -> "Team":
         """Create a new team and add the creator as owner.
@@ -277,10 +338,33 @@ class Team(TeamCreate):
         from_attributes=True,
     )
 
+    lead_agent: Annotated[
+        dict[str, Any] | None,
+        Field(
+            default=None,
+            exclude=True,
+            description="Persisted lead agent config (internal only)",
+        ),
+    ]
+    role: Annotated[
+        TeamRole | None,
+        Field(
+            default=None, description="User's role (only set in user-specific queries)"
+        ),
+    ]
     plan: Annotated[
         TeamPlan,
         Field(default=TeamPlan.NONE, description="Pricing plan tier"),
     ]
+
+    @field_validator("plan", mode="before")
+    @classmethod
+    def normalize_plan(cls, v: Any) -> Any:
+        """Handle legacy data where str(TeamPlan.X) was stored instead of .value."""
+        if isinstance(v, str) and v.startswith("TeamPlan."):
+            return v.removeprefix("TeamPlan.").lower()
+        return v
+
     plan_expires_at: Annotated[
         datetime | None,
         Field(default=None, description="When the current plan expires"),
@@ -295,6 +379,38 @@ class Team(TeamCreate):
     updated_at: Annotated[
         datetime, Field(description="Timestamp when this team was last updated")
     ]
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def plan_name(self) -> str:
+        """Display name derived from the plan's PlanConfig."""
+        return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).name
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def plan_description(self) -> str:
+        """Description derived from the plan's PlanConfig."""
+        return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).description
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def plan_seats(self) -> int:
+        """Max seats derived from the plan's PlanConfig."""
+        return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).seats
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def plan_month_price_cents(self) -> int:
+        """Monthly price in cents derived from the plan's PlanConfig."""
+        return PLAN_CONFIGS.get(
+            self.plan, PLAN_CONFIGS[TeamPlan.NONE]
+        ).month_price_cents
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def plan_year_price_cents(self) -> int:
+        """Yearly price in cents derived from the plan's PlanConfig."""
+        return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).year_price_cents
 
     @field_serializer(
         "created_at", "updated_at", "plan_expires_at", "next_credit_issue_at"
@@ -329,11 +445,53 @@ class Team(TeamCreate):
             return await db.scalar(stmt)
 
     @classmethod
+    async def get_lead_agent_config(cls, team_id: str) -> dict[str, Any] | None:
+        """Get the persisted lead agent config for a team."""
+        async with get_session() as db:
+            stmt = select(TeamTable.lead_agent).where(TeamTable.id == team_id)
+            return await db.scalar(stmt)
+
+    @classmethod
+    async def update_lead_agent_config(
+        cls, team_id: str, updates: dict[str, Any]
+    ) -> dict[str, Any]:
+        """Merge updates into the persisted lead agent config atomically.
+
+        Uses PostgreSQL JSONB `||` operator for race-free merge.
+
+        Args:
+            team_id: Team ID.
+            updates: Fields to merge (name, avatar, personality).
+
+        Returns:
+            The updated lead agent config dict.
+        """
+        from sqlalchemy import cast, func
+        from sqlalchemy import update as sa_update
+
+        async with get_session() as db:
+            # Atomic JSONB merge: coalesce(lead_agent, '{}') || updates
+            merged_expr = func.coalesce(TeamTable.lead_agent, cast({}, JSONB)).concat(
+                cast(updates, JSONB)
+            )
+            await db.execute(
+                sa_update(TeamTable)
+                .where(TeamTable.id == team_id)
+                .values(lead_agent=merged_expr)
+            )
+            await db.commit()
+            # Read back the merged result
+            result = await db.scalar(
+                select(TeamTable.lead_agent).where(TeamTable.id == team_id)
+            )
+            return result or {}
+
+    @classmethod
     async def get_by_user(cls, user_id: str) -> list["Team"]:
-        """Get all teams a user belongs to."""
+        """Get all teams a user belongs to, including the user's role."""
         async with get_session() as db:
             stmt = (
-                select(TeamTable)
+                select(TeamTable, TeamMemberTable.role)
                 .join(
                     TeamMemberTable,
                     TeamMemberTable.team_id == TeamTable.id,
@@ -341,8 +499,13 @@ class Team(TeamCreate):
                 .where(TeamMemberTable.user_id == user_id)
                 .order_by(TeamTable.name)
             )
-            result = await db.scalars(stmt)
-            return [cls.model_validate(team) for team in result]
+            result = await db.execute(stmt)
+            teams = []
+            for team, role in result:
+                t = cls.model_validate(team)
+                t.role = role
+                teams.append(t)
+            return teams
 
 
 class TeamInvite(BaseModel):

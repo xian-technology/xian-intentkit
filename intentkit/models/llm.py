@@ -56,6 +56,10 @@ def _parse_optional_decimal(value: str | None) -> Decimal | None:
     return Decimal(value) if value else None
 
 
+def _has_text(value: Any) -> bool:
+    return isinstance(value, str) and bool(value.strip())
+
+
 def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
     """Load default LLM models from a CSV file.
 
@@ -133,9 +137,9 @@ def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
 
     # Load OpenAI Compatible models from config (not CSV)
     if (
-        config.openai_compatible_api_key
-        and config.openai_compatible_base_url
-        and config.openai_compatible_model
+        _has_text(config.openai_compatible_api_key)
+        and _has_text(config.openai_compatible_base_url)
+        and _has_text(config.openai_compatible_model)
     ):
         timestamp = datetime.now(UTC)
         provider = LLMProvider.OPENAI_COMPATIBLE
@@ -166,8 +170,55 @@ def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
         )
         defaults[f"{provider.value}:{model_id}"] = model
 
-        if config.openai_compatible_model_lite:
+        if _has_text(config.openai_compatible_model_lite):
             lite_id = config.openai_compatible_model_lite
+            lite_model = LLMModelInfo(
+                id=lite_id,
+                name=lite_id,
+                intelligence=2,
+                speed=4,
+                reasoning_effort=None,
+                **base_attrs,
+            )
+            defaults[f"{provider.value}:{lite_id}"] = lite_model
+
+    # Load Anthropic Compatible models from config (not CSV)
+    if (
+        _has_text(config.anthropic_compatible_api_key)
+        and _has_text(config.anthropic_compatible_base_url)
+        and _has_text(config.anthropic_compatible_model)
+    ):
+        timestamp = datetime.now(UTC)
+        provider = LLMProvider.ANTHROPIC_COMPATIBLE
+        base_attrs = {
+            "provider": provider,
+            "enabled": True,
+            "input_price": Decimal("0"),
+            "output_price": Decimal("0"),
+            "context_length": 200000,
+            "output_length": 64000,
+            "supports_image_input": False,
+            "supports_temperature": True,
+            "supports_frequency_penalty": False,
+            "supports_presence_penalty": False,
+            "timeout": 300,
+            "created_at": timestamp,
+            "updated_at": timestamp,
+        }
+
+        model_id = config.anthropic_compatible_model
+        model = LLMModelInfo(
+            id=model_id,
+            name=model_id,
+            intelligence=3,
+            speed=3,
+            reasoning_effort="high",
+            **base_attrs,
+        )
+        defaults[f"{provider.value}:{model_id}"] = model
+
+        if _has_text(config.anthropic_compatible_model_lite):
+            lite_id = config.anthropic_compatible_model_lite
             lite_model = LLMModelInfo(
                 id=lite_id,
                 name=lite_id,
@@ -191,23 +242,29 @@ class LLMProvider(str, Enum):
     MINIMAX = "minimax"
     OLLAMA = "ollama"
     OPENAI_COMPATIBLE = "openai_compatible"
+    ANTHROPIC_COMPATIBLE = "anthropic_compatible"
 
     @property
     def is_configured(self) -> bool:
         """Check if the provider is configured with an API key."""
         config_map = {
-            self.OPENAI: bool(config.openai_api_key),
-            self.ANTHROPIC: bool(config.anthropic_api_key),
-            self.GOOGLE: bool(config.google_api_key),
-            self.DEEPSEEK: bool(config.deepseek_api_key),
-            self.XAI: bool(config.xai_api_key),
-            self.OPENROUTER: bool(config.openrouter_api_key),
-            self.MINIMAX: bool(config.minimax_api_key),
+            self.OPENAI: _has_text(config.openai_api_key),
+            self.ANTHROPIC: _has_text(config.anthropic_api_key),
+            self.GOOGLE: _has_text(config.google_api_key),
+            self.DEEPSEEK: _has_text(config.deepseek_api_key),
+            self.XAI: _has_text(config.xai_api_key),
+            self.OPENROUTER: _has_text(config.openrouter_api_key),
+            self.MINIMAX: _has_text(config.minimax_api_key),
             self.OLLAMA: True,  # Ollama usually doesn't need a key
-            self.OPENAI_COMPATIBLE: bool(
-                config.openai_compatible_api_key
-                and config.openai_compatible_base_url
-                and config.openai_compatible_model
+            self.OPENAI_COMPATIBLE: (
+                _has_text(config.openai_compatible_api_key)
+                and _has_text(config.openai_compatible_base_url)
+                and _has_text(config.openai_compatible_model)
+            ),
+            self.ANTHROPIC_COMPATIBLE: (
+                _has_text(config.anthropic_compatible_api_key)
+                and _has_text(config.anthropic_compatible_base_url)
+                and _has_text(config.anthropic_compatible_model)
             ),
         }
         return config_map.get(self, False)
@@ -224,6 +281,7 @@ class LLMProvider(str, Enum):
             self.MINIMAX: "MiniMax",
             self.OLLAMA: "Ollama",
             self.OPENAI_COMPATIBLE: config.openai_compatible_provider,
+            self.ANTHROPIC_COMPATIBLE: config.anthropic_compatible_provider,
         }
         return display_names.get(self, self.value)
 
@@ -800,8 +858,7 @@ class OpenRouterLLM(LLMModel):
 
     @override
     async def create_instance(self, params: dict[str, Any] = {}) -> BaseChatModel:
-        """Create and return a ChatOpenRouter instance."""
-        from langchain_openrouter import ChatOpenRouter
+        """Create and return a ChatOpenRouter instance with server tool support."""
 
         info = await self.model_info()
 
@@ -828,7 +885,99 @@ class OpenRouterLLM(LLMModel):
         # Update kwargs with params to allow overriding
         kwargs.update(params)
 
-        return ChatOpenRouter(**kwargs)
+        return _create_openrouter_with_server_tools(**kwargs)
+
+
+_openrouter_sdk_patched = False
+
+
+def _patch_openrouter_sdk() -> None:
+    """Patch the OpenRouter SDK to accept server tools.
+
+    The SDK's ``ToolDefinitionJSON`` model requires ``type="function"`` and
+    a mandatory ``function`` field. OpenRouter server tools like
+    ``openrouter:web_search`` use different types and have no ``function``
+    field. This patch broadens ``ToolDefinitionJSON`` to accept any ``type``
+    string and makes ``function`` optional, so server-tool dicts pass through
+    the SDK's validation and are serialised as-is.
+    """
+    global _openrouter_sdk_patched  # noqa: PLW0603
+    if _openrouter_sdk_patched:
+        return
+    try:
+        from openrouter.components import (
+            ToolDefinitionJSON,  # type: ignore[import-untyped]
+        )
+
+        tool_model: Any = ToolDefinitionJSON
+        type_field = tool_model.model_fields.get("type")
+        func_field = tool_model.model_fields.get("function")
+        if type_field is None or func_field is None:
+            logger.warning(
+                "OpenRouter SDK ToolDefinitionJSON schema changed — "
+                "server tools patch skipped; update the integration"
+            )
+            return
+        # Broaden type from Literal["function"] to str
+        type_field.annotation = str
+        tool_model.__annotations__["type"] = str
+        # Make function optional (server tools don't have it)
+        orig = func_field.annotation
+        func_field.annotation = orig | None
+        func_field.default = None
+        tool_model.__annotations__["function"] = orig | None
+        tool_model.model_rebuild(force=True)
+        _openrouter_sdk_patched = True
+    except Exception:
+        logger.warning("Failed to patch OpenRouter SDK for server tools", exc_info=True)
+
+
+def _create_openrouter_with_server_tools(**kwargs: Any) -> BaseChatModel:
+    """Create a ChatOpenRouter subclass that supports server tools.
+
+    OpenRouter server tools (e.g. ``{"type": "openrouter:web_search"}``) are
+    not recognised by ``convert_to_openai_tool`` used inside the upstream
+    ``ChatOpenRouter.bind_tools``.  This subclass overrides ``bind_tools``
+    to pull server-tool dicts out, delegate the rest to the parent, and
+    re-inject the server tools into the bound kwargs so they are sent as-is
+    in the API request.
+
+    Additionally, the OpenRouter Python SDK's request model is patched once to
+    accept non-function tool types in the request body.
+    """
+    from langchain_openrouter import ChatOpenRouter
+
+    _patch_openrouter_sdk()
+
+    class _WithServerTools(ChatOpenRouter):
+        @override
+        def bind_tools(
+            self,
+            tools: Sequence[dict[str, Any] | type | Callable | BaseTool],
+            **bt_kwargs: Any,
+        ) -> Runnable[LanguageModelInput, AIMessage]:
+            server_tools: list[dict[str, Any]] = []
+            regular_tools: list[dict[str, Any] | type | Callable | BaseTool] = []
+            for tool in tools:
+                if (
+                    isinstance(tool, dict)
+                    and isinstance(tool.get("type"), str)
+                    and tool["type"].startswith("openrouter:")
+                ):
+                    server_tools.append(tool)
+                else:
+                    regular_tools.append(tool)
+
+            bound = super().bind_tools(regular_tools, **bt_kwargs)
+
+            if server_tools:
+                bound_kwargs: dict[str, Any] = bound.kwargs  # pyright: ignore[reportAttributeAccessIssue]
+                existing = list(bound_kwargs.get("tools", []))
+                updated = {k: v for k, v in bound_kwargs.items() if k != "tools"}
+                return self.bind(tools=existing + server_tools, **updated)
+            return bound
+
+    return _WithServerTools(**kwargs)
 
 
 class GoogleLLM(LLMModel):
@@ -922,6 +1071,34 @@ class MiniMaxLLM(LLMModel):
         return ChatAnthropic(**kwargs)
 
 
+class AnthropicCompatibleLLM(LLMModel):
+    """Anthropic Compatible LLM configuration."""
+
+    @override
+    async def create_instance(self, params: dict[str, Any] = {}) -> BaseChatModel:
+        """Create and return a ChatAnthropic instance for Anthropic-compatible provider."""
+        from langchain_anthropic import ChatAnthropic
+
+        info = await self.model_info()
+
+        kwargs: dict[str, Any] = {
+            "model": info.id,
+            "api_key": config.anthropic_compatible_api_key,
+            "base_url": config.anthropic_compatible_base_url,
+            "timeout": info.timeout,
+            "max_retries": 3,
+        }
+
+        # Add optional parameters based on model support
+        if info.supports_temperature:
+            kwargs["temperature"] = self.temperature
+
+        # Update kwargs with params to allow overriding
+        kwargs.update(params)
+
+        return ChatAnthropic(**kwargs)
+
+
 class OpenAICompatibleLLM(LLMModel):
     """OpenAI Compatible LLM configuration."""
 
@@ -989,6 +1166,7 @@ async def create_llm_model(
         LLMProvider.OPENAI: OpenAILLM,
         LLMProvider.MINIMAX: MiniMaxLLM,
         LLMProvider.OPENAI_COMPATIBLE: OpenAICompatibleLLM,
+        LLMProvider.ANTHROPIC_COMPATIBLE: AnthropicCompatibleLLM,
     }
 
     model_class = provider_map.get(info.provider, OpenAILLM)
