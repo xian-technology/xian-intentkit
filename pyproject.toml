@@ -1,6 +1,6 @@
 [project]
 name = "xian-tech-intentkit"
-version = "0.17.21"
+version = "0.17.31"
 description = "Intent-based AI Agent Platform - Core Package"
 authors = [
     { name = "xian-technology" },
