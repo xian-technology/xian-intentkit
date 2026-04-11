@@ -122,7 +122,7 @@ class FakeDexProvider:
         contract: str,
         function: str,
         kwargs: dict[str, Any],
-        stamps: int | None = None,
+        chi: int | None = None,
         nonce: int | None = None,
         mode: str | None = None,
         wait_for_tx: bool | None = None,

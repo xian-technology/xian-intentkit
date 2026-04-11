@@ -17,9 +17,9 @@ class XianSendContractTransactionInput(BaseModel):
         default_factory=dict,
         description="Function keyword arguments.",
     )
-    stamps: int | None = Field(
+    chi: int | None = Field(
         default=None,
-        description="Optional explicit stamp limit. Defaults to SDK estimation.",
+        description="Optional explicit chi limit. Defaults to SDK estimation.",
     )
     nonce: int | None = Field(
         default=None,
@@ -39,7 +39,7 @@ class XianSendContractTransaction(XianBaseTool):
     name: str = "xian_send_contract_transaction"
     description: str = (
         "Submit a writable transaction to a Xian contract function with explicit "
-        "broadcast mode and optional stamp/nonce overrides."
+        "broadcast mode and optional chi/nonce overrides."
     )
     args_schema: ArgsSchema | None = XianSendContractTransactionInput
 
@@ -49,7 +49,7 @@ class XianSendContractTransaction(XianBaseTool):
         contract: str,
         function: str,
         kwargs: dict[str, Any] | None = None,
-        stamps: int | None = None,
+        chi: int | None = None,
         nonce: int | None = None,
         mode: Literal["async", "checktx", "commit"] = "checktx",
         wait_for_tx: bool = True,
@@ -60,7 +60,7 @@ class XianSendContractTransaction(XianBaseTool):
                 contract=contract,
                 function=function,
                 kwargs=kwargs or {},
-                stamps=stamps,
+                chi=chi,
                 nonce=nonce,
                 mode=mode,
                 wait_for_tx=wait_for_tx,

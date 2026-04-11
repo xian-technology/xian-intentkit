@@ -94,7 +94,7 @@ async def test_xian_wallet_provider_normalizes_indexed_tx_hash(monkeypatch):
         "contract": "currency",
         "function": "transfer",
         "success": True,
-        "stamps_used": 42,
+        "chi_used": 42,
     }
 
     with patch("intentkit.wallets.xian.XianAsync") as mock_client_cls:

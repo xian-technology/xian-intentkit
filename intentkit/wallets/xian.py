@@ -73,14 +73,14 @@ class XianWalletProvider:
         wait_for_tx: bool | None = None,
         timeout_seconds: float | None = None,
         poll_interval_seconds: float | None = None,
-        stamps: int | None = None,
+        chi: int | None = None,
     ) -> Any:
         async with self._client() as client:
             return await client.send(
                 amount=amount,
                 to_address=to_address,
                 token=token,
-                stamps=stamps,
+                chi=chi,
                 mode=mode,
                 wait_for_tx=wait_for_tx,
                 timeout_seconds=timeout_seconds,
@@ -97,14 +97,14 @@ class XianWalletProvider:
         wait_for_tx: bool | None = None,
         timeout_seconds: float | None = None,
         poll_interval_seconds: float | None = None,
-        stamps: int | None = None,
+        chi: int | None = None,
     ) -> Any:
         async with self._client() as client:
             return await client.approve(
                 contract=spender,
                 token=token,
                 amount=amount,
-                stamps=stamps,
+                chi=chi,
                 mode=mode,
                 wait_for_tx=wait_for_tx,
                 timeout_seconds=timeout_seconds,
@@ -145,7 +145,7 @@ class XianWalletProvider:
         contract: str,
         function: str,
         kwargs: dict[str, Any],
-        stamps: int | None = None,
+        chi: int | None = None,
         nonce: int | None = None,
         mode: Literal["async", "checktx", "commit"] | None = None,
         wait_for_tx: bool | None = None,
@@ -157,7 +157,7 @@ class XianWalletProvider:
                 contract=contract,
                 function=function,
                 kwargs=kwargs,
-                stamps=stamps,
+                chi=chi,
                 nonce=nonce,
                 chain_id=self.chain_id,
                 mode=mode,

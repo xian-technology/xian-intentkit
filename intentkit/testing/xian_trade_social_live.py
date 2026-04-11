@@ -27,12 +27,12 @@ TOKEN_FIXTURE = (
     WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
 )
 
-TOKEN_DEPLOY_STAMPS = 200_000
-PAIR_DEPLOY_STAMPS = 350_000
-DEX_DEPLOY_STAMPS = 250_000
-HELPER_DEPLOY_STAMPS = 120_000
-TOKEN_TX_STAMPS = 12_000
-DEX_TX_STAMPS = 80_000
+TOKEN_DEPLOY_CHI = 200_000
+PAIR_DEPLOY_CHI = 350_000
+DEX_DEPLOY_CHI = 250_000
+HELPER_DEPLOY_CHI = 120_000
+TOKEN_TX_CHI = 12_000
+DEX_TX_CHI = 80_000
 WAIT_TIMEOUT_SECONDS = 120.0
 AUTONOMOUS_READY_TIMEOUT_SECONDS = 30.0
 AUTONOMOUS_SYNC_GRACE_SECONDS = 3.0
@@ -344,13 +344,13 @@ async def submit_contract(
     name: str,
     code: str,
     constructor_args: dict[str, Any] | None = None,
-    stamps: int,
+    chi: int,
 ) -> None:
     result = await client.submit_contract(
         name=name,
         code=code,
         args=constructor_args,
-        stamps=stamps,
+        chi=chi,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -367,13 +367,13 @@ async def send_tx_or_raise(
     contract: str,
     function: str,
     kwargs: dict[str, Any],
-    stamps: int,
+    chi: int,
 ) -> Any:
     result = await client.send_tx(
         contract=contract,
         function=function,
         kwargs=kwargs,
-        stamps=stamps,
+        chi=chi,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -396,7 +396,7 @@ async def approve_or_raise(
         contract=spender,
         token=token,
         amount=amount,
-        stamps=TOKEN_TX_STAMPS,
+        chi=TOKEN_TX_CHI,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -443,19 +443,19 @@ async def deploy_live_dex(
             "name": "IntentKit Trade Token",
             "symbol": "IKT",
         },
-        stamps=TOKEN_DEPLOY_STAMPS,
+        chi=TOKEN_DEPLOY_CHI,
     )
     await submit_contract(
         client,
         name=pairs_contract,
         code=render_pairs_contract(dex_contract=dex_contract),
-        stamps=PAIR_DEPLOY_STAMPS,
+        chi=PAIR_DEPLOY_CHI,
     )
     await submit_contract(
         client,
         name=dex_contract,
         code=render_dex_contract(pairs_contract=pairs_contract),
-        stamps=DEX_DEPLOY_STAMPS,
+        chi=DEX_DEPLOY_CHI,
     )
     await submit_contract(
         client,
@@ -464,7 +464,7 @@ async def deploy_live_dex(
             dex_contract=dex_contract,
             pairs_contract=pairs_contract,
         ),
-        stamps=HELPER_DEPLOY_STAMPS,
+        chi=HELPER_DEPLOY_CHI,
     )
 
     await approve_or_raise(
@@ -494,7 +494,7 @@ async def deploy_live_dex(
             "to": founder_address,
             "deadline": deadline_value(seconds_from_now=300),
         },
-        stamps=DEX_TX_STAMPS,
+        chi=DEX_TX_CHI,
     )
 
     token0, token1 = sorted(("currency", token_contract))
@@ -824,7 +824,7 @@ async def fund_agent_wallet(
         amount=amount,
         to_address=wallet_address,
         token="currency",
-        stamps=TOKEN_TX_STAMPS,
+        chi=TOKEN_TX_CHI,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -876,7 +876,7 @@ async def trigger_price_move(
             "to": founder_address,
             "deadline": deadline_value(seconds_from_now=300),
         },
-        stamps=DEX_TX_STAMPS,
+        chi=DEX_TX_CHI,
     )
     tx_hash = getattr(result, "tx_hash", None)
     if not isinstance(tx_hash, str) or not tx_hash:
