@@ -196,6 +196,10 @@ def test_anthropic_models_present_when_key_is_set():
         mock_config.openai_compatible_api_key = None
         mock_config.openai_compatible_base_url = None
         mock_config.openai_compatible_model = None
+        mock_config.anthropic_compatible_api_key = None
+        mock_config.anthropic_compatible_base_url = None
+        mock_config.anthropic_compatible_model = None
+        mock_config.anthropic_compatible_model_lite = None
 
         models = load_default_llm_models()
 

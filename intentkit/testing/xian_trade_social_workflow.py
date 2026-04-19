@@ -87,10 +87,19 @@ class TestAgent:
 
 @dataclass
 class FakeDexProvider:
+    address: str = "xian-test-wallet"
     trade_calls: list[dict[str, Any]] = field(default_factory=list)
 
     async def get_state(self, contract: str, variable: str, *keys: str) -> Any:
-        return 9
+        if contract == "con_pairs" and variable == "toks_to_pair":
+            return 9
+        if contract == "con_pairs" and variable == "pairs" and keys == (9, "reserve0"):
+            return 1000
+        if contract == "con_pairs" and variable == "pairs" and keys == (9, "reserve1"):
+            return 500
+        if contract == "con_dex" and variable == "zero_fee_signers":
+            return False
+        raise AssertionError(f"unexpected state lookup: {contract}.{variable} {keys}")
 
     async def call_contract(
         self,
