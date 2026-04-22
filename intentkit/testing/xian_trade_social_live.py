@@ -23,7 +23,9 @@ REPO_DIR = SCRIPT_DIR.parent.parent
 WORKSPACE_DIR = REPO_DIR.parent
 DEFAULT_NETWORK_JSON = WORKSPACE_DIR / "xian-stack" / ".localnet" / "network.json"
 DEX_SRC_DIR = WORKSPACE_DIR / "xian-contracts" / "contracts" / "dex" / "src"
-TOKEN_FIXTURE = WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
+TOKEN_FIXTURE = (
+    WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
+)
 
 TOKEN_DEPLOY_STAMPS = 200_000
 PAIR_DEPLOY_STAMPS = 350_000
@@ -275,9 +277,7 @@ def load_social_config(
 
 
 def deadline_value(*, seconds_from_now: int):
-    return to_contract_time(
-        datetime.now(UTC) + timedelta(seconds=seconds_from_now)
-    )
+    return to_contract_time(datetime.now(UTC) + timedelta(seconds=seconds_from_now))
 
 
 def _read_file(path: Path) -> str:
@@ -304,8 +304,12 @@ def render_dex_contract(*, pairs_contract: str) -> str:
 
 def render_helper_contract(*, dex_contract: str, pairs_contract: str) -> str:
     source = _read_file(DEX_SRC_DIR / "con_dex_helper.py")
-    source = source.replace('DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1)
-    source = source.replace('DEX_PAIRS = "con_pairs"', f'DEX_PAIRS = "{pairs_contract}"', 1)
+    source = source.replace(
+        'DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1
+    )
+    source = source.replace(
+        'DEX_PAIRS = "con_pairs"', f'DEX_PAIRS = "{pairs_contract}"', 1
+    )
     return source
 
 
@@ -944,7 +948,9 @@ async def verify_agent_trade_on_chain(
         if trade_hash:
             break
     if not trade_hash:
-        raise LiveWorkflowError("Could not extract the agent trade tx hash from the skill calls")
+        raise LiveWorkflowError(
+            "Could not extract the agent trade tx hash from the skill calls"
+        )
 
     indexed_tx = await client.get_indexed_tx(trade_hash)
     if indexed_tx is None:
@@ -1020,7 +1026,11 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
         effective_twitter_auth_mode = (
             social.twitter_auth_mode
             if social is not None
-            else ("linked_account" if agent.get("has_twitter_linked") else "existing_agent")
+            else (
+                "linked_account"
+                if agent.get("has_twitter_linked")
+                else "existing_agent"
+            )
         )
         if effective_twitter_auth_mode == "linked_account" and social is not None:
             twitter_link = await ensure_twitter_linked(

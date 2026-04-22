@@ -212,8 +212,7 @@ class AgentUpdate(AgentUserInput):
 
         for autonomous_config in self.autonomous:
             trigger_type = (
-                autonomous_config.trigger_type
-                or AgentAutonomousTriggerType.SCHEDULE
+                autonomous_config.trigger_type or AgentAutonomousTriggerType.SCHEDULE
             )
 
             if trigger_type == AgentAutonomousTriggerType.XIAN_EVENT:

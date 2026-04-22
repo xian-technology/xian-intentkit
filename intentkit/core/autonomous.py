@@ -11,8 +11,8 @@ from intentkit.config.redis import get_redis
 from intentkit.models.agent.autonomous import (
     AgentAutonomous,
     AgentAutonomousStatus,
-    AgentTasksGroup,
     AgentAutonomousTriggerType,
+    AgentTasksGroup,
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
 )
@@ -218,6 +218,7 @@ async def update_autonomous_task_status(
         await session.commit()
 
     return updated_task
+
 
 async def list_all_autonomous_tasks(
     team_id: str | None = None,

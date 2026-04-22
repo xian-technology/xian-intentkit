@@ -29,9 +29,7 @@ class XianApproveTokensInput(BaseModel):
 
 class XianApproveTokens(XianBaseTool):
     name: str = "xian_approve_tokens"
-    description: str = (
-        "Approve a spender to use tokens from the agent's Xian wallet."
-    )
+    description: str = "Approve a spender to use tokens from the agent's Xian wallet."
     args_schema: ArgsSchema | None = XianApproveTokensInput
 
     @override

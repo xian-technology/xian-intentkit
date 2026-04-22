@@ -159,10 +159,12 @@ async def test_sync_task_advances_cursor_and_dispatches_matching_events(monkeypa
     service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
     task = _task(filters={"to": "alice"})
     fake_client = FakeClient(
-        [[
-            _indexed_event(event_id=1, payload={"to": "bob"}),
-            _indexed_event(event_id=2, payload={"to": "alice"}),
-        ]]
+        [
+            [
+                _indexed_event(event_id=1, payload={"to": "bob"}),
+                _indexed_event(event_id=2, payload={"to": "alice"}),
+            ]
+        ]
     )
     dispatched: list[int] = []
 
@@ -231,20 +233,22 @@ async def test_dex_price_trigger_seeds_baseline_then_dispatches_matching_move(
         ),
     )
     fake_client = FakeClient(
-        [[
-            _indexed_event(
-                event_id=1,
-                contract="con_pairs",
-                event="Sync",
-                payload={"pair": 1, "reserve0": "100", "reserve1": "100"},
-            ),
-            _indexed_event(
-                event_id=2,
-                contract="con_pairs",
-                event="Sync",
-                payload={"pair": 1, "reserve0": "100", "reserve1": "112"},
-            ),
-        ]]
+        [
+            [
+                _indexed_event(
+                    event_id=1,
+                    contract="con_pairs",
+                    event="Sync",
+                    payload={"pair": 1, "reserve0": "100", "reserve1": "100"},
+                ),
+                _indexed_event(
+                    event_id=2,
+                    contract="con_pairs",
+                    event="Sync",
+                    payload={"pair": 1, "reserve0": "100", "reserve1": "112"},
+                ),
+            ]
+        ]
     )
     dispatched: list[tuple[int, dict[str, object] | None]] = []
 
@@ -286,14 +290,16 @@ async def test_seed_cursor_primes_dex_baseline(monkeypatch):
         ),
     )
     fake_client = FakeClient(
-        [[
-            _indexed_event(
-                event_id=9,
-                contract="con_pairs",
-                event="Sync",
-                payload={"pair": 1, "reserve0": "50", "reserve1": "75"},
-            )
-        ]]
+        [
+            [
+                _indexed_event(
+                    event_id=9,
+                    contract="con_pairs",
+                    event="Sync",
+                    payload={"pair": 1, "reserve0": "50", "reserve1": "75"},
+                )
+            ]
+        ]
     )
 
     monkeypatch.setattr(service, "_xian_client", lambda network_id: fake_client)
@@ -326,18 +332,20 @@ async def test_seed_cursor_primes_dex_baseline_from_fixed_payload(monkeypatch):
         ),
     )
     fake_client = FakeClient(
-        [[
-            _indexed_event(
-                event_id=10,
-                contract="con_pairs",
-                event="Sync",
-                payload={
-                    "pair": 1,
-                    "reserve0": {"__fixed__": "50"},
-                    "reserve1": {"__fixed__": "75"},
-                },
-            )
-        ]]
+        [
+            [
+                _indexed_event(
+                    event_id=10,
+                    contract="con_pairs",
+                    event="Sync",
+                    payload={
+                        "pair": 1,
+                        "reserve0": {"__fixed__": "50"},
+                        "reserve1": {"__fixed__": "75"},
+                    },
+                )
+            ]
+        ]
     )
 
     monkeypatch.setattr(service, "_xian_client", lambda network_id: fake_client)

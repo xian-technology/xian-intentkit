@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -10,11 +11,14 @@ load_dotenv()
 
 os.environ["DB_NAME"] = "bdd"
 
+BDD_DIR = Path(__file__).resolve().parent
+
 
 def pytest_collection_modifyitems(items) -> None:
     """Mark all tests in this directory as BDD tests automatically."""
     for item in items:
-        item.add_marker(pytest.mark.bdd)
+        if Path(item.path).resolve().is_relative_to(BDD_DIR):
+            item.add_marker(pytest.mark.bdd)
 
 
 @pytest_asyncio.fixture(scope="session", autouse=True, loop_scope="session")

@@ -156,16 +156,24 @@ class TestGetWalletSigner:
 
         mock_account = MagicMock()
         mock_account.address = "0x1234567890abcdef1234567890abcdef12345678"
+        mock_signer = MagicMock()
+        mock_signer.address = mock_account.address
 
-        with patch(
-            "intentkit.wallets.get_evm_account",
-            new_callable=AsyncMock,
-            return_value=mock_account,
+        with (
+            patch(
+                "intentkit.wallets.get_evm_account",
+                new_callable=AsyncMock,
+                return_value=mock_account,
+            ),
+            patch(
+                "cdp.EvmLocalAccount", return_value=mock_signer
+            ) as mock_local_account,
         ):
             signer = await get_wallet_signer(mock_agent)
 
             assert signer is not None
             assert signer.address == mock_account.address
+            mock_local_account.assert_called_once_with(mock_account)
 
     @pytest.mark.asyncio
     async def test_readonly_signer_raises(self):

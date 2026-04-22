@@ -68,8 +68,7 @@ class XianDexPriceChangeTrigger(BaseModel):
     price_base: str = PydanticField(
         default="token1_per_token0",
         description=(
-            "How to derive price from reserves: token1_per_token0 or "
-            "token0_per_token1."
+            "How to derive price from reserves: token1_per_token0 or token0_per_token1."
         ),
         pattern=r"^(token1_per_token0|token0_per_token1)$",
     )
@@ -183,9 +182,7 @@ class AutonomousCreateRequest(BaseModel):
                     "xian_event is required for xian_event autonomous tasks"
                 )
             if self.cron:
-                raise ValueError(
-                    "cron cannot be set for xian_event autonomous tasks"
-                )
+                raise ValueError("cron cannot be set for xian_event autonomous tasks")
         return self
 
 

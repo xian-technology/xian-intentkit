@@ -1,8 +1,8 @@
 from unittest.mock import AsyncMock, patch
 
+import httpx
 import pytest
 from aiohttp import web
-import httpx
 
 from intentkit.abstracts.graph import AgentContext
 from intentkit.models.chat import AuthorType

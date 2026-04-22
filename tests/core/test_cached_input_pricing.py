@@ -235,6 +235,6 @@ def test_csv_cached_input_price_for_grok4():
 
         models = load_default_llm_models()
 
-    grok4 = models.get("xai:grok-4.20-beta-0309-reasoning")
+    grok4 = models.get("xai:grok-4.20-0309-reasoning")
     assert grok4 is not None
     assert grok4.cached_input_price == Decimal("0.2")

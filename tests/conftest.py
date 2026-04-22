@@ -8,9 +8,9 @@ from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from testing.postgresql import Postgresql
 
-from intentkit.config import db as db_module
-
 os.environ.setdefault("REDIS_HOST", "localhost")
+
+from intentkit.config import db as db_module  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
