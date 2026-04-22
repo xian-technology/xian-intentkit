@@ -219,6 +219,7 @@ async def update_autonomous_task_status(
 
     return updated_task
 
+
 async def list_all_autonomous_tasks(
     team_id: str | None = None,
 ) -> list[AgentTasksGroup]:
