@@ -11,8 +11,8 @@ from intentkit.config.redis import get_redis
 from intentkit.models.agent.autonomous import (
     AgentAutonomous,
     AgentAutonomousStatus,
-    AgentTasksGroup,
     AgentAutonomousTriggerType,
+    AgentTasksGroup,
     AutonomousCreateRequest,
     AutonomousUpdateRequest,
 )

@@ -33,8 +33,8 @@ from intentkit.core.autonomous import (
 )
 from intentkit.core.xian_event_triggers import XianEventTriggerService
 from intentkit.models.agent import Agent, AgentAutonomousStatus, AgentTable
-from intentkit.utils.alert import cleanup_alert, send_alert
 from intentkit.models.agent.autonomous import AgentAutonomousTriggerType
+from intentkit.utils.alert import cleanup_alert, send_alert
 
 from app.entrypoints.autonomous import run_autonomous_task
 
