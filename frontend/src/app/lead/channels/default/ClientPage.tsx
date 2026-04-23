@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import React, { useRef, useEffect, useCallback, useMemo } from "react";
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { Bot, User, MessageSquareText, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -106,7 +106,7 @@ export default function DefaultChannelPage() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
-  const [autoScrolled, setAutoScrolled] = useState(false);
+  const autoScrolledRef = useRef(false);
 
   // Sidebar data
   const {
@@ -160,11 +160,11 @@ export default function DefaultChannelPage() {
 
   // Auto-scroll to bottom on initial load
   useEffect(() => {
-    if (!autoScrolled && messages.length > 0 && scrollRef.current) {
+    if (!autoScrolledRef.current && messages.length > 0 && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-      setAutoScrolled(true);
+      autoScrolledRef.current = true;
     }
-  }, [messages, autoScrolled]);
+  }, [messages]);
 
   // Load more when scrolling to top
   useEffect(() => {
