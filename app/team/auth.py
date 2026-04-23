@@ -6,6 +6,7 @@ import jwt
 from fastapi import Depends, Path
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt import PyJWKClient
+from jwt.exceptions import PyJWKClientConnectionError, PyJWKClientError
 
 from intentkit.config.config import config
 from intentkit.core.team.membership import check_permission
@@ -148,12 +149,26 @@ def _verify_jwks(token: str) -> str:
             key="InvalidToken",
             message="Invalid token",
         )
-    except Exception as e:
-        logger.error("JWKS verification error: %s", e)
+    except PyJWKClientConnectionError as e:
+        logger.error("JWKS provider unavailable: %s", e)
+        raise IntentKitAPIError(
+            status_code=503,
+            key="AuthProviderUnavailable",
+            message="Unable to verify token because the auth provider is unavailable",
+        )
+    except PyJWKClientError as e:
+        logger.info("Invalid JWT signing key: %s", e)
         raise IntentKitAPIError(
             status_code=401,
             key="InvalidToken",
-            message="Token verification failed",
+            message="Invalid token",
+        )
+    except Exception as e:
+        logger.error("JWKS verification error: %s", e)
+        raise IntentKitAPIError(
+            status_code=503,
+            key="AuthProviderUnavailable",
+            message="Unable to verify token because the auth provider is unavailable",
         )
 
     user_id: str | None = payload.get("sub")
