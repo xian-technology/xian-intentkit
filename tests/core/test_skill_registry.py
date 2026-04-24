@@ -12,6 +12,9 @@ def test_get_valid_skills_registry_returns_categories():
     assert "ui_ask_user" in registry["ui"]
     assert isinstance(registry["ui"]["ui_show_card"], str)
     assert len(registry["ui"]["ui_show_card"]) > 0
+    assert "xian" in registry
+    assert "xian_get_chain_status" in registry["xian"]
+    assert registry["xian"]["xian_get_chain_status"] == "Get Chain Status"
 
 
 def test_get_valid_skills_registry_has_no_empty_categories():

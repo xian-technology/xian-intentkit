@@ -383,6 +383,9 @@ class Agent(AgentCreate, AgentPublicInfo):
                         wallet_enum.append("safe")
                         wallet_titles.append("Safe Wallet")
 
+                wallet_enum.append("xian")
+                wallet_titles.append("Xian Wallet")
+
                 wallet_enum.append("readonly")
                 wallet_titles.append("Readonly Wallet")
 

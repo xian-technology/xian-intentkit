@@ -203,7 +203,7 @@ def get_valid_skills_registry() -> dict[str, dict[str, str]]:
     """Load all skill schemas and return a registry of valid skills.
 
     Returns a nested dict mapping category name to a dict of skill names
-    and their descriptions: ``{category: {skill_name: description}}``.
+    and their display text: ``{category: {skill_name: description_or_title}}``.
 
     Broken or unreadable schemas are silently skipped.
     """
@@ -240,9 +240,14 @@ def get_valid_skills_registry() -> dict[str, dict[str, str]]:
                 skills: dict[str, str] = {}
                 for skill_name, skill_def in state_props.items():
                     if isinstance(skill_def, dict):
-                        description = skill_def.get("description", "")
+                        description = skill_def.get("description")
+                        title = skill_def.get("title")
                         if isinstance(description, str) and description:
                             skills[skill_name] = description
+                        elif isinstance(title, str) and title:
+                            skills[skill_name] = title
+                        else:
+                            skills[skill_name] = skill_name
 
                 if skills:
                     registry[category_name] = skills

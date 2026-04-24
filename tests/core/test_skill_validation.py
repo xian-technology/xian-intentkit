@@ -14,6 +14,16 @@ def test_validate_skills_accepts_valid_config():
     validate_skills(skills)  # Should not raise
 
 
+def test_validate_skills_accepts_xian_config():
+    skills = {
+        "xian": {
+            "enabled": True,
+            "states": {"xian_get_chain_status": "public"},
+        }
+    }
+    validate_skills(skills)
+
+
 def test_validate_skills_rejects_unknown_category():
     skills = {
         "nonexistent_category": {
