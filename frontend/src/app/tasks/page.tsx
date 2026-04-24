@@ -7,7 +7,6 @@ import { Bot, Pencil, MoreHorizontal, Trash, Power } from "lucide-react";
 import { getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import cronstrue from "cronstrue";
 import {
   Card,
   CardContent,
@@ -34,6 +33,7 @@ import {
 import { autonomousApi, AutonomousTask } from "@/lib/api";
 import { TaskDialog } from "@/app/agent/[id]/tasks/TaskDialog";
 import { TaskBadgeActions } from "@/app/agent/[id]/tasks/TaskBadgeActions";
+import { TaskTriggerDetails } from "@/app/agent/[id]/tasks/TaskTriggerDetails";
 import { buildTaskLogsPath } from "@/lib/autonomousChat";
 
 export default function AllTasksPage() {
@@ -242,39 +242,7 @@ export default function AllTasksPage() {
                       </div>
                     </CardHeader>
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-2">
-                        <div>
-                          <span className="font-semibold text-muted-foreground">
-                            Schedule:{" "}
-                          </span>
-                          {task.cron ? (
-                            <div className="flex flex-col">
-                              <span>
-                                {(() => {
-                                  try {
-                                    return cronstrue.toString(task.cron);
-                                  } catch {
-                                    return task.cron;
-                                  }
-                                })()}
-                              </span>
-                              <span className="text-xs text-muted-foreground font-mono mt-0.5">
-                                {task.cron}
-                              </span>
-                            </div>
-                          ) : (
-                            `Every ${task.minutes} minutes`
-                          )}
-                        </div>
-                        <div>
-                          <span className="font-semibold text-muted-foreground">
-                            Next Run:{" "}
-                          </span>
-                          {task.next_run_time
-                            ? new Date(task.next_run_time).toLocaleString()
-                            : "Not scheduled"}
-                        </div>
-                      </div>
+                      <TaskTriggerDetails task={task} />
                       {task.prompt && (
                         <div className="mt-4">
                           <div className="text-xs font-semibold text-muted-foreground mb-1">

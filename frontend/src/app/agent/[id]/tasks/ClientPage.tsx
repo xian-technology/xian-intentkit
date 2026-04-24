@@ -18,7 +18,6 @@ import { ChatSidebar } from "@/components/features/ChatSidebar";
 import { getImageUrl } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import cronstrue from "cronstrue";
 import {
   Card,
   CardContent,
@@ -47,6 +46,7 @@ import { useAgentSlugRewrite } from "@/hooks/useAgentSlugRewrite";
 import { TaskDialog } from "./TaskDialog";
 import { buildChatThreadPath, buildTaskLogsPath } from "@/lib/autonomousChat";
 import { TaskBadgeActions } from "./TaskBadgeActions";
+import { TaskTriggerDetails } from "./TaskTriggerDetails";
 
 export default function AgentTasksPage() {
   const params = useParams();
@@ -99,13 +99,25 @@ export default function AgentTasksPage() {
       if (editingTask) {
         await autonomousApi.updateTask(resolvedId, editingTask.id, taskData);
       } else {
-        // Ensure prompt and cron are present for creation
-        if (!taskData.prompt || !taskData.cron) {
-          throw new Error("Prompt and Cron are required");
+        const triggerType =
+          taskData.trigger_type ?? (taskData.xian_event ? "xian_event" : "schedule");
+
+        if (!taskData.prompt) {
+          throw new Error("Prompt is required");
         }
+        if (triggerType === "schedule" && !taskData.cron) {
+          throw new Error("Cron is required for scheduled tasks");
+        }
+        if (triggerType === "xian_event" && !taskData.xian_event) {
+          throw new Error("Xian event configuration is required");
+        }
+
         await autonomousApi.createTask(resolvedId, {
           prompt: taskData.prompt,
-          cron: taskData.cron,
+          cron: triggerType === "schedule" ? taskData.cron : null,
+          trigger_type: triggerType,
+          xian_event:
+            triggerType === "xian_event" ? taskData.xian_event : null,
           name: taskData.name,
           description: taskData.description,
           enabled: taskData.enabled ?? false,
@@ -278,7 +290,7 @@ export default function AgentTasksPage() {
               Autonomous Tasks
             </h2>
             <p className="text-xs text-muted-foreground">
-              Manage autonomous scheduled tasks for this agent.
+              Manage autonomous tasks for this agent.
             </p>
           </div>
           {canEdit && (
@@ -374,39 +386,7 @@ export default function AgentTasksPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-2">
-                      <div>
-                        <span className="font-semibold text-muted-foreground">
-                          Schedule:{" "}
-                        </span>
-                        {task.cron ? (
-                          <div className="flex flex-col">
-                            <span>
-                              {(() => {
-                                try {
-                                  return cronstrue.toString(task.cron);
-                                } catch (e) {
-                                  return task.cron;
-                                }
-                              })()}
-                            </span>
-                            <span className="text-xs text-muted-foreground font-mono mt-0.5">
-                              {task.cron}
-                            </span>
-                          </div>
-                        ) : (
-                          `Every ${task.minutes} minutes`
-                        )}
-                      </div>
-                      <div>
-                        <span className="font-semibold text-muted-foreground">
-                          Next Run:{" "}
-                        </span>
-                        {task.next_run_time
-                          ? new Date(task.next_run_time).toLocaleString()
-                          : "Not scheduled"}
-                      </div>
-                    </div>
+                    <TaskTriggerDetails task={task} />
                     {task.prompt && (
                       <div className="mt-4">
                         <div className="text-xs font-semibold text-muted-foreground mb-1">

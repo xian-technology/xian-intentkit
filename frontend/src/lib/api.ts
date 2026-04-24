@@ -1009,16 +1009,35 @@ export const publicApi = {
  */
 export interface AutonomousTask {
   id: string;
-  name?: string;
-  description?: string;
-  cron?: string;
-  minutes?: number;
+  name?: string | null;
+  description?: string | null;
+  cron?: string | null;
+  minutes?: number | null;
+  trigger_type?: "schedule" | "xian_event";
+  xian_event?: XianEventTrigger | null;
   prompt: string;
   enabled: boolean;
   has_memory: boolean;
-  status?: string;
-  next_run_time?: string;
+  status?: string | null;
+  next_run_time?: string | null;
   chat_id: string;
+}
+
+export interface XianDexPriceChangeTrigger {
+  threshold_pct: number;
+  direction?: "either" | "up" | "down";
+  pair_field?: string;
+  reserve0_field?: string;
+  reserve1_field?: string;
+  price_base?: "token1_per_token0" | "token0_per_token1";
+}
+
+export interface XianEventTrigger {
+  contract: string;
+  event: string;
+  filters?: Record<string, string> | null;
+  cooldown_seconds?: number;
+  dex_price_change?: XianDexPriceChangeTrigger | null;
 }
 
 export interface AgentTasksGroup {
