@@ -116,6 +116,84 @@ def test_iter_contract_events_from_tx_event_decodes_payload():
     ]
 
 
+@pytest.mark.asyncio
+async def test_handle_ws_message_requests_sync_for_custom_event(monkeypatch):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    task = XianEventTask(
+        runtime_id="agent-1-task-custom",
+        agent_id="agent-1",
+        agent_owner="owner-1",
+        agent_name="Agent One",
+        network_id="xian-localnet",
+        task_id="task-custom",
+        prompt="Act on custom payments",
+        has_memory=False,
+        trigger=XianEventTrigger(
+            contract="con_custom_payments",
+            event="Paid",
+            filters={"account": "alice"},
+        ),
+    )
+    service._tasks[task.runtime_id] = task
+    service._tasks_by_source[task.source_key].add(task.runtime_id)
+    requested: list[str] = []
+
+    async def fake_request_sync(runtime_id):
+        requested.append(runtime_id)
+
+    def b64(value: str) -> str:
+        return base64.b64encode(value.encode()).decode()
+
+    monkeypatch.setattr(service, "request_sync", fake_request_sync)
+    message = {
+        "result": {
+            "data": {
+                "type": "tendermint/event/Tx",
+                "value": {
+                    "TxResult": {
+                        "result": {
+                            "events": [
+                                {
+                                    "type": b64("Paid"),
+                                    "attributes": [
+                                        {
+                                            "key": b64("contract"),
+                                            "value": b64("con_custom_payments"),
+                                        }
+                                    ],
+                                },
+                                {
+                                    "type": b64("Ignored"),
+                                    "attributes": [
+                                        {
+                                            "key": b64("contract"),
+                                            "value": b64("con_custom_payments"),
+                                        }
+                                    ],
+                                },
+                                {
+                                    "type": b64("Paid"),
+                                    "attributes": [
+                                        {
+                                            "key": b64("contract"),
+                                            "value": b64("con_other"),
+                                        }
+                                    ],
+                                },
+                            ]
+                        }
+                    }
+                },
+            }
+        }
+    }
+
+    await service._handle_ws_message("xian-localnet", message)
+
+    assert requested == [task.runtime_id]
+
+
 def test_event_matches_trigger_with_filters():
     task = _task(filters={"to": "alice"})
     matching = _indexed_event(event_id=1, payload={"to": "alice", "amount": 5})
@@ -179,6 +257,54 @@ async def test_sync_task_advances_cursor_and_dispatches_matching_events(monkeypa
 
     assert dispatched == [2]
     assert await redis.get(task.cursor_key) == "2"
+
+
+@pytest.mark.asyncio
+async def test_process_custom_event_dispatches_without_dex_metrics(monkeypatch):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    task = XianEventTask(
+        runtime_id="agent-1-task-custom",
+        agent_id="agent-1",
+        agent_owner="owner-1",
+        agent_name="Agent One",
+        network_id="xian-localnet",
+        task_id="task-custom",
+        prompt="Act on custom payments",
+        has_memory=False,
+        trigger=XianEventTrigger(
+            contract="con_custom_payments",
+            event="Paid",
+            filters={"account": "alice"},
+        ),
+    )
+    dispatched: list[tuple[str, int, dict | None]] = []
+
+    async def fake_dispatch(runtime_task, event, *, trigger_metrics=None):
+        dispatched.append((runtime_task.runtime_id, event.id, trigger_metrics))
+
+    monkeypatch.setattr(service, "_dispatch_event", fake_dispatch)
+
+    await service._process_event(
+        task,
+        _indexed_event(
+            event_id=11,
+            contract="con_custom_payments",
+            event="Paid",
+            payload={"account": "alice", "amount": "12.5"},
+        ),
+    )
+    await service._process_event(
+        task,
+        _indexed_event(
+            event_id=12,
+            contract="con_custom_payments",
+            event="Paid",
+            payload={"account": "bob", "amount": "8"},
+        ),
+    )
+
+    assert dispatched == [(task.runtime_id, 11, None)]
 
 
 @pytest.mark.asyncio

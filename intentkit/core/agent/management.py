@@ -4,6 +4,7 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from intentkit.config.config import config
 from intentkit.config.db import get_session
 from intentkit.models.agent import Agent, AgentCreate, AgentUpdate
 from intentkit.models.agent.db import AgentTable
@@ -15,6 +16,27 @@ from .queries import get_agent, get_agent_by_id_or_slug
 from .wallet import process_agent_wallet
 
 logger = logging.getLogger(__name__)
+
+
+def _is_xian_agent_data(agent_data: dict) -> bool:
+    """Return whether the serialized agent config enables Xian behavior."""
+    if agent_data.get("wallet_provider") == "xian":
+        return True
+
+    skills = agent_data.get("skills")
+    if not isinstance(skills, dict):
+        return False
+
+    xian_skill = skills.get("xian")
+    return isinstance(xian_skill, dict) and xian_skill.get("enabled") is True
+
+
+def _apply_xian_agent_logo_default(agent_data: dict) -> None:
+    """Use the configured Xian logo as the default avatar for Xian agents."""
+    if agent_data.get("picture") or not config.xian_agent_logo_url:
+        return
+    if _is_xian_agent_data(agent_data):
+        agent_data["picture"] = config.xian_agent_logo_url
 
 
 async def _validate_slug_unique(
@@ -120,6 +142,7 @@ async def override_agent(
             from intentkit.core.manager.service import sanitize_skills
 
             update_data["skills"] = sanitize_skills(update_data["skills"])
+        _apply_xian_agent_logo_default(update_data)
         for key, value in update_data.items():
             setattr(db_agent, key, value)
         # version
@@ -212,6 +235,17 @@ async def patch_agent(
             from intentkit.core.manager.service import sanitize_skills
 
             update_data["skills"] = sanitize_skills(update_data["skills"])
+        if "picture" not in update_data and not db_agent.picture:
+            candidate_data = {
+                "wallet_provider": update_data.get(
+                    "wallet_provider", db_agent.wallet_provider
+                ),
+                "skills": update_data.get("skills", db_agent.skills),
+                "picture": None,
+            }
+            _apply_xian_agent_logo_default(candidate_data)
+            if candidate_data.get("picture"):
+                update_data["picture"] = candidate_data["picture"]
         for key, value in update_data.items():
             setattr(db_agent, key, value)
         db_agent.version = agent.hash()
@@ -287,6 +321,7 @@ async def create_agent(agent: AgentCreate) -> tuple[Agent, AgentData]:
                 create_data["autonomous"] = agent.normalize_autonomous_statuses(
                     create_data["autonomous"]
                 )
+            _apply_xian_agent_logo_default(create_data)
             db_agent = AgentTable(**create_data)
             db_agent.version = agent.hash()
             db_agent.deployed_at = func.now()

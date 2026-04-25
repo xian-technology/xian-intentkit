@@ -3,6 +3,7 @@
   "type": "object",
   "title": "Xian Blockchain",
   "description": "Xian wallet, token, contract, transaction, indexed-event, and DEX skills powered by xian-tech-py.",
+  "x-icon": "/skills/xian/xian.jpg",
   "x-tags": [
     "Crypto",
     "Xian"

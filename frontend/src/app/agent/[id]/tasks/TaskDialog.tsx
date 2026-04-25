@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { ChevronDown, Plus, Trash2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -36,6 +36,11 @@ const DEFAULT_CRON = "0 0 * * *";
 const selectClassName =
   "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
+const DEFAULT_PAIR_FIELD = "pair";
+const DEFAULT_RESERVE0_FIELD = "reserve0";
+const DEFAULT_RESERVE1_FIELD = "reserve1";
+const DEFAULT_PRICE_BASE = "token1_per_token0";
+
 function createFilterRow(key = "", value = ""): FilterRow {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
@@ -62,6 +67,24 @@ function rowsToFilters(rows: FilterRow[]): Record<string, string> | null {
     return acc;
   }, {});
   return Object.keys(filters).length > 0 ? filters : null;
+}
+
+function getFilterValue(rows: FilterRow[], key: string): string {
+  return rows.find((row) => row.key === key)?.value ?? "";
+}
+
+function setFilterValue(
+  rows: FilterRow[],
+  key: string,
+  value: string,
+): FilterRow[] {
+  const existing = rows.find((row) => row.key === key);
+  if (existing) {
+    return rows.map((row) =>
+      row.id === existing.id ? { ...row, value } : row,
+    );
+  }
+  return [...rows, createFilterRow(key, value)];
 }
 
 function inferTriggerType(task?: AutonomousTask | null): TriggerType {
@@ -107,12 +130,25 @@ function getDefaultEvent(preset: EventPreset): XianEventTrigger {
     dex_price_change: {
       threshold_pct: 3,
       direction: "either",
-      pair_field: "pair",
-      reserve0_field: "reserve0",
-      reserve1_field: "reserve1",
-      price_base: "token1_per_token0",
+      pair_field: DEFAULT_PAIR_FIELD,
+      reserve0_field: DEFAULT_RESERVE0_FIELD,
+      reserve1_field: DEFAULT_RESERVE1_FIELD,
+      price_base: DEFAULT_PRICE_BASE,
     },
   };
+}
+
+function hasAdvancedDexSettings(xianEvent?: XianEventTrigger | null): boolean {
+  const dex = xianEvent?.dex_price_change;
+  if (!dex) {
+    return false;
+  }
+  return (
+    (dex.pair_field ?? DEFAULT_PAIR_FIELD) !== DEFAULT_PAIR_FIELD ||
+    (dex.reserve0_field ?? DEFAULT_RESERVE0_FIELD) !== DEFAULT_RESERVE0_FIELD ||
+    (dex.reserve1_field ?? DEFAULT_RESERVE1_FIELD) !== DEFAULT_RESERVE1_FIELD ||
+    (dex.price_base ?? DEFAULT_PRICE_BASE) !== DEFAULT_PRICE_BASE
+  );
 }
 
 function normalizeXianEvent(
@@ -137,13 +173,16 @@ function normalizeXianEvent(
     normalized.dex_price_change = {
       threshold_pct: Number.isFinite(threshold) && threshold > 0 ? threshold : 3,
       direction: current.dex_price_change?.direction ?? "either",
-      pair_field: current.dex_price_change?.pair_field?.trim() || "pair",
+      pair_field:
+        current.dex_price_change?.pair_field?.trim() || DEFAULT_PAIR_FIELD,
       reserve0_field:
-        current.dex_price_change?.reserve0_field?.trim() || "reserve0",
+        current.dex_price_change?.reserve0_field?.trim() ||
+        DEFAULT_RESERVE0_FIELD,
       reserve1_field:
-        current.dex_price_change?.reserve1_field?.trim() || "reserve1",
+        current.dex_price_change?.reserve1_field?.trim() ||
+        DEFAULT_RESERVE1_FIELD,
       price_base:
-        current.dex_price_change?.price_base ?? "token1_per_token0",
+        current.dex_price_change?.price_base ?? DEFAULT_PRICE_BASE,
     };
   }
 
@@ -159,6 +198,7 @@ export function TaskDialog({
   const [loading, setLoading] = useState(false);
   const [eventPreset, setEventPreset] =
     useState<EventPreset>("dex_price_change");
+  const [showDexAdvanced, setShowDexAdvanced] = useState(false);
   const [filterRows, setFilterRows] = useState<FilterRow[]>([
     createFilterRow("pair", ""),
   ]);
@@ -181,6 +221,7 @@ export function TaskDialog({
     const xianEvent = task?.xian_event ?? getDefaultEvent(preset);
 
     setEventPreset(preset);
+    setShowDexAdvanced(hasAdvancedDexSettings(xianEvent));
     setFilterRows(filtersToRows(xianEvent.filters));
     setFormData({
       name: task?.name || "",
@@ -255,12 +296,17 @@ export function TaskDialog({
     const preset = value as EventPreset;
     const nextEvent = getDefaultEvent(preset);
     setEventPreset(preset);
+    setShowDexAdvanced(false);
     setFilterRows(filtersToRows(nextEvent.filters));
     setFormData((current) => ({
       ...current,
       xian_event: nextEvent,
     }));
   };
+
+  const isDexPreset =
+    eventPreset === "dex_price_change" || eventPreset === "dex_swap";
+  const pairFilterValue = getFilterValue(filterRows, DEFAULT_PAIR_FIELD);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -401,69 +447,134 @@ export function TaskDialog({
                   </select>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="contract"
-                      className="text-sm font-medium leading-none"
-                    >
-                      Contract <span className="text-destructive">*</span>
-                    </label>
-                    <Input
-                      id="contract"
-                      value={xianEvent.contract}
-                      onChange={(e) =>
-                        updateXianEvent({ contract: e.target.value })
-                      }
-                      required={triggerType === "xian_event"}
-                      className="font-mono"
-                    />
-                  </div>
+                {isDexPreset ? (
+                  <div className="grid gap-4">
+                    <div className="grid gap-1 rounded-md bg-muted/40 p-3">
+                      <div className="text-sm font-medium">
+                        {eventPreset === "dex_price_change"
+                          ? "DEX price movement"
+                          : "DEX swap"}
+                      </div>
+                      <div className="font-mono text-xs text-muted-foreground">
+                        {xianEvent.contract}.{xianEvent.event}
+                      </div>
+                    </div>
 
-                  <div className="grid gap-2">
-                    <label
-                      htmlFor="event"
-                      className="text-sm font-medium leading-none"
-                    >
-                      Event <span className="text-destructive">*</span>
-                    </label>
-                    <Input
-                      id="event"
-                      value={xianEvent.event}
-                      onChange={(e) =>
-                        updateXianEvent({ event: e.target.value })
-                      }
-                      required={triggerType === "xian_event"}
-                      className="font-mono"
-                    />
-                  </div>
-                </div>
+                    <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+                      <div className="grid content-start gap-2">
+                        <label
+                          htmlFor="pair_filter"
+                          className="text-sm font-medium leading-none"
+                        >
+                          DEX Pair ID
+                        </label>
+                        <Input
+                          id="pair_filter"
+                          value={pairFilterValue}
+                          onChange={(e) =>
+                            setFilterRows((rows) =>
+                              setFilterValue(
+                                rows,
+                                DEFAULT_PAIR_FIELD,
+                                e.target.value,
+                              ),
+                            )
+                          }
+                          placeholder="e.g. 1"
+                          className="font-mono"
+                        />
+                        <p className="text-[0.8rem] text-muted-foreground">
+                          Leave empty to watch every pair.
+                        </p>
+                      </div>
 
-                <div className="grid gap-2">
-                  <label
-                    htmlFor="cooldown_seconds"
-                    className="text-sm font-medium leading-none"
-                  >
-                    Cooldown Seconds
-                  </label>
-                  <Input
-                    id="cooldown_seconds"
-                    type="number"
-                    min={0}
-                    max={86400}
-                    value={xianEvent.cooldown_seconds ?? 0}
-                    onChange={(e) =>
-                      updateXianEvent({
-                        cooldown_seconds: Number(e.target.value),
-                      })
-                    }
-                  />
-                </div>
+                      <div className="grid gap-2">
+                        <label
+                          htmlFor="cooldown_seconds"
+                          className="text-sm font-medium leading-none"
+                        >
+                          Cooldown Seconds
+                        </label>
+                        <Input
+                          id="cooldown_seconds"
+                          type="number"
+                          min={0}
+                          max={86400}
+                          value={xianEvent.cooldown_seconds ?? 0}
+                          onChange={(e) =>
+                            updateXianEvent({
+                              cooldown_seconds: Number(e.target.value),
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <label
+                        htmlFor="contract"
+                        className="text-sm font-medium leading-none"
+                      >
+                        Contract <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        id="contract"
+                        value={xianEvent.contract}
+                        onChange={(e) =>
+                          updateXianEvent({ contract: e.target.value })
+                        }
+                        required={triggerType === "xian_event"}
+                        className="font-mono"
+                      />
+                    </div>
+
+                    <div className="grid gap-2">
+                      <label
+                        htmlFor="event"
+                        className="text-sm font-medium leading-none"
+                      >
+                        Event <span className="text-destructive">*</span>
+                      </label>
+                      <Input
+                        id="event"
+                        value={xianEvent.event}
+                        onChange={(e) =>
+                          updateXianEvent({ event: e.target.value })
+                        }
+                        required={triggerType === "xian_event"}
+                        className="font-mono"
+                      />
+                    </div>
+
+                    <div className="grid gap-2 sm:col-span-2">
+                      <label
+                        htmlFor="cooldown_seconds"
+                        className="text-sm font-medium leading-none"
+                      >
+                        Cooldown Seconds
+                      </label>
+                      <Input
+                        id="cooldown_seconds"
+                        type="number"
+                        min={0}
+                        max={86400}
+                        value={xianEvent.cooldown_seconds ?? 0}
+                        onChange={(e) =>
+                          updateXianEvent({
+                            cooldown_seconds: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {eventPreset === "dex_price_change" && (
                   <div className="grid gap-4 rounded-md bg-muted/40 p-3">
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                      <div className="grid gap-2">
+                    <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+                      <div className="grid content-start gap-2">
                         <label
                           htmlFor="threshold_pct"
                           className="text-sm font-medium leading-none"
@@ -507,183 +618,219 @@ export function TaskDialog({
                           }
                           className={selectClassName}
                         >
-                          <option value="either">Either</option>
-                          <option value="up">Up</option>
-                          <option value="down">Down</option>
+                          <option value="either">Either direction</option>
+                          <option value="up">Price increases</option>
+                          <option value="down">Price decreases</option>
                         </select>
-                      </div>
-
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor="price_base"
-                          className="text-sm font-medium leading-none"
-                        >
-                          Price Base
-                        </label>
-                        <select
-                          id="price_base"
-                          value={
-                            xianEvent.dex_price_change?.price_base ??
-                            "token1_per_token0"
-                          }
-                          onChange={(e) =>
-                            updateDexPriceChange({
-                              price_base: e.target.value as
-                                | "token1_per_token0"
-                                | "token0_per_token1",
-                            })
-                          }
-                          className={selectClassName}
-                        >
-                          <option value="token1_per_token0">
-                            Token1 per Token0
-                          </option>
-                          <option value="token0_per_token1">
-                            Token0 per Token1
-                          </option>
-                        </select>
+                        <p className="text-[0.8rem] text-muted-foreground">
+                          Use Either when token order is unknown.
+                        </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor="pair_field"
-                          className="text-sm font-medium leading-none"
-                        >
-                          Pair Field
-                        </label>
-                        <Input
-                          id="pair_field"
-                          value={xianEvent.dex_price_change?.pair_field ?? "pair"}
-                          onChange={(e) =>
-                            updateDexPriceChange({
-                              pair_field: e.target.value,
-                            })
-                          }
-                          className="font-mono"
+                    <div className="grid gap-3">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="w-fit gap-2 px-0"
+                        onClick={() => setShowDexAdvanced((value) => !value)}
+                      >
+                        <ChevronDown
+                          className={cn(
+                            "h-4 w-4 transition-transform",
+                            showDexAdvanced && "rotate-180",
+                          )}
                         />
-                      </div>
+                        Advanced pool mapping
+                      </Button>
 
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor="reserve0_field"
-                          className="text-sm font-medium leading-none"
-                        >
-                          Reserve0 Field
-                        </label>
-                        <Input
-                          id="reserve0_field"
-                          value={
-                            xianEvent.dex_price_change?.reserve0_field ??
-                            "reserve0"
-                          }
-                          onChange={(e) =>
-                            updateDexPriceChange({
-                              reserve0_field: e.target.value,
-                            })
-                          }
-                          className="font-mono"
-                        />
-                      </div>
+                      {showDexAdvanced && (
+                        <div className="grid gap-4 rounded-md border border-border bg-background p-3">
+                          <div className="grid gap-2">
+                            <label
+                              htmlFor="price_base"
+                              className="text-sm font-medium leading-none"
+                            >
+                              Direction Basis
+                            </label>
+                            <select
+                              id="price_base"
+                              value={
+                                xianEvent.dex_price_change?.price_base ??
+                                DEFAULT_PRICE_BASE
+                              }
+                              onChange={(e) =>
+                                updateDexPriceChange({
+                                  price_base: e.target.value as
+                                    | "token1_per_token0"
+                                    | "token0_per_token1",
+                                })
+                              }
+                              className={selectClassName}
+                            >
+                              <option value="token1_per_token0">
+                                Pool quote
+                              </option>
+                              <option value="token0_per_token1">
+                                Inverse pool quote
+                              </option>
+                            </select>
+                            <p className="text-[0.8rem] text-muted-foreground">
+                              Only affects Up and Down triggers.
+                            </p>
+                          </div>
 
-                      <div className="grid gap-2">
-                        <label
-                          htmlFor="reserve1_field"
-                          className="text-sm font-medium leading-none"
-                        >
-                          Reserve1 Field
-                        </label>
-                        <Input
-                          id="reserve1_field"
-                          value={
-                            xianEvent.dex_price_change?.reserve1_field ??
-                            "reserve1"
-                          }
-                          onChange={(e) =>
-                            updateDexPriceChange({
-                              reserve1_field: e.target.value,
-                            })
-                          }
-                          className="font-mono"
-                        />
-                      </div>
+                          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                            <div className="grid gap-2">
+                              <label
+                                htmlFor="pair_field"
+                                className="text-sm font-medium leading-none"
+                              >
+                                Pair Field
+                              </label>
+                              <Input
+                                id="pair_field"
+                                value={
+                                  xianEvent.dex_price_change?.pair_field ??
+                                  DEFAULT_PAIR_FIELD
+                                }
+                                onChange={(e) =>
+                                  updateDexPriceChange({
+                                    pair_field: e.target.value,
+                                  })
+                                }
+                                className="font-mono"
+                              />
+                            </div>
+
+                            <div className="grid gap-2">
+                              <label
+                                htmlFor="reserve0_field"
+                                className="text-sm font-medium leading-none"
+                              >
+                                Reserve A Field
+                              </label>
+                              <Input
+                                id="reserve0_field"
+                                value={
+                                  xianEvent.dex_price_change?.reserve0_field ??
+                                  DEFAULT_RESERVE0_FIELD
+                                }
+                                onChange={(e) =>
+                                  updateDexPriceChange({
+                                    reserve0_field: e.target.value,
+                                  })
+                                }
+                                className="font-mono"
+                              />
+                            </div>
+
+                            <div className="grid gap-2">
+                              <label
+                                htmlFor="reserve1_field"
+                                className="text-sm font-medium leading-none"
+                              >
+                                Reserve B Field
+                              </label>
+                              <Input
+                                id="reserve1_field"
+                                value={
+                                  xianEvent.dex_price_change?.reserve1_field ??
+                                  DEFAULT_RESERVE1_FIELD
+                                }
+                                onChange={(e) =>
+                                  updateDexPriceChange({
+                                    reserve1_field: e.target.value,
+                                  })
+                                }
+                                className="font-mono"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
 
-                <div className="grid gap-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <label className="text-sm font-medium leading-none">
-                      Filters
-                    </label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        setFilterRows((rows) => [...rows, createFilterRow()])
-                      }
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      Add
-                    </Button>
-                  </div>
+                {!isDexPreset && (
                   <div className="grid gap-2">
-                    {filterRows.map((row, index) => (
-                      <div
-                        key={row.id}
-                        className="grid grid-cols-[1fr_1fr_auto] gap-2"
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-sm font-medium leading-none">
+                        Filters
+                      </label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                          setFilterRows((rows) => [
+                            ...rows,
+                            createFilterRow(),
+                          ])
+                        }
                       >
-                        <Input
-                          value={row.key}
-                          onChange={(e) =>
-                            setFilterRows((rows) =>
-                              rows.map((item) =>
-                                item.id === row.id
-                                  ? { ...item, key: e.target.value }
-                                  : item,
-                              ),
-                            )
-                          }
-                          placeholder="key"
-                          className="font-mono"
-                        />
-                        <Input
-                          value={row.value}
-                          onChange={(e) =>
-                            setFilterRows((rows) =>
-                              rows.map((item) =>
-                                item.id === row.id
-                                  ? { ...item, value: e.target.value }
-                                  : item,
-                              ),
-                            )
-                          }
-                          placeholder="value"
-                          className="font-mono"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-10 w-10"
-                          onClick={() =>
-                            setFilterRows((rows) =>
-                              rows.length > 1
-                                ? rows.filter((item) => item.id !== row.id)
-                                : [createFilterRow()],
-                            )
-                          }
-                          disabled={filterRows.length === 1 && index === 0}
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add
+                      </Button>
+                    </div>
+                    <div className="grid gap-2">
+                      {filterRows.map((row, index) => (
+                        <div
+                          key={row.id}
+                          className="grid grid-cols-[1fr_1fr_auto] gap-2"
                         >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Remove filter</span>
-                        </Button>
-                      </div>
-                    ))}
+                          <Input
+                            value={row.key}
+                            onChange={(e) =>
+                              setFilterRows((rows) =>
+                                rows.map((item) =>
+                                  item.id === row.id
+                                    ? { ...item, key: e.target.value }
+                                    : item,
+                                ),
+                              )
+                            }
+                            placeholder="key"
+                            className="font-mono"
+                          />
+                          <Input
+                            value={row.value}
+                            onChange={(e) =>
+                              setFilterRows((rows) =>
+                                rows.map((item) =>
+                                  item.id === row.id
+                                    ? { ...item, value: e.target.value }
+                                    : item,
+                                ),
+                              )
+                            }
+                            placeholder="value"
+                            className="font-mono"
+                          />
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-10 w-10"
+                            onClick={() =>
+                              setFilterRows((rows) =>
+                                rows.length > 1
+                                  ? rows.filter((item) => item.id !== row.id)
+                                  : [createFilterRow()],
+                              )
+                            }
+                            disabled={filterRows.length === 1 && index === 0}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Remove filter</span>
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             )}
 

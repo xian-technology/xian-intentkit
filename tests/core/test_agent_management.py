@@ -76,6 +76,56 @@ def _make_agent_create(**overrides):
     return agent
 
 
+def test_apply_xian_agent_logo_default_for_xian_wallet(monkeypatch):
+    from intentkit.core.agent.management import _apply_xian_agent_logo_default
+
+    monkeypatch.setattr(
+        f"{MODULE}.config.xian_agent_logo_url",
+        "http://127.0.0.1:38080/skills/xian/xian.jpg",
+    )
+    agent_data = {"wallet_provider": "xian", "skills": None, "picture": None}
+
+    _apply_xian_agent_logo_default(agent_data)
+
+    assert agent_data["picture"] == "http://127.0.0.1:38080/skills/xian/xian.jpg"
+
+
+def test_apply_xian_agent_logo_default_preserves_existing_picture(monkeypatch):
+    from intentkit.core.agent.management import _apply_xian_agent_logo_default
+
+    monkeypatch.setattr(
+        f"{MODULE}.config.xian_agent_logo_url",
+        "http://127.0.0.1:38080/skills/xian/xian.jpg",
+    )
+    agent_data = {
+        "wallet_provider": "xian",
+        "skills": None,
+        "picture": "https://example.com/custom.jpg",
+    }
+
+    _apply_xian_agent_logo_default(agent_data)
+
+    assert agent_data["picture"] == "https://example.com/custom.jpg"
+
+
+def test_apply_xian_agent_logo_default_for_enabled_xian_skill(monkeypatch):
+    from intentkit.core.agent.management import _apply_xian_agent_logo_default
+
+    monkeypatch.setattr(
+        f"{MODULE}.config.xian_agent_logo_url",
+        "http://127.0.0.1:38080/skills/xian/xian.jpg",
+    )
+    agent_data = {
+        "wallet_provider": None,
+        "skills": {"xian": {"enabled": True}},
+        "picture": None,
+    }
+
+    _apply_xian_agent_logo_default(agent_data)
+
+    assert agent_data["picture"] == "http://127.0.0.1:38080/skills/xian/xian.jpg"
+
+
 # ===========================================================================
 # _validate_slug_unique
 # ===========================================================================
