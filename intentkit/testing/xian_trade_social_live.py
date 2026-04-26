@@ -22,9 +22,13 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_DIR = SCRIPT_DIR.parent.parent
 WORKSPACE_DIR = REPO_DIR.parent
 DEFAULT_NETWORK_JSON = WORKSPACE_DIR / "xian-stack" / ".localnet" / "network.json"
-DEX_SRC_DIR = Path(
-    os.environ.get("XIAN_DEX_SRC_DIR", WORKSPACE_DIR / "xian-dex" / "src")
-).expanduser()
+DEFAULT_DEX_BUNDLE_PATH = (
+    WORKSPACE_DIR
+    / "xian-configs"
+    / "solution-packs"
+    / "dex"
+    / "contract-bundle.json"
+)
 TOKEN_FIXTURE = (
     WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
 )
@@ -42,6 +46,38 @@ AUTONOMOUS_SYNC_GRACE_SECONDS = 3.0
 
 class LiveWorkflowError(RuntimeError):
     pass
+
+
+def _sha256_file(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _dex_source_path(role: str, fallback_name: str) -> Path:
+    src_override = os.environ.get("XIAN_DEX_SRC_DIR")
+    if src_override:
+        return Path(src_override).expanduser() / fallback_name
+
+    bundle_path = Path(
+        os.environ.get(
+            "XIAN_DEX_BUNDLE",
+            os.environ.get("XIAN_DEX_BUNDLE_PATH", DEFAULT_DEX_BUNDLE_PATH),
+        )
+    ).expanduser()
+    payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    for contract in payload.get("contracts", []):
+        if contract.get("role") != role:
+            continue
+        source_path = (bundle_path.parent / contract["path"]).resolve()
+        expected_sha256 = contract.get("sha256")
+        if expected_sha256:
+            actual_sha256 = _sha256_file(source_path)
+            if actual_sha256 != expected_sha256:
+                raise LiveWorkflowError(
+                    f"DEX bundle sha256 mismatch for {source_path}: "
+                    f"expected {expected_sha256}, got {actual_sha256}"
+                )
+        return source_path
+    raise LiveWorkflowError(f"DEX bundle missing role {role!r}: {bundle_path}")
 
 
 @dataclass(frozen=True)
@@ -289,7 +325,7 @@ def _read_file(path: Path) -> str:
 
 
 def render_pairs_contract(*, dex_contract: str) -> str:
-    source = _read_file(DEX_SRC_DIR / "con_pairs.py")
+    source = _read_file(_dex_source_path("pairs", "con_pairs.py"))
     needle = 'DEX_ROUTER = "con_dex"'
     if needle not in source:
         raise LiveWorkflowError("Unexpected con_pairs.py format")
@@ -297,7 +333,7 @@ def render_pairs_contract(*, dex_contract: str) -> str:
 
 
 def render_dex_contract(*, pairs_contract: str) -> str:
-    source = _read_file(DEX_SRC_DIR / "con_dex.py")
+    source = _read_file(_dex_source_path("router", "con_dex.py"))
     needle = 'DEX_PAIRS = "con_pairs"'
     if needle not in source:
         raise LiveWorkflowError("Unexpected con_dex.py format")
@@ -305,7 +341,7 @@ def render_dex_contract(*, pairs_contract: str) -> str:
 
 
 def render_helper_contract(*, dex_contract: str, pairs_contract: str) -> str:
-    source = _read_file(DEX_SRC_DIR / "con_dex_helper.py")
+    source = _read_file(_dex_source_path("helper", "con_dex_helper.py"))
     source = source.replace(
         'DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1
     )
