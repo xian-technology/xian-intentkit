@@ -43,6 +43,9 @@ export interface Agent {
   visibility: number | null;
 
   // Flattened AgentResponse fields
+  cdp_wallet_address?: string | null;
+  evm_wallet_address?: string | null;
+  solana_wallet_address?: string | null;
   linked_twitter_username: string | null;
   linked_telegram_username: string | null;
   linked_twitter_name: string | null;

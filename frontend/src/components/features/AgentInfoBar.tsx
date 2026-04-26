@@ -1,11 +1,27 @@
-import { Info } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { Check, Copy, Info, Wallet } from "lucide-react";
 import type { Agent } from "@/types/agent";
+import { Button } from "@/components/ui/button";
+import { getAgentFundingWallet } from "@/components/features/agentWallet";
 
 interface AgentInfoBarProps {
   agent: Agent;
 }
 
 export function AgentInfoBar({ agent }: AgentInfoBarProps) {
+  const [copiedAddress, setCopiedAddress] = useState(false);
+  const fundingWallet = getAgentFundingWallet(agent);
+
+  const handleCopyAddress = async () => {
+    if (!fundingWallet) return;
+
+    await navigator.clipboard.writeText(fundingWallet.address);
+    setCopiedAddress(true);
+    window.setTimeout(() => setCopiedAddress(false), 1500);
+  };
+
   return (
     <div className="mb-4 rounded-lg border bg-muted/50 p-3">
       <div className="flex flex-wrap items-center gap-2 text-sm">
@@ -45,6 +61,33 @@ export function AgentInfoBar({ agent }: AgentInfoBarProps) {
           </span>
         )}
       </div>
+      {fundingWallet && (
+        <div className="mt-3 flex flex-col gap-2 rounded-md border bg-background p-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+              <Wallet className="h-3 w-3" />
+              {fundingWallet.label}
+            </div>
+            <div className="mt-1 break-all font-mono text-xs text-foreground">
+              {fundingWallet.address}
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="shrink-0 self-start sm:self-center"
+            onClick={handleCopyAddress}
+          >
+            {copiedAddress ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <Copy className="mr-2 h-4 w-4" />
+            )}
+            {copiedAddress ? "Copied" : "Copy"}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
