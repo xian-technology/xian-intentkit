@@ -227,6 +227,13 @@ async def stream_agent(message: ChatMessageCreate):
         raise IntentKitAPIError(
             status_code=404, key="AgentNotFound", message="Agent not found"
         )
+    if _is_clear_memory_command(message.message):
+        start = time.perf_counter()
+        message.reply_to = message.id
+        user_message = await message.save()
+        yield await _clear_thread_memory_response(user_message, agent, start)
+        return
+
     executor, cold_start_cost = await agent_executor(message.agent_id)
     message.cold_start_cost = cold_start_cost
     async for chat_message in stream_agent_raw(message, agent, executor):
@@ -571,6 +578,34 @@ def _is_unrecoverable_checkpoint_error(exc: Exception) -> bool:
     return False
 
 
+def _is_clear_memory_command(message: str) -> bool:
+    return bool(re.search(r"(@clear|/clear)(?!\w)", message.strip(), re.IGNORECASE))
+
+
+async def _clear_thread_memory_response(
+    user_message: ChatMessage,
+    agent: Agent,
+    start: float,
+) -> ChatMessage:
+    _ = await clear_thread_memory(user_message.agent_id, user_message.chat_id)
+
+    confirmation_message = ChatMessageCreate(
+        id=str(XID()),
+        agent_id=user_message.agent_id,
+        chat_id=user_message.chat_id,
+        user_id=user_message.user_id,
+        author_id=user_message.agent_id,
+        author_type=AuthorType.AGENT,
+        model=agent.model,
+        thread_type=user_message.author_type,
+        reply_to=user_message.id,
+        message="Memory in context has been cleared.",
+        time_cost=time.perf_counter() - start,
+    )
+
+    return await confirmation_message.save()
+
+
 async def _cancel_cleanup(
     executor: Any,
     stream_config: "RunnableConfig",
@@ -640,28 +675,8 @@ async def stream_agent_raw(
             f"[TELEGRAM DEBUG] Agent: {user_message.agent_id} | Chat: {user_message.chat_id} | Message: {user_message.message}"
         )
 
-    if re.search(
-        r"(@clear|/clear)(?!\w)",
-        user_message.message.strip(),
-        re.IGNORECASE,
-    ):
-        _ = await clear_thread_memory(user_message.agent_id, user_message.chat_id)
-
-        confirmation_message = ChatMessageCreate(
-            id=str(XID()),
-            agent_id=user_message.agent_id,
-            chat_id=user_message.chat_id,
-            user_id=user_message.user_id,
-            author_id=user_message.agent_id,
-            author_type=AuthorType.AGENT,
-            model=agent.model,
-            thread_type=user_message.author_type,
-            reply_to=user_message.id,
-            message="Memory in context has been cleared.",
-            time_cost=time.perf_counter() - start,
-        )
-
-        yield await confirmation_message.save()
+    if _is_clear_memory_command(user_message.message):
+        yield await _clear_thread_memory_response(user_message, agent, start)
         return
 
     model = await LLMModelInfo.get(agent.model)

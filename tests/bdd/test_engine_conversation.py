@@ -43,6 +43,19 @@ MODEL = os.environ.get("BDD_TEST_MODEL") or pick_default_model()
 # ---------------------------------------------------------------------------
 
 
+async def require_available_llm_model() -> None:
+    from intentkit.models.llm import LLMModelInfo
+
+    try:
+        await LLMModelInfo.get(MODEL)
+    except IntentKitAPIError as exc:
+        if exc.key == "ModelNotFound":
+            pytest.skip(
+                f"No configured LLM model available for live BDD engine tests: {MODEL}"
+            )
+        raise
+
+
 async def query_chat_messages(agent_id: str, chat_id: str) -> list[ChatMessage]:
     """Query all chat messages for a given agent and chat from DB."""
     async with get_session() as db:
@@ -93,6 +106,8 @@ async def test_simple_conversation() -> None:
 
     LLM Requests: ~1
     """
+    await require_available_llm_model()
+
     # Given
     agent_input = AgentCreate(
         id="engine-simple-1",
@@ -153,8 +168,10 @@ async def test_skill_call_current_time() -> None:
     And credit events are recorded
 
     Note: Free-tier models may not reliably follow tool-calling instructions,
-    so we retry up to 3 times with fresh chat IDs.
+        so we retry up to 3 times with fresh chat IDs.
     """
+    await require_available_llm_model()
+
     from intentkit.models.llm import LLMProvider, create_llm_model
 
     # Determine whether this model uses OpenRouter server tools
@@ -274,6 +291,8 @@ async def test_multi_turn_conversation() -> None:
 
     LLM Requests: ~2 (1 per turn)
     """
+    await require_available_llm_model()
+
     # Given
     agent_input = AgentCreate(
         id="engine-multi-1",
