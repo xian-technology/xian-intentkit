@@ -1,58 +1,125 @@
-# IntentKit
+# xian-intentkit
 
-<div align="center">
-    <img src="frontend/src/app/icon.svg" alt="IntentKit" width="20%" height="20%"/>
-</div>
-<div align="center">
-    <h3>Your Cloud-Native Agent Team</h3>
-</div>
-<div align="center">
-  <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/pypi/l/intentkit" alt="PyPI - License"></a>
-  <a href="https://pypi.org/project/intentkit/#history" target="_blank"><img src="https://img.shields.io/pypi/v/intentkit" alt="PyPI Version"></a>
-  <a href="https://hub.docker.com/r/crestal/intentkit" target="_blank"><img src="https://img.shields.io/docker/v/crestal/intentkit?label=Docker" alt="Docker"></a>
-  <a href="https://intentcat.com/docs" target="_blank"><img src="https://img.shields.io/badge/docs-intentcat.com-blue" alt="Documentation"></a>
-</div>
+`xian-intentkit` is a self-hosted, cloud-native team of AI agents — a fork
+of upstream [IntentKit](https://intentcat.com/docs/) extended with
+Xian-specific skills and stack integration. Agents collaborate, expose
+external APIs and channel adapters (Telegram, WeChat), and can drive Xian
+contracts through dedicated skills.
 
-IntentKit is an open-source, self-hosted cloud agent cluster that manages a collaborative team of AI agents for you.
+This repo is its own product and ships independently. The Xian workspace
+attaches it as an optional service through `xian-stack` and `xian-cli`,
+without copying the IntentKit internals into the stack repo. See
+[`xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md`](../xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md)
+for the integration contract.
 
-## Why IntentKit
+## Quick Start
 
-Current AI agents generally follow two paths:
+Local development with `uv`:
 
-1. **Local-First** (e.g., OpenClaw): These serve as personal assistants or experimental tools. However, they often require expensive hardware and extensive local permissions.
-2. **Cloud-Native**: Similar to modern web apps, these run in the cloud, consume minimal local resources, require zero maintenance, and offer high reliability for completing tasks.
+```bash
+uv sync
+source .venv/bin/activate
+ruff format && ruff check --fix
+pytest
+```
 
-If you are looking for a robust, cloud-native solution, IntentKit is for you.
+Run the API server, autonomous runner, and background scheduler from `app/`.
+The Next.js agent management UI lives in `frontend/`. Channel adapters
+(Telegram, WeChat) live in `integrations/`.
 
-## Features
+For a stack-managed deployment alongside a Xian node:
 
-- ☁️ **Cloud-Native:** Ultimate resource efficiency.
-- 🔒 **Secure by Design:** Agents are fundamentally unable to access any of your secret keys.
-- 🤖 **Collaborative AI:** Multiple agents that can call and interact with each other.
-- 🔄 **Out-of-the-Box Ready:** Fully configured and ready to use.
-- 🔗 **Crypto-Friendly:** Optional Web3 and blockchain integrations.
-- 🐦 **Social Media Integration:** Seamlessly connects with social platforms.
-- 🛠️ **Extensible Skill System:** Easily add new capabilities.
+```bash
+cd ../xian-stack
+python3 ./scripts/backend.py start  --intentkit
+python3 ./scripts/backend.py status --intentkit
+python3 ./scripts/backend.py stop   --intentkit
+```
 
-## Documentation
+`xian-stack` runs IntentKit as a separate Compose project with a thin
+stack-owned override file, and generates
+`xian-intentkit/deployment/.env` from `xian-intentkit/.env.example`, the
+operator env, and stack-derived Xian values. The IntentKit Compose file
+itself is unchanged.
 
-Please check out the [Documentation](https://intentcat.com/docs/) before getting started.
+For full end-user documentation, see
+[https://intentcat.com/docs/](https://intentcat.com/docs/).
 
-## Deployment
+## Principles
 
-Read the [Deployment Guide](https://intentcat.com/docs/deployment/) to get started with your setup.
+- **Cloud-native, multi-agent.** IntentKit manages a collaborative team of
+  agents that can call each other, with the API server, autonomous runner,
+  and background scheduler all running in one cluster.
+- **Secure by design.** Agents cannot access operator secrets directly;
+  skills and clients mediate every external call.
+- **Extensible skill system.** Skills are LangChain `BaseTool`
+  implementations under `intentkit/skills/`, including a dedicated `xian/`
+  skill for on-chain reads and writes.
+- **Independent of `xian-stack`.** The repo owns its Compose topology, app
+  env contract, backend, frontend, and channel services. `xian-stack`
+  attaches it without copying internals.
+- **No ForeignKey constraints.** All tables intentionally omit FK
+  constraints. Do not add them.
+- **Pydantic V2 / SQLAlchemy 2.0 only.** Do not use legacy V1 / 1.x APIs.
+- **Strict import order.**
+  `utils → config → models → abstracts → clients → skills → core`. A
+  module on the left cannot import a module on the right.
+- **AgentCore ↔ Template sync.** `AgentCore` (Pydantic) is the shared base
+  for both `Agent` and `Template`. Adding or removing fields in
+  `AgentCore` requires matching column changes in `TemplateTable`
+  (`intentkit/models/template.py`); the Pydantic model inherits but the
+  DB schema does not. Agent-specific fields belong in `AgentUserInput`,
+  not `AgentCore`.
 
-## Other Use Cases
+## Key Directories
 
-Besides self-deploying IntentKit, you can also use the project in the following ways:
+- `intentkit/` — pip-installable package:
+  - `core/` — agent system (LangGraph), with `manager/` for the single-agent
+    manager and `system_skills/` for built-in system skills.
+  - `models/` — paired Pydantic and SQLAlchemy models.
+  - `config/` — system config (DB, LLM keys, skill provider keys).
+  - `skills/` — LangChain `BaseTool` skill implementations, including
+    `xian/`, `aave_v3/`, `cdp/`, `dexscreener/`, `dune/`, etc.
+  - `abstracts/` — interfaces between `core/` and `skills/`.
+  - `clients/` — external service clients.
+  - `utils/` — shared utilities.
+- `app/` — API server, autonomous runner, and background scheduler.
+- `frontend/` — Next.js agent management UI (see
+  [frontend/AGENTS.md](frontend/AGENTS.md)).
+- `integrations/` — Go channel adapters
+  ([integrations/AGENTS.md](integrations/AGENTS.md)) including
+  `telegram/` and `wechat/`.
+- `deployment/` — Compose project, env scaffolding, and operator-facing
+  deployment docs.
+- `scripts/` — ops and migration scripts.
+- `agent_docs/` — detailed contributor guides (`skill_development.md`,
+  `ops_guide.md`, `test.md`).
+- `tests/` — `tests/core/`, `tests/api/`, `tests/skills/`.
+- `docs/` — Hugo-based public documentation (also published at
+  intentcat.com/docs).
 
-- **As a Python Library:** Import and extend IntentKit, or use it to add agent cluster capabilities to your existing projects.
-- **Via API:** Regardless of the deployment method, you can interact with agents from external applications via the built-in API endpoints.
+## Validation
 
-## Contributing
+```bash
+source .venv/bin/activate
+ruff format
+ruff check --fix
+basedpyright           # type check
+pytest                 # full suite
+```
 
-Due to the rapid pace of AI development, we currently do not accept code contributions via Pull Requests. However, submitting feature requests and reporting bugs in the GitHub Issues section is highly appreciated and the best way to contribute.
+After adding a feature, add tests. After modifying an existing feature,
+check whether existing tests need updates and make sure the suite still
+passes.
 
-## License
+## Related Docs
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- [AGENTS.md](AGENTS.md) — repo-specific guidance for AI agents and contributors
+- [CLAUDE.md](CLAUDE.md) — LLM-facing architecture and rules summary
+- [DEVELOPMENT.md](DEVELOPMENT.md) — local development setup
+- [CONTRIBUTING.md](CONTRIBUTING.md) — contribution rules
+- [agent_docs/skill_development.md](agent_docs/skill_development.md) — adding new skills
+- [agent_docs/ops_guide.md](agent_docs/ops_guide.md) — git, PR, and release process
+- [agent_docs/test.md](agent_docs/test.md) — testing guide
+- [`xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md`](../xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md) — Xian stack integration contract
+- [Public documentation](https://intentcat.com/docs/)
