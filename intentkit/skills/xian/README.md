@@ -110,6 +110,20 @@ The trigger model is intentionally hybrid:
 - a periodic indexed sync loop remains enabled so BDS lag or websocket
   reconnects do not cause missed triggers
 
+```mermaid
+flowchart LR
+  Node["Xian node websocket"] --> Wakeup["Low-latency wake-up"]
+  BDS["Indexed BDS events"] --> Confirm["Source-of-truth confirmation"]
+  Redis["Redis cursor"] --> Confirm
+  Wakeup --> Trigger["Xian event trigger"]
+  Confirm --> Trigger
+  Trigger --> Agent["IntentKit agent"]
+  Agent --> Quote["xian_dex_quote"]
+  Agent --> Trade["xian_dex_trade"]
+  Trade --> Verify["xian_get_transaction and events"]
+  Verify --> SideEffect["Social or channel side effect"]
+```
+
 ## Workflow Test Harnesses
 
 There are now two workflow harnesses for the exact Xian agent pattern:

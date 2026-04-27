@@ -12,6 +12,22 @@ without copying the IntentKit internals into the stack repo. See
 [`xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md`](../xian-meta/docs/INTENTKIT_STACK_INTEGRATION.md)
 for the integration contract.
 
+## Integration Shape
+
+```mermaid
+flowchart LR
+  Stack["xian-stack optional sidecar"] --> Env["Generated deployment env"]
+  Env --> IntentKit["IntentKit Compose project"]
+  IntentKit --> API["API server"]
+  IntentKit --> Runner["Autonomous runner"]
+  IntentKit --> Scheduler["Background scheduler"]
+  IntentKit --> Frontend["Next.js agent UI"]
+  IntentKit --> Channels["Telegram and WeChat adapters"]
+  Runner --> Skills["IntentKit skills"]
+  Skills --> XianSkill["Xian skill"]
+  XianSkill --> Node["Xian node"]
+```
+
 ## Quick Start
 
 Local development with `uv`:
