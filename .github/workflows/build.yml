@@ -18,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install uv
         uses: astral-sh/setup-uv@v4
@@ -56,6 +56,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Check out Xian workspace dependencies
+        run: |
+          git clone --depth 1 https://github.com/xian-technology/xian-py.git ../xian-py
+          git clone --depth 1 https://github.com/xian-technology/xian-contracting.git ../xian-contracting
 
       - name: Docker meta
         id: meta
@@ -95,6 +100,10 @@ jobs:
         with:
           build-args: |
             RELEASE=${{ github.event.release.tag_name || 'latest'}}
+          build-contexts: |
+            xian_py=../xian-py
+            xian_accounts=../xian-contracting/packages/xian-accounts
+            xian_runtime_types=../xian-contracting/packages/xian-runtime-types
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

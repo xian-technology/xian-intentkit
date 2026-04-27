@@ -72,7 +72,7 @@ def _extract_mcp_reader_content(raw: str) -> str:
             inner = json.loads(decoded)
             if isinstance(inner, dict):
                 return inner.get("content", raw)
-    except (json.JSONDecodeError, TypeError):
+    except json.JSONDecodeError, TypeError:
         pass
     return raw
 

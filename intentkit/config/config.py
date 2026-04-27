@@ -332,7 +332,7 @@ class Config:
             return default
         try:
             return int(value)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             logger.warning(
                 "Invalid integer value for %s, using default: %s", key, default
             )
@@ -345,7 +345,7 @@ class Config:
             return default
         try:
             return float(value)
-        except (ValueError, TypeError):
+        except ValueError, TypeError:
             logger.warning(
                 "Invalid float value for %s, using default: %s", key, default
             )
@@ -359,7 +359,7 @@ class Config:
             return default_value
         try:
             return Decimal(value)
-        except (InvalidOperation, ValueError, TypeError):
+        except InvalidOperation, ValueError, TypeError:
             logger.warning(
                 f"Invalid decimal value for {key}, using default: {default_value}"
             )

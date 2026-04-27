@@ -194,7 +194,7 @@ async def _extract_openrouter_image_bytes(response: Any) -> bytes | None:
     """
     try:
         message = response.choices[0].message
-    except (AttributeError, IndexError):
+    except AttributeError, IndexError:
         return None
 
     for url in _iter_openrouter_image_urls(message):

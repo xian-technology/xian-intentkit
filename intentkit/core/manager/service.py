@@ -62,7 +62,7 @@ def agent_draft_json_schema() -> dict[str, object]:
                         "Failed to load schema for skill '%s': %s", entry.name, exc
                     )
                     continue
-    except (AttributeError, ModuleNotFoundError, ImportError):
+    except AttributeError, ModuleNotFoundError, ImportError:
         logger.warning("intentkit skills package not found when building schema")
         return schema
 
@@ -138,7 +138,7 @@ def get_skills_hierarchical_text() -> str:
                         "Failed to load schema for skill '%s': %s", entry.name, exc
                     )
                     continue
-    except (AttributeError, ModuleNotFoundError, ImportError):
+    except AttributeError, ModuleNotFoundError, ImportError:
         logger.warning("intentkit skills package not found when building skills text")
         return "No skills available"
 
@@ -252,7 +252,7 @@ def get_valid_skills_registry() -> dict[str, dict[str, str]]:
                 if skills:
                     registry[category_name] = skills
 
-    except (AttributeError, ModuleNotFoundError, ImportError):
+    except AttributeError, ModuleNotFoundError, ImportError:
         logger.warning(
             "intentkit skills package not found when building skills registry"
         )

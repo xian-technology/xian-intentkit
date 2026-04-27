@@ -5,7 +5,7 @@ description = "Intent-based AI Agent Platform - Core Package"
 authors = [
     { name = "Ruihua", email = "ruihua@crestal.network" },
 ]
-requires-python = "==3.13.*"
+requires-python = "==3.14.*"
 readme = "intentkit/README.md"
 license = { file = "intentkit/LICENSE" }
 dependencies = [
@@ -52,7 +52,7 @@ dependencies = [
     "eth-keys>=0.4.0",
     "eth-utils>=2.1.0",
     "x402>=2.0.0",
-    "xian-tech-py>=0.4.8,<0.5.0",
+    "xian-tech-py>=0.4.15,<0.5.0",
     # Social platforms
     "slack-sdk>=3.34.0",
     "tweepy[async]>=4.15.0",
@@ -78,7 +78,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
@@ -132,7 +132,7 @@ override-dependencies = ["bcl>=3.0.0"]
 xian-tech-py = { path = "../xian-py", editable = true }
 
 # Override bcl to >=3.0.0 because 2.x lacks Linux ARM64 (aarch64) wheels,
-# causing source builds to fail on Python 3.13 (pkgutil.ImpImporter removed).
+# causing source builds to fail on modern Python (pkgutil.ImpImporter removed).
 # bcl 3.0.0 has manylinux_2_17_aarch64 wheels that work on ARM64 Docker builds.
 
 [tool.basedpyright]

@@ -907,7 +907,7 @@ async def stream_agent_raw(
             )
         )
         return
-    except (httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError):
+    except httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError:
         logger.error(
             f"Agent request timed out for {user_message.agent_id}",
             extra={"thread_id": thread_id},
@@ -1004,9 +1004,8 @@ async def execute_agent(message: ChatMessageCreate) -> list[ChatMessage]:
 
 async def thread_stats(agent_id: str, chat_id: str) -> list[BaseMessage]:
     thread_id = f"{agent_id}-{chat_id}"
-    from langchain_core.runnables import RunnableConfig
 
-    stream_config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
+    stream_config = {"configurable": {"thread_id": thread_id}}
     executor, _ = await agent_executor(agent_id)
     snap = await executor.aget_state(stream_config)
     if snap.values and "messages" in snap.values:

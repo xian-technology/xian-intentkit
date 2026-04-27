@@ -545,7 +545,7 @@ class XianEventTriggerService:
             return True
         try:
             last_run = float(raw)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return True
         return (time.time() - last_run) >= cooldown
 
@@ -556,7 +556,7 @@ class XianEventTriggerService:
             raw = await self.redis.get(task.cursor_key)
         try:
             return int(raw or 0)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return 0
 
     async def _process_event(

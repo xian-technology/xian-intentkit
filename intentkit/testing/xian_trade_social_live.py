@@ -23,11 +23,7 @@ REPO_DIR = SCRIPT_DIR.parent.parent
 WORKSPACE_DIR = REPO_DIR.parent
 DEFAULT_NETWORK_JSON = WORKSPACE_DIR / "xian-stack" / ".localnet" / "network.json"
 DEFAULT_DEX_BUNDLE_PATH = (
-    WORKSPACE_DIR
-    / "xian-configs"
-    / "solution-packs"
-    / "dex"
-    / "contract-bundle.json"
+    WORKSPACE_DIR / "xian-configs" / "solution-packs" / "dex" / "contract-bundle.json"
 )
 TOKEN_FIXTURE = (
     WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
