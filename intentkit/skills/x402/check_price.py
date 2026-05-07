@@ -33,6 +33,39 @@ def _format_amount(requirement: Any) -> str:
     return str(amount_value)
 
 
+def _format_raw_payment_requirements(payload: dict[str, Any]) -> str | None:
+    accepts = payload.get("accepts")
+    if not isinstance(accepts, list) or not accepts:
+        return None
+
+    result_parts = ["Payment Required:"]
+    resource = payload.get("resource")
+    resource_description = (
+        resource.get("description") if isinstance(resource, dict) else None
+    )
+    for req in accepts:
+        if not isinstance(req, dict):
+            continue
+        amount = (
+            req.get("amount")
+            or req.get("maxAmountRequired")
+            or req.get("max_amount_required")
+            or "unknown"
+        )
+        result_parts.append(f"\n  - Amount: {amount}")
+        result_parts.append(f"    Asset: {req.get('asset')}")
+        result_parts.append(f"    Network: {req.get('network')}")
+        result_parts.append(f"    Scheme: {req.get('scheme')}")
+        pay_to = req.get("payTo") or req.get("pay_to")
+        result_parts.append(f"    Pay To: {pay_to}")
+        description = req.get("description") or resource_description
+        result_parts.append(f"    Description: {description}")
+        max_timeout = req.get("maxTimeoutSeconds") or req.get("max_timeout_seconds")
+        if max_timeout is not None:
+            result_parts.append(f"    Max Timeout: {max_timeout}s")
+    return "".join(result_parts)
+
+
 class X402CheckPriceInput(BaseModel):
     """Arguments for checking the price of a 402-protected resource."""
 
@@ -152,14 +185,20 @@ class X402CheckPrice(X402BaseSkill):
                         version = normalized.get("x402Version") or normalized.get(
                             "x402_version"
                         )
-                        if version == 1:
-                            payment_response = PaymentRequiredV1.model_validate(
-                                normalized
-                            )
-                        else:
-                            payment_response = PaymentRequired.model_validate(
-                                normalized
-                            )
+                        try:
+                            if version == 1:
+                                payment_response = PaymentRequiredV1.model_validate(
+                                    normalized
+                                )
+                            else:
+                                payment_response = PaymentRequired.model_validate(
+                                    normalized
+                                )
+                        except Exception:
+                            raw_result = _format_raw_payment_requirements(normalized)
+                            if raw_result is not None:
+                                return raw_result
+                            raise
 
                         # Format the payment requirements for display
                         result_parts = ["Payment Required:"]

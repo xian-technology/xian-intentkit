@@ -38,10 +38,17 @@ class X402OrderBase(BaseModel):
         int | None, PydanticField(description="Max payment limit (x402_pay only)")
     ] = None
     amount: Annotated[int, PydanticField(description="Payment amount in base units")]
+    amount_text: Annotated[
+        str | None,
+        PydanticField(description="Exact payment amount as text when not base units"),
+    ] = None
     asset: Annotated[str, PydanticField(description="Payment asset (e.g., USDC)")]
     network: Annotated[str, PydanticField(description="Payment network")]
     pay_to: Annotated[str, PydanticField(description="Recipient address")]
     payer: Annotated[str | None, PydanticField(description="Payer address")] = None
+    payment_id: Annotated[
+        str | None, PydanticField(description="x402 payment identifier")
+    ] = None
     tx_hash: Annotated[str | None, PydanticField(description="Transaction hash")] = None
     status: Annotated[
         str, PydanticField(description="Status: pending, success, failed")
@@ -92,10 +99,12 @@ class X402Order(X402OrderBase):
                 url=order.url,
                 max_value=order.max_value,
                 amount=order.amount,
+                amount_text=order.amount_text,
                 asset=order.asset,
                 network=order.network,
                 pay_to=order.pay_to,
                 payer=order.payer,
+                payment_id=order.payment_id,
                 tx_hash=order.tx_hash,
                 status=order.status,
                 error=order.error,
@@ -167,6 +176,9 @@ class X402OrderTable(Base):
     amount: Mapped[int] = mapped_column(
         BigInteger, nullable=False, comment="Payment amount in base units"
     )
+    amount_text: Mapped[str | None] = mapped_column(
+        String, nullable=True, comment="Exact payment amount as text"
+    )
     asset: Mapped[str] = mapped_column(String, nullable=False, comment="Payment asset")
     network: Mapped[str] = mapped_column(
         String, nullable=False, comment="Payment network"
@@ -176,6 +188,9 @@ class X402OrderTable(Base):
     )
     payer: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Payer address"
+    )
+    payment_id: Mapped[str | None] = mapped_column(
+        String, nullable=True, comment="x402 payment identifier"
     )
     tx_hash: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Transaction hash"

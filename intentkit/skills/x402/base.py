@@ -52,7 +52,7 @@ HTTP_STATUS_PHRASES: dict[int, str] = {
 # Maximum content length to return (in bytes)
 MAX_CONTENT_LENGTH = 1000
 DEFAULT_NETWORK_ID = "base-mainnet"
-SUPPORTED_WALLET_PROVIDERS = {"cdp", "native", "safe", "privy"}
+SUPPORTED_WALLET_PROVIDERS = {"cdp", "native", "safe", "privy", "xian"}
 
 PAYMENT_RESPONSE_HEADERS = ("payment-response", "x-payment-response")
 PAYMENT_REQUIRED_HEADERS = ("payment-required",)
@@ -221,7 +221,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
     This class provides unified wallet signer support for x402 operations,
     automatically selecting the appropriate signer based on the agent's
-    wallet_provider configuration (CDP, Native, Privy, or Safe).
+    wallet_provider configuration (CDP, Native, Privy, Safe, or Xian).
 
     Safe wallet mode is supported by prefunding the Privy EOA signer
     before initiating an x402 payment.
@@ -239,7 +239,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
         agent = self.get_context().agent
         if agent and agent.wallet_provider not in SUPPORTED_WALLET_PROVIDERS:
             raise ValueError(
-                "x402 operations require wallet_provider to be 'cdp', 'native', 'safe', or 'privy'."
+                "x402 operations require wallet_provider to be 'cdp', 'native', 'safe', 'privy', or 'xian'."
             )
 
     async def get_signer(self) -> Any:
@@ -251,6 +251,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
         - ThreadSafeEvmWalletSigner for CDP wallets
         - NativeWalletSigner for native wallets
         - PrivyWalletSigner for Privy and Safe wallets
+        - Xian Wallet for Xian wallets
 
         All signers implement the required interface for x402:
         - address property
@@ -618,7 +619,11 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
             # Get payer address from signer
             signer = await self.get_signer()
-            payer = signer.address
+            payer = getattr(signer, "address", None) or getattr(
+                signer,
+                "public_key",
+                None,
+            )
 
             # Derive task_id from chat_id for autonomous tasks
             task_id = None
@@ -638,17 +643,25 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
             # Extract payment details
             amount = payment_data.get("amount")
+            amount_text = payment_data.get("amountText") or payment_data.get(
+                "amount_text"
+            )
             asset = payment_data.get("asset")
             network = payment_data.get("network")
             pay_to = payment_data.get("payTo", payment_data.get("pay_to"))
+            payment_id = payment_data.get("paymentId") or payment_data.get("payment_id")
             description = payment_data.get("description")
 
             accepted_from_response = payment_data.get("accepted")
             if isinstance(accepted_from_response, dict):
-                amount = (
-                    amount
-                    or accepted_from_response.get("amount")
-                    or accepted_from_response.get("maxAmountRequired")
+                accepted_amount = accepted_from_response.get(
+                    "amount"
+                ) or accepted_from_response.get("maxAmountRequired")
+                amount = amount or accepted_amount
+                amount_text = (
+                    amount_text
+                    or accepted_from_response.get("amountText")
+                    or accepted_from_response.get("amount_text")
                 )
                 asset = asset or accepted_from_response.get("asset")
                 network = network or accepted_from_response.get("network")
@@ -656,6 +669,11 @@ class X402BaseSkill(IntentKitOnChainSkill):
                     pay_to
                     or accepted_from_response.get("payTo")
                     or accepted_from_response.get("pay_to")
+                )
+                payment_id = (
+                    payment_id
+                    or accepted_from_response.get("paymentId")
+                    or accepted_from_response.get("payment_id")
                 )
 
             if response.request:
@@ -665,12 +683,36 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 if signature_header:
                     signature_data = decode_payment_signature_header(signature_header)
                     if isinstance(signature_data, dict):
+                        xian_amount = signature_data.get("amount")
+                        if (
+                            str(signature_data.get("network") or "").startswith("xian:")
+                            and xian_amount is not None
+                        ):
+                            amount = amount or xian_amount
+                            amount_text = amount_text or str(xian_amount)
+                            asset = asset or signature_data.get("asset")
+                            network = network or signature_data.get("network")
+                            pay_to = (
+                                pay_to
+                                or signature_data.get("payTo")
+                                or signature_data.get("pay_to")
+                            )
+                            payment_id = (
+                                payment_id
+                                or signature_data.get("paymentId")
+                                or signature_data.get("payment_id")
+                            )
+                            payer = payer or signature_data.get("payer")
                         accepted = signature_data.get("accepted")
                         if isinstance(accepted, dict):
-                            amount = (
-                                amount
-                                or accepted.get("amount")
-                                or accepted.get("maxAmountRequired")
+                            accepted_amount = accepted.get("amount") or accepted.get(
+                                "maxAmountRequired"
+                            )
+                            amount = amount or accepted_amount
+                            amount_text = (
+                                amount_text
+                                or accepted.get("amountText")
+                                or accepted.get("amount_text")
                             )
                             asset = asset or accepted.get("asset")
                             network = network or accepted.get("network")
@@ -679,10 +721,22 @@ class X402BaseSkill(IntentKitOnChainSkill):
                                 or accepted.get("payTo")
                                 or accepted.get("pay_to")
                             )
+                            payment_id = (
+                                payment_id
+                                or accepted.get("paymentId")
+                                or accepted.get("payment_id")
+                            )
                         if not description:
                             resource = signature_data.get("resource")
                             if isinstance(resource, dict):
                                 description = resource.get("description")
+
+            if (
+                amount_text is None
+                and str(network or "").startswith("xian:")
+                and amount is not None
+            ):
+                amount_text = str(amount)
 
             try:
                 amount = int(amount) if amount is not None else 0
@@ -710,10 +764,12 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 url=url,
                 max_value=max_value,
                 amount=amount,
+                amount_text=amount_text,
                 asset=asset,
                 network=network,
                 pay_to=pay_to,
                 payer=payer or "unknown",
+                payment_id=payment_id,
                 tx_hash=tx_hash,
                 status="success" if success else "failed",
                 error=payment_data.get("errorReason"),
