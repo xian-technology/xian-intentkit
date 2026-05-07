@@ -7,8 +7,10 @@ transport flow while keeping v1 seller compatibility.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from collections.abc import Callable
+from decimal import Decimal, InvalidOperation
 from typing import Any, cast, override
 
 import aiohttp
@@ -17,6 +19,14 @@ from x402 import max_amount, x402Client
 from x402.http.x402_http_client import x402HTTPClient
 from x402.mechanisms.evm.exact import register_exact_evm_client
 from x402.mechanisms.evm.types import DOMAIN_TYPES, TypedDataDomain, TypedDataField
+from xian_py.x402 import (
+    PAYMENT_REQUIRED_HEADER,
+    PAYMENT_SIGNATURE_HEADER,
+    XianX402PaymentRequirement,
+    canonical_amount,
+    decode_json_header,
+    sign_xian_x402_payment,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +37,24 @@ class PaymentError(Exception):
 
 class MissingRequestConfigError(PaymentError):
     """Raised when request configuration is missing."""
+
+
+def _is_xian_network(network: Any) -> bool:
+    return isinstance(network, str) and network.startswith("xian:")
+
+
+def _is_xian_signer(signer: Any) -> bool:
+    return callable(getattr(signer, "sign_msg", None)) and isinstance(
+        getattr(signer, "public_key", None),
+        str,
+    )
+
+
+def _decimal_amount(value: Any) -> Decimal:
+    try:
+        return Decimal(canonical_amount(value))
+    except (InvalidOperation, TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid x402 payment amount: {value!r}") from exc
 
 
 class IntentKitEvmSignerAdapter:
@@ -119,6 +147,8 @@ class X402HttpxCompatHooks:
     """Compatibility container to expose last_paid_to."""
 
     last_paid_to: str | None
+    last_payment_id: str | None
+    last_payment_payload: Any | None
     last_payment_required: Any | None
     last_payment_required_version: int | None
     last_payment_error: str | None
@@ -126,6 +156,8 @@ class X402HttpxCompatHooks:
 
     def __init__(self) -> None:
         self.last_paid_to = None
+        self.last_payment_id = None
+        self.last_payment_payload = None
         self.last_payment_required = None
         self.last_payment_required_version = None
         self.last_payment_error = None
@@ -137,19 +169,24 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
 
     RETRY_KEY: str = "_x402_is_retry"
 
-    _client: x402Client
-    _http_client: x402HTTPClient
+    _client: x402Client | None
+    _http_client: x402HTTPClient | None
+    _xian_signer: Any | None
     _transport: httpx.AsyncBaseTransport
     _payment_hooks: X402HttpxCompatHooks
 
     def __init__(
         self,
-        client: x402Client,
+        client: x402Client | None,
         payment_hooks: X402HttpxCompatHooks,
+        xian_signer: Any | None = None,
+        max_value: int | None = None,
         transport: httpx.AsyncBaseTransport | None = None,
     ) -> None:
         self._client = client
-        self._http_client = x402HTTPClient(client)
+        self._http_client = x402HTTPClient(client) if client is not None else None
+        self._xian_signer = xian_signer
+        self._max_value = max_value
         self._transport = transport or httpx.AsyncHTTPTransport()
         self._payment_hooks = payment_hooks
 
@@ -169,6 +206,20 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
                 body_data = response.json()
             except Exception:
                 body_data = None
+
+            if self._xian_signer is not None:
+                payment_headers = self._create_xian_payment_headers(
+                    response.headers,
+                    body_data,
+                    response.content,
+                )
+                return await self._retry_with_payment_headers(
+                    request,
+                    payment_headers,
+                )
+
+            if self._client is None or self._http_client is None:
+                raise PaymentError("No x402 payment client is configured.")
 
             def get_header(name: str) -> str | None:
                 return response.headers.get(name)
@@ -202,25 +253,7 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
                 payment_payload
             )
 
-            new_headers = dict(request.headers)
-            new_headers.update(payment_headers)
-            new_headers["Access-Control-Expose-Headers"] = (
-                "PAYMENT-RESPONSE,X-PAYMENT-RESPONSE"
-            )
-
-            new_extensions = dict(request.extensions)
-            new_extensions[self.RETRY_KEY] = True
-
-            retry_request = httpx.Request(
-                method=request.method,
-                url=request.url,
-                headers=new_headers,
-                content=request.content,
-                extensions=new_extensions,
-            )
-
-            retry_response = await self._transport.handle_async_request(retry_request)
-            return retry_response
+            return await self._retry_with_payment_headers(request, payment_headers)
         except PaymentError:
             raise
         except Exception as exc:
@@ -251,9 +284,108 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
                 f"body={response_body}"
             ) from exc
 
+    def _create_xian_payment_headers(
+        self,
+        headers: httpx.Headers,
+        body_data: Any,
+        body: bytes,
+    ) -> dict[str, str]:
+        payment_required = _xian_payment_required_payload(headers, body_data, body)
+        self._payment_hooks.last_payment_required = payment_required
+        self._payment_hooks.last_payment_required_version = payment_required.get(
+            "x402Version"
+        ) or payment_required.get("x402_version")
+        requirement = _select_xian_requirement(payment_required)
+        if requirement is None:
+            raise PaymentError(
+                "Payment required response did not include a Xian exact payment option."
+            )
+
+        if self._max_value is not None:
+            required = _decimal_amount(requirement.amount)
+            max_allowed = _decimal_amount(self._max_value)
+            if required > max_allowed:
+                raise PaymentError(
+                    f"Payment amount {requirement.amount} exceeds max_value {self._max_value}."
+                )
+
+        payment_payload = sign_xian_x402_payment(requirement, self._xian_signer)
+        self._payment_hooks.last_selected_requirements = requirement
+        self._payment_hooks.last_paid_to = requirement.pay_to
+        self._payment_hooks.last_payment_id = payment_payload.payment_id
+        self._payment_hooks.last_payment_payload = payment_payload
+        return {PAYMENT_SIGNATURE_HEADER: payment_payload.to_header()}
+
+    async def _retry_with_payment_headers(
+        self,
+        request: httpx.Request,
+        payment_headers: dict[str, str],
+    ) -> httpx.Response:
+        new_headers = dict(request.headers)
+        new_headers.update(payment_headers)
+        new_headers["Access-Control-Expose-Headers"] = (
+            "PAYMENT-RESPONSE,X-PAYMENT-RESPONSE"
+        )
+
+        new_extensions = dict(request.extensions)
+        new_extensions[self.RETRY_KEY] = True
+
+        retry_request = httpx.Request(
+            method=request.method,
+            url=request.url,
+            headers=new_headers,
+            content=request.content,
+            extensions=new_extensions,
+        )
+
+        return await self._transport.handle_async_request(retry_request)
+
     @override
     async def aclose(self) -> None:
         await self._transport.aclose()
+
+
+def _xian_payment_required_payload(
+    headers: httpx.Headers,
+    body_data: Any,
+    body: bytes,
+) -> dict[str, Any]:
+    header_value = headers.get(PAYMENT_REQUIRED_HEADER)
+    if header_value:
+        return decode_json_header(header_value)
+    if isinstance(body_data, dict):
+        return body_data
+    try:
+        decoded = body.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise ValueError("402 response body is not valid UTF-8.") from exc
+    try:
+        payload = json.loads(decoded)
+    except ValueError as exc:
+        raise ValueError("402 response has no payment requirements.") from exc
+    if not isinstance(payload, dict):
+        raise ValueError("402 response body must be a JSON object.")
+    return payload
+
+
+def _select_xian_requirement(
+    payment_required: dict[str, Any],
+) -> XianX402PaymentRequirement | None:
+    accepts = payment_required.get("accepts") or payment_required.get("paymentDetails")
+    if not isinstance(accepts, list):
+        return None
+    for index, item in enumerate(accepts):
+        if not isinstance(item, dict):
+            continue
+        if item.get("scheme", "exact") != "exact":
+            continue
+        if not _is_xian_network(item.get("network")):
+            continue
+        return XianX402PaymentRequirement.from_payment_required(
+            payment_required,
+            selected_index=index,
+        )
+    return None
 
 
 def _build_x402_client(
@@ -277,12 +409,13 @@ def x402_compat_payment_hooks(
 ) -> tuple[dict[str, list[Any]], X402HttpxCompatHooks]:
     """Return empty hooks and a compatibility hooks container."""
     hooks = X402HttpxCompatHooks()
-    _ = _build_x402_client(
-        account,
-        max_value=max_value,
-        payment_requirements_selector=payment_requirements_selector,
-        hooks=hooks,
-    )
+    if not _is_xian_signer(account):
+        _ = _build_x402_client(
+            account,
+            max_value=max_value,
+            payment_requirements_selector=payment_requirements_selector,
+            hooks=hooks,
+        )
     return {"request": [], "response": []}, hooks
 
 
@@ -299,15 +432,22 @@ class X402HttpxCompatClient(httpx.AsyncClient):
         **kwargs: Any,
     ) -> None:
         payment_hooks = X402HttpxCompatHooks()
-        client = _build_x402_client(
-            account,
-            max_value=max_value,
-            payment_requirements_selector=payment_requirements_selector,
-            hooks=payment_hooks,
+        xian_signer = account if _is_xian_signer(account) else None
+        client = (
+            None
+            if xian_signer is not None
+            else _build_x402_client(
+                account,
+                max_value=max_value,
+                payment_requirements_selector=payment_requirements_selector,
+                hooks=payment_hooks,
+            )
         )
         transport = X402CompatTransport(
             client=client,
             payment_hooks=payment_hooks,
+            xian_signer=xian_signer,
+            max_value=max_value,
             transport=kwargs.pop("transport", None),
         )
         super().__init__(transport=transport, **kwargs)

@@ -44,6 +44,13 @@ def format_amount(raw_amount: int, asset: str) -> str:
     return f"{formatted} {asset}"
 
 
+def format_order_amount(order: X402Order) -> str:
+    """Format an order amount, preserving exact non-EVM decimal text."""
+    if order.amount_text:
+        return f"{order.amount_text} {order.asset}"
+    return format_amount(order.amount, order.asset)
+
+
 class X402GetOrdersInput(BaseModel):
     """Arguments for getting x402 orders."""
 
@@ -82,13 +89,15 @@ class X402GetOrders(X402BaseSkill):
             time_str = order.created_at.strftime("%Y-%m-%d %H:%M:%S UTC")
 
             # Format amount with decimals
-            amount_str = format_amount(order.amount, order.asset)
+            amount_str = format_order_amount(order)
 
             result_parts.append(f"\n[{i}] {time_str}")
             result_parts.append(f"    URL: {order.url}")
             if order.description:
                 result_parts.append(f"    Description: {order.description}")
             result_parts.append(f"    Amount: {amount_str}")
+            if order.payment_id:
+                result_parts.append(f"    Payment ID: {order.payment_id}")
             if order.tx_hash:
                 result_parts.append(f"    TxHash: {order.tx_hash}")
 
