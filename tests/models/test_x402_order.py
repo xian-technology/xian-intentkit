@@ -42,10 +42,12 @@ async def test_create_x402_order(monkeypatch):
         url="https://example.com/api",
         max_value=1000000,
         amount=500000,
+        amount_text="0.5",
         asset="USDC",
         network="base-mainnet",
         pay_to="0x1234567890abcdef",
         payer="0xpayer_address",
+        payment_id="pay_test_123",
         tx_hash="0xabcdef123456",
         status="success",
         error=None,
@@ -70,10 +72,12 @@ async def test_create_x402_order(monkeypatch):
     assert result.url == "https://example.com/api"
     assert result.max_value == 1000000
     assert result.amount == 500000
+    assert result.amount_text == "0.5"
     assert result.asset == "USDC"
     assert result.network == "base-mainnet"
     assert result.pay_to == "0x1234567890abcdef"
     assert result.payer == "0xpayer_address"
+    assert result.payment_id == "pay_test_123"
     assert result.tx_hash == "0xabcdef123456"
     assert result.status == "success"
     assert result.error is None
@@ -138,10 +142,12 @@ def test_x402_order_table_model():
         method="POST",
         url="https://example.com",
         amount=200000,
+        amount_text="0.2",
         asset="USDC",
         network="base-mainnet",
         pay_to="0x9876543210",
         payer="0xpayer_address",
+        payment_id="pay_table_123",
         status="failed",
         error="Insufficient funds",
         created_at=datetime.now(),
@@ -149,6 +155,8 @@ def test_x402_order_table_model():
 
     assert table.id == "order-789"
     assert table.agent_id == "agent-3"
+    assert table.amount_text == "0.2"
+    assert table.payment_id == "pay_table_123"
     assert table.status == "failed"
     assert table.error == "Insufficient funds"
 
