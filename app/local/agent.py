@@ -428,7 +428,7 @@ async def export_agent(
 
                 # Update the agent's skills config
                 agent.skills[category] = category_config
-        except (ImportError, AttributeError):
+        except ImportError, AttributeError:
             # Skip if module import fails or doesn't have required components
             pass
     yaml_content = agent.to_yaml()

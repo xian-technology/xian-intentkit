@@ -78,7 +78,7 @@ def validate_import(import_name: str) -> bool:
         if "." in import_name:
             try:
                 importlib.import_module(import_name)
-            except (ImportError, AttributeError, ModuleNotFoundError):
+            except ImportError, AttributeError, ModuleNotFoundError:
                 return False
 
         return True
