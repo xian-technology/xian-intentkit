@@ -177,11 +177,11 @@ class XianWalletProvider:
 
     async def get_contract_source(self, contract: str) -> str | None:
         async with self._client() as client:
-            return await client.get_contract(contract)
+            return await client.get_contract_source(contract)
 
-    async def get_contract_code(self, contract: str) -> str | None:
+    async def get_contract_ir(self, contract: str) -> str | None:
         async with self._client() as client:
-            return await client.get_contract_code(contract)
+            return await client.get_contract_ir(contract)
 
     async def get_transaction(self, tx_hash: str) -> Any:
         async with self._client() as client:

@@ -125,7 +125,7 @@ def _extract_openrouter_image_url(response: Any) -> str | None:
     """
     try:
         message = response.choices[0].message
-    except AttributeError, IndexError:
+    except (AttributeError, IndexError):
         return None
 
     images = getattr(message, "images", None) or []

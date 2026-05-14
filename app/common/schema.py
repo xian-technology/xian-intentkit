@@ -232,7 +232,7 @@ async def get_skill_schema(
     try:
         with open(normalized_path) as f:
             schema = json.load(f)
-    except FileNotFoundError, json.JSONDecodeError:
+    except (FileNotFoundError, json.JSONDecodeError):
         raise IntentKitAPIError(404, "NotFound", "Skill schema not found")
 
     return JSONResponse(content=schema, media_type="application/json")
