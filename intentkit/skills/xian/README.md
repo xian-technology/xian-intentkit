@@ -92,7 +92,7 @@ These tools are intentionally narrow:
 
 For autonomous Xian trading agents, the recommended posture is:
 
-1. use a service node so indexed events are available
+1. use a node with BDS enabled so indexed events are available
 2. configure an autonomous task with `trigger_type="xian_event"` and an exact
    `xian_event={contract,event,...}` source
 3. let the Xian event trigger service wake immediately from node websocket
