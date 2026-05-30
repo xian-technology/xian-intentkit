@@ -107,13 +107,9 @@ async def test_agent_asset_success(monkeypatch):
 
     monkeypatch.setattr(asset_module, "get_agent", mock_get_agent)
     monkeypatch.setattr(asset_module, "AgentData", DummyAgentData)
-    monkeypatch.setattr(
-        asset_module, "get_async_web3_client", lambda network: MagicMock()
-    )
+    monkeypatch.setattr(asset_module, "get_async_web3_client", lambda network: MagicMock())
     monkeypatch.setattr(asset_module, "build_assets_list", mockbuild_assets_list)
-    monkeypatch.setattr(
-        asset_module, "_get_wallet_net_worth", mock_get_wallet_net_worth
-    )
+    monkeypatch.setattr(asset_module, "_get_wallet_net_worth", mock_get_wallet_net_worth)
     monkeypatch.setattr(asset_module, "get_session", mock_session_ctx)
     mock_redis = AsyncMock()
     mock_redis.get.return_value = None
@@ -129,9 +125,7 @@ async def test_agent_asset_success(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_agent_asset_missing_network(monkeypatch):
-    agent = SimpleNamespace(
-        network_id=None, ticker=None, token_address=None, id="agent-id"
-    )
+    agent = SimpleNamespace(network_id=None, ticker=None, token_address=None, id="agent-id")
 
     async def mock_get_agent(agent_id):
         return agent

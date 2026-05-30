@@ -124,9 +124,7 @@ async def test_get_public_post_from_public_agent(router, public_agent):
     mock_session.get.return_value = public_agent
 
     with (
-        patch(
-            "intentkit.core.public_api.get_agent_post", new_callable=AsyncMock
-        ) as mock_get_post,
+        patch("intentkit.core.public_api.get_agent_post", new_callable=AsyncMock) as mock_get_post,
         patch("intentkit.core.public_api.get_session") as mock_gs,
     ):
         mock_get_post.return_value = mock_post
@@ -152,9 +150,7 @@ async def test_get_public_post_from_private_agent_returns_404(router, private_ag
     mock_session.get.return_value = private_agent
 
     with (
-        patch(
-            "intentkit.core.public_api.get_agent_post", new_callable=AsyncMock
-        ) as mock_get_post,
+        patch("intentkit.core.public_api.get_agent_post", new_callable=AsyncMock) as mock_get_post,
         patch("intentkit.core.public_api.get_session") as mock_gs,
     ):
         mock_get_post.return_value = mock_post
@@ -174,9 +170,7 @@ async def test_get_public_post_nonexistent_returns_404(router):
 
     get_post_fn = _get_endpoint(router, "/public/posts/{post_id}")
 
-    with patch(
-        "intentkit.core.public_api.get_agent_post", new_callable=AsyncMock
-    ) as mock_get_post:
+    with patch("intentkit.core.public_api.get_agent_post", new_callable=AsyncMock) as mock_get_post:
         mock_get_post.return_value = None
 
         with pytest.raises(IntentKitAPIError) as exc_info:
@@ -199,9 +193,7 @@ async def test_get_public_post_agent_not_found_returns_404(router):
     mock_session.get.return_value = None
 
     with (
-        patch(
-            "intentkit.core.public_api.get_agent_post", new_callable=AsyncMock
-        ) as mock_get_post,
+        patch("intentkit.core.public_api.get_agent_post", new_callable=AsyncMock) as mock_get_post,
         patch("intentkit.core.public_api.get_session") as mock_gs,
     ):
         mock_get_post.return_value = mock_post
@@ -240,9 +232,7 @@ async def test_public_posts_feed_calls_correct_team(router):
     """Posts feed should query the 'public' virtual team."""
     posts_fn = _get_endpoint(router, "/public/posts")
 
-    with patch(
-        "intentkit.core.public_api.query_post_feed", new_callable=AsyncMock
-    ) as mock_query:
+    with patch("intentkit.core.public_api.query_post_feed", new_callable=AsyncMock) as mock_query:
         mock_posts = [MagicMock(spec=AgentPostBrief, id="post-1")]
         mock_query.return_value = (mock_posts, "cursor-next")
 
@@ -283,9 +273,7 @@ async def test_get_share_link_returns_view_and_increments_counter(router):
         expires_at=datetime.now(),
     )
     with (
-        patch(
-            "intentkit.core.public_api.get_shared_view", new_callable=AsyncMock
-        ) as mock_get,
+        patch("intentkit.core.public_api.get_shared_view", new_callable=AsyncMock) as mock_get,
         patch(
             "intentkit.core.public_api.increment_share_link_view_count",
             new_callable=AsyncMock,
@@ -307,9 +295,7 @@ async def test_get_share_link_404_skips_counter(router):
     get_fn = _get_endpoint(router, "/public/share-links/{share_link_id}")
 
     with (
-        patch(
-            "intentkit.core.public_api.get_shared_view", new_callable=AsyncMock
-        ) as mock_get,
+        patch("intentkit.core.public_api.get_shared_view", new_callable=AsyncMock) as mock_get,
         patch(
             "intentkit.core.public_api.increment_share_link_view_count",
             new_callable=AsyncMock,

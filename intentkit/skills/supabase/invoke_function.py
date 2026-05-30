@@ -19,9 +19,7 @@ class SupabaseInvokeFunctionInput(BaseModel):
     parameters: dict[str, Any] | None = Field(
         default=None, description="Parameters to pass to the function"
     )
-    headers: dict[str, str] | None = Field(
-        default=None, description="Additional request headers"
-    )
+    headers: dict[str, str] | None = Field(default=None, description="Additional request headers")
 
 
 class SupabaseInvokeFunction(SupabaseBaseTool):
@@ -63,6 +61,4 @@ class SupabaseInvokeFunction(SupabaseBaseTool):
 
         except Exception as e:
             logger.error("Error invoking Supabase Edge Function: %s", e)
-            raise ToolException(
-                f"Failed to invoke Edge Function '{function_name}': {str(e)}"
-            )
+            raise ToolException(f"Failed to invoke Edge Function '{function_name}': {str(e)}")

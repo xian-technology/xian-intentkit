@@ -17,12 +17,8 @@ def send_agent_notification(agent: Agent, agent_data: AgentData, message: str) -
         if enabled_autonomous:
             autonomous_items = []
             for auto in enabled_autonomous:
-                schedule = (
-                    f"cron: {auto.cron}" if auto.cron else f"minutes: {auto.minutes}"
-                )
-                autonomous_items.append(
-                    f"• {auto.id}: {auto.name or 'Unnamed'} ({schedule})"
-                )
+                schedule = f"cron: {auto.cron}" if auto.cron else f"minutes: {auto.minutes}"
+                autonomous_items.append(f"• {auto.id}: {auto.name or 'Unnamed'} ({schedule})")
             autonomous_formatted = "\n".join(autonomous_items)
         else:
             autonomous_formatted = "No enabled autonomous configurations"
@@ -36,12 +32,8 @@ def send_agent_notification(agent: Agent, agent_data: AgentData, message: str) -
             if skill_config and skill_config.get("enabled") is True:
                 skills_list = []
                 states = skill_config.get("states", {})
-                public_skills = [
-                    skill for skill, state in states.items() if state == "public"
-                ]
-                private_skills = [
-                    skill for skill, state in states.items() if state == "private"
-                ]
+                public_skills = [skill for skill, state in states.items() if state == "public"]
+                private_skills = [skill for skill, state in states.items() if state == "private"]
 
                 if public_skills:
                     skills_list.append(f"  Public: {', '.join(public_skills)}")
@@ -49,9 +41,7 @@ def send_agent_notification(agent: Agent, agent_data: AgentData, message: str) -
                     skills_list.append(f"  Private: {', '.join(private_skills)}")
 
                 if skills_list:
-                    enabled_categories.append(
-                        f"• {category}:\n{chr(10).join(skills_list)}"
-                    )
+                    enabled_categories.append(f"• {category}:\n{chr(10).join(skills_list)}")
 
         if enabled_categories:
             skills_formatted = "\n".join(enabled_categories)

@@ -24,9 +24,7 @@ class SupplyInput(BaseModel):
     """Input for Aave V3 supply."""
 
     token_address: str = Field(description="ERC20 token contract address to supply")
-    amount: str = Field(
-        description="Amount in human-readable units (e.g. '100' for 100 USDC)"
-    )
+    amount: str = Field(description="Amount in human-readable units (e.g. '100' for 100 USDC)")
 
 
 class AaveV3Supply(AaveV3BaseTool):
@@ -63,9 +61,7 @@ class AaveV3Supply(AaveV3BaseTool):
             )
             amount_raw = convert_amount(amount, decimals)
 
-            await ensure_allowance(
-                w3, wallet, checksum_token, checksum_pool, amount_raw
-            )
+            await ensure_allowance(w3, wallet, checksum_token, checksum_pool, amount_raw)
 
             pool = w3.eth.contract(address=checksum_pool, abi=POOL_ABI)
             supply_data = pool.encode_abi(

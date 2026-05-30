@@ -19,9 +19,7 @@ async def _get(url: str, params: dict[str, Any] | None = None) -> Any:
     async with httpx.AsyncClient() as client:
         response = await client.get(url, params=params)
     if response.status_code != 200:
-        raise ToolException(
-            f"DeFi Llama API returned status code {response.status_code}"
-        )
+        raise ToolException(f"DeFi Llama API returned status code {response.status_code}")
     return response.json()
 
 
@@ -60,9 +58,7 @@ async def fetch_chains() -> Any:
 async def fetch_current_prices(coins: list[str]) -> dict[str, Any]:
     """Get current prices of tokens by contract address using a 4-hour search window."""
     coins_str = ",".join(coins)
-    return await _get(
-        f"{DEFILLAMA_COINS_BASE_URL}/prices/current/{coins_str}?searchWidth=4h"
-    )
+    return await _get(f"{DEFILLAMA_COINS_BASE_URL}/prices/current/{coins_str}?searchWidth=4h")
 
 
 async def fetch_historical_prices(timestamp: int, coins: list[str]) -> dict[str, Any]:

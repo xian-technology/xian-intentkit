@@ -93,9 +93,7 @@ async def test_aave_get_reserve_data(w3: AsyncWeb3):
         abi=POOL_DATA_PROVIDER_ABI,
     )
 
-    result = await provider.functions.getReserveData(
-        w3.to_checksum_address(USDC_ADDRESS)
-    ).call()
+    result = await provider.functions.getReserveData(w3.to_checksum_address(USDC_ADDRESS)).call()
 
     assert len(result) == 12
     # Unpack to verify types
@@ -169,9 +167,7 @@ async def test_aave_get_user_account_data_empty(w3: AsyncWeb3):
         abi=POOL_ABI,
     )
 
-    result = await pool.functions.getUserAccountData(
-        w3.to_checksum_address(EMPTY_ADDRESS)
-    ).call()
+    result = await pool.functions.getUserAccountData(w3.to_checksum_address(EMPTY_ADDRESS)).call()
 
     assert len(result) == 6
     (

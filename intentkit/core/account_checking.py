@@ -28,9 +28,7 @@ class AccountCheckingResult:
     details: dict[str, Any]
     timestamp: datetime
 
-    def __init__(
-        self, check_type: str, status: bool, details: dict[str, Any] | None = None
-    ):
+    def __init__(self, check_type: str, status: bool, details: dict[str, Any] | None = None):
         self.check_type = check_type
         self.status = status  # True if check passed, False if failed
         self.details = details or {}
@@ -89,8 +87,7 @@ async def check_account_balance_consistency(
                 query = query.where(CreditAccountTable.updated_at >= time_threshold)
             accounts_result = await session.execute(query)
             batch_accounts = [
-                CreditAccount.model_validate(acc)
-                for acc in accounts_result.scalars().all()
+                CreditAccount.model_validate(acc) for acc in accounts_result.scalars().all()
             ]
 
             # If no more accounts to process, break the loop
@@ -113,9 +110,7 @@ async def check_account_balance_consistency(
                 await asyncio.sleep(0.01)
 
                 # Calculate the total balance across all credit types
-                total_balance = (
-                    account.free_credits + account.reward_credits + account.credits
-                )
+                total_balance = account.free_credits + account.reward_credits + account.credits
 
                 # Calculate the expected balance from all transactions, regardless of credit type
                 # If account has last_event_id, only include transactions from events up to and including that event
@@ -170,9 +165,7 @@ async def check_account_balance_consistency(
                     debits = tx_data.debits or Decimal("0")
                     expected_free_credits = tx_data.free_credits_sum or Decimal("0")
                     expected_reward_credits = tx_data.reward_credits_sum or Decimal("0")
-                    expected_permanent_credits = (
-                        tx_data.permanent_credits_sum or Decimal("0")
-                    )
+                    expected_permanent_credits = tx_data.permanent_credits_sum or Decimal("0")
                 expected_balance = credits - debits
 
                 # Compare total balances and individual credit type balances with tolerance
@@ -180,12 +173,8 @@ async def check_account_balance_consistency(
 
                 total_balance_diff = abs(total_balance - expected_balance)
                 free_credits_diff = abs(account.free_credits - expected_free_credits)
-                reward_credits_diff = abs(
-                    account.reward_credits - expected_reward_credits
-                )
-                permanent_credits_diff = abs(
-                    account.credits - expected_permanent_credits
-                )
+                reward_credits_diff = abs(account.reward_credits - expected_reward_credits)
+                permanent_credits_diff = abs(account.credits - expected_permanent_credits)
 
                 is_total_consistent = total_balance_diff <= tolerance
                 is_free_consistent = free_credits_diff <= tolerance
@@ -216,9 +205,7 @@ async def check_account_balance_consistency(
                         "expected_permanent_credits": float(expected_permanent_credits),
                         "total_credits": float(credits),
                         "total_debits": float(debits),
-                        "total_balance_difference": float(
-                            total_balance - expected_balance
-                        ),
+                        "total_balance_difference": float(total_balance - expected_balance),
                         "free_credits_difference": float(
                             account.free_credits - expected_free_credits
                         ),
@@ -264,9 +251,7 @@ async def check_account_balance_consistency(
                         f"{'; '.join(inconsistency_details)}"
                     )
 
-    filter_info = (
-        f" (recent {recent_hours}h only)" if check_recent_only else " (all accounts)"
-    )
+    filter_info = f" (recent {recent_hours}h only)" if check_recent_only else " (all accounts)"
     logger.info(
         f"Completed account balance consistency check{filter_info}: processed {total_processed} accounts in {batch_count} batches"
     )
@@ -307,8 +292,7 @@ async def check_transaction_balance() -> list[AccountCheckingResult]:
             )
             events_result = await session.execute(query)
             batch_events = [
-                CreditEvent.model_validate(event)
-                for event in events_result.scalars().all()
+                CreditEvent.model_validate(event) for event in events_result.scalars().all()
             ]
 
             # If no more events to process, break the loop
@@ -336,20 +320,15 @@ async def check_transaction_balance() -> list[AccountCheckingResult]:
                 )
                 tx_result = await session.execute(tx_query)
                 transactions = [
-                    CreditTransaction.model_validate(tx)
-                    for tx in tx_result.scalars().all()
+                    CreditTransaction.model_validate(tx) for tx in tx_result.scalars().all()
                 ]
 
                 # Calculate credit and debit sums
                 credit_sum = sum(
-                    tx.change_amount
-                    for tx in transactions
-                    if tx.credit_debit == "credit"
+                    tx.change_amount for tx in transactions if tx.credit_debit == "credit"
                 )
                 debit_sum = sum(
-                    tx.change_amount
-                    for tx in transactions
-                    if tx.credit_debit == "debit"
+                    tx.change_amount for tx in transactions if tx.credit_debit == "debit"
                 )
 
                 # Check if they balance
@@ -364,9 +343,7 @@ async def check_transaction_balance() -> list[AccountCheckingResult]:
                         "credit_sum": float(credit_sum),
                         "debit_sum": float(debit_sum),
                         "difference": float(credit_sum - debit_sum),
-                        "created_at": event.created_at.isoformat()
-                        if event.created_at
-                        else None,
+                        "created_at": event.created_at.isoformat() if event.created_at else None,
                         "batch": batch_count,
                     },
                 )
@@ -485,9 +462,7 @@ async def check_orphaned_events() -> list[AccountCheckingResult]:
                     "account_id": event.account_id,
                     "total_amount": float(event.total_amount),
                     "credit_type": event.credit_type,
-                    "created_at": event.created_at.isoformat()
-                    if event.created_at
-                    else None,
+                    "created_at": event.created_at.isoformat() if event.created_at else None,
                 }
             )
 
@@ -538,9 +513,7 @@ async def check_total_credit_balance() -> list[AccountCheckingResult]:
         else:
             total_free_credits = balance_data.total_free_credits or Decimal("0")
             total_reward_credits = balance_data.total_reward_credits or Decimal("0")
-            total_permanent_credits = balance_data.total_permanent_credits or Decimal(
-                "0"
-            )
+            total_permanent_credits = balance_data.total_permanent_credits or Decimal("0")
             grand_total = balance_data.grand_total or Decimal("0")
 
         # Check if the grand total is zero (or very close to zero due to potential floating point issues)
@@ -811,9 +784,7 @@ async def run_quick_checks() -> dict[str, list[AccountCheckingResult]]:
                 )
 
     # Send the message
-    send_alert(
-        message=f"{notify}Quick Account Checking Results", attachments=attachments
-    )
+    send_alert(message=f"{notify}Quick Account Checking Results", attachments=attachments)
 
     return results
 
@@ -920,8 +891,6 @@ async def run_slow_checks() -> dict[str, list[AccountCheckingResult]]:
             )
 
     # Send the message
-    send_alert(
-        message=f"{notify}Slow Account Checking Results", attachments=attachments
-    )
+    send_alert(message=f"{notify}Slow Account Checking Results", attachments=attachments)
 
     return results

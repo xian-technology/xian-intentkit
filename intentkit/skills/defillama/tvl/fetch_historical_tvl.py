@@ -32,9 +32,7 @@ class FetchHistoricalTVLInput(BaseModel):
 class FetchHistoricalTVLResponse(BaseModel):
     """Response schema for historical TVL data."""
 
-    data: list[HistoricalTVLDataPoint] = Field(
-        default_factory=list, description="TVL data points"
-    )
+    data: list[HistoricalTVLDataPoint] = Field(default_factory=list, description="TVL data points")
     error: str | None = Field(default=None, description="Error message")
 
 

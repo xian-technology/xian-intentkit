@@ -127,12 +127,8 @@ class CreditTransaction(BaseModel):
             description="Unique identifier for the credit transaction",
         ),
     ]
-    account_id: Annotated[
-        str, Field(description="ID of the account this transaction belongs to")
-    ]
-    event_id: Annotated[
-        str, Field(description="ID of the event that triggered this transaction")
-    ]
+    account_id: Annotated[str, Field(description="ID of the account this transaction belongs to")]
+    event_id: Annotated[str, Field(description="ID of the event that triggered this transaction")]
     tx_type: Annotated[TransactionType, Field(description="Type of the transaction")]
     credit_debit: Annotated[
         CreditDebit, Field(description="Whether this is a credit or debit transaction")
@@ -153,9 +149,7 @@ class CreditTransaction(BaseModel):
         Field(default=Decimal("0"), description="Amount of permanent credits changed"),
     ]
 
-    @field_validator(
-        "change_amount", "free_amount", "reward_amount", "permanent_amount"
-    )
+    @field_validator("change_amount", "free_amount", "reward_amount", "permanent_amount")
     @classmethod
     def round_decimal(cls, v: Any) -> Decimal:
         """Round decimal values to 4 decimal places."""

@@ -47,7 +47,9 @@ class X402HttpRequest(X402BaseSkill):
     """Skill that performs signed HTTP requests via the x402 client."""
 
     name: str = "x402_http_request"
-    description: str = "Send a paid HTTP request using the x402 protocol. Returns response status and body."
+    description: str = (
+        "Send a paid HTTP request using the x402 protocol. Returns response status and body."
+    )
     price: Decimal = Decimal("1")
     args_schema: ArgsSchema | None = X402HttpRequestInput
 
@@ -106,9 +108,7 @@ class X402HttpRequest(X402BaseSkill):
                 account=account,
                 timeout=timeout,
             ) as client:
-                http_response = cast(
-                    Any, await client.request(method_upper, **request_kwargs)
-                )
+                http_response = cast(Any, await client.request(method_upper, **request_kwargs))
                 _ = http_response.raise_for_status()
 
                 # Record the order
@@ -127,13 +127,9 @@ class X402HttpRequest(X402BaseSkill):
         except PaymentError as exc:
             raise ToolException(str(exc)) from exc
         except httpx.TimeoutException as exc:
-            raise ToolException(
-                f"Request to {url} timed out after {timeout} seconds"
-            ) from exc
+            raise ToolException(f"Request to {url} timed out after {timeout} seconds") from exc
         except httpx.HTTPStatusError as exc:
-            raise ToolException(
-                f"HTTP {exc.response.status_code} - {exc.response.text}"
-            ) from exc
+            raise ToolException(f"HTTP {exc.response.status_code} - {exc.response.text}") from exc
         except httpx.RequestError as exc:
             raise ToolException(f"Failed to connect to {url} - {str(exc)}") from exc
         except (TimeExhausted, Web3RPCError) as exc:

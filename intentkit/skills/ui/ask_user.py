@@ -10,16 +10,12 @@ from intentkit.skills.ui.base import UIBaseTool
 class AskUserInput(BaseModel):
     """Input for UI ask user skill."""
 
-    lead_text: str = Field(
-        description="Question/prompt text displayed before the options"
-    )
+    lead_text: str = Field(description="Question/prompt text displayed before the options")
     option_a_title: str = Field(description="Title for option A")
     option_a_content: str = Field(description="Description for option A")
     option_b_title: str = Field(description="Title for option B")
     option_b_content: str = Field(description="Description for option B")
-    option_c_title: str | None = Field(
-        default=None, description="Optional title for option C"
-    )
+    option_c_title: str | None = Field(default=None, description="Optional title for option C")
     option_c_content: str | None = Field(
         default=None, description="Optional description for option C"
     )

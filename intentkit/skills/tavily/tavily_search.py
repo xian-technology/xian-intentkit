@@ -74,9 +74,7 @@ class TavilySearch(TavilyBaseTool):
         skill_config = context.agent.skill_config(self.category)
         logger.debug("tavily.py: Running web search with context %s", context)
 
-        if skill_config.get("rate_limit_number") and skill_config.get(
-            "rate_limit_minutes"
-        ):
+        if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
             await self.user_rate_limit_by_category(
                 skill_config["rate_limit_number"],
                 skill_config["rate_limit_minutes"] * 60,

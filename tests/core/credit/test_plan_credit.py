@@ -49,9 +49,7 @@ async def test_issue_plan_credits_for_team_creates_records():
         await issue_plan_credits_for_team(mock_session, "team-1", Decimal("10000"))
 
     mock_income.assert_called_once()
-    assert mock_income.call_args[1]["amount_details"] == {
-        CreditType.PERMANENT: Decimal("10000")
-    }
+    assert mock_income.call_args[1]["amount_details"] == {CreditType.PERMANENT: Decimal("10000")}
     assert mock_income.call_args[1]["owner_type"] == OwnerType.TEAM
 
     mock_deduction.assert_called_once()

@@ -18,9 +18,7 @@ class ImageGenerationFlux1DevInput(BaseModel):
     """Input for ImageGenerationFlux1Dev tool."""
 
     prompt: str = Field(description="Image description prompt.")
-    neg_prompt: str | None = Field(
-        default="", description="What to avoid in the image."
-    )
+    neg_prompt: str | None = Field(default="", description="What to avoid in the image.")
     width: int | None = Field(default=1024, le=2048, description="Image width.")
     height: int | None = Field(default=1024, le=2048, description="Image height.")
 
@@ -71,9 +69,7 @@ class ImageGenerationFlux1Dev(HeuristBaseTool):
         # Get the Heurist API key from configuration
         if "api_key" in skill_config and skill_config["api_key"]:
             api_key = skill_config["api_key"]
-            if skill_config.get("rate_limit_number") and skill_config.get(
-                "rate_limit_minutes"
-            ):
+            if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
                 await self.user_rate_limit_by_category(
                     skill_config["rate_limit_number"],
                     skill_config["rate_limit_minutes"] * 60,
@@ -138,7 +134,9 @@ class ImageGenerationFlux1Dev(HeuristBaseTool):
                 error_json = e.response.json()
                 error_code = error_json.get("error", "")
                 error_message = error_json.get("message", "")
-                full_error = f"Heurist API error: Error code: {error_code}, Message: {error_message}"
+                full_error = (
+                    f"Heurist API error: Error code: {error_code}, Message: {error_message}"
+                )
             except Exception:
                 full_error = f"Heurist API error: {e}"
 

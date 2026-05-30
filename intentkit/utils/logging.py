@@ -159,7 +159,5 @@ def setup_logging(env: str, debug: bool = False, release: str = "unknown") -> No
         # telegram access log
         logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
         # gemini schema-compat and AFC warnings flood the logs; silence them
-        logging.getLogger("langchain_google_genai._function_utils").setLevel(
-            logging.ERROR
-        )
+        logging.getLogger("langchain_google_genai._function_utils").setLevel(logging.ERROR)
         logging.getLogger("google_genai.models").setLevel(logging.ERROR)

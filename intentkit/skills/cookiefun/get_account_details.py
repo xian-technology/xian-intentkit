@@ -21,7 +21,9 @@ class GetAccountDetails(CookieFunBaseTool):
     """Tool to get detailed information about a Twitter account."""
 
     name: str = "cookiefun_get_account_details"
-    description: str = "Get detailed Twitter account info including followers, metrics, and engagement data."
+    description: str = (
+        "Get detailed Twitter account info including followers, metrics, and engagement data."
+    )
     price: Decimal = Decimal("70")
     args_schema: ArgsSchema | None = GetAccountDetailsInput
 
@@ -41,9 +43,7 @@ class GetAccountDetails(CookieFunBaseTool):
         Returns:
             Account details including followers, following, posts, metrics, and engagement data.
         """
-        logger.info(
-            "Getting account details for username=%s, userId=%s", username, userId
-        )
+        logger.info("Getting account details for username=%s, userId=%s", username, userId)
 
         # Validate input parameters
         if not username and not userId:
@@ -72,25 +72,17 @@ class GetAccountDetails(CookieFunBaseTool):
                 response = await client.post(
                     ENDPOINTS["account_details"], headers=headers, json=payload
                 )
-                logger.debug(
-                    "Received response with status code: %d", response.status_code
-                )
+                logger.debug("Received response with status code: %d", response.status_code)
 
                 response.raise_for_status()
                 data = response.json()
 
                 # Check different possible response structures
-                if (
-                    data.get("success")
-                    and "ok" in data
-                    and isinstance(data["ok"], dict)
-                ):
+                if data.get("success") and "ok" in data and isinstance(data["ok"], dict):
                     logger.info("Successfully retrieved account details")
                     return data["ok"]
                 elif data.get("success") and "ok" in data and "entry" in data["ok"]:
-                    logger.info(
-                        "Successfully retrieved account details from entry field"
-                    )
+                    logger.info("Successfully retrieved account details from entry field")
                     return data["ok"]["entry"]
                 elif (
                     data.get("success")
@@ -99,9 +91,7 @@ class GetAccountDetails(CookieFunBaseTool):
                     and len(data["ok"]["entries"]) > 0
                 ):
                     # If entries is a list but we expect a single account, return the first one
-                    logger.info(
-                        "Successfully retrieved account details from entries array"
-                    )
+                    logger.info("Successfully retrieved account details from entries array")
                     return data["ok"]["entries"][0]
                 elif data.get("success") and isinstance(data.get("account"), dict):
                     # If account is at the top level
@@ -109,9 +99,7 @@ class GetAccountDetails(CookieFunBaseTool):
                     return data["account"]
                 elif data.get("success") and isinstance(data.get("entry"), dict):
                     # If entry is at the top level
-                    logger.info(
-                        "Successfully retrieved account details from entry field"
-                    )
+                    logger.info("Successfully retrieved account details from entry field")
                     return data["entry"]
                 elif (
                     data.get("success")
@@ -129,9 +117,7 @@ class GetAccountDetails(CookieFunBaseTool):
                     return data["account"]
                 elif "entry" in data and isinstance(data["entry"], dict):
                     # If only entry field exists
-                    logger.info(
-                        "Successfully retrieved account from direct entry field"
-                    )
+                    logger.info("Successfully retrieved account from direct entry field")
                     return data["entry"]
                 elif (
                     "entries" in data
@@ -139,9 +125,7 @@ class GetAccountDetails(CookieFunBaseTool):
                     and len(data["entries"]) > 0
                 ):
                     # If only entries field exists
-                    logger.info(
-                        "Successfully retrieved account from direct entries field"
-                    )
+                    logger.info("Successfully retrieved account from direct entries field")
                     return data["entries"][0]
                 else:
                     # If we can't find account details in the expected structure, log the full response
@@ -149,9 +133,7 @@ class GetAccountDetails(CookieFunBaseTool):
                         "Could not find account details in response structure. Full response: %s",
                         data,
                     )
-                    error_msg = data.get(
-                        "error", "Unknown error - check API response format"
-                    )
+                    error_msg = data.get("error", "Unknown error - check API response format")
                     logger.error("Error in API response: %s", error_msg)
                     raise ToolException(f"Error fetching account details: {error_msg}")
         except ToolException:

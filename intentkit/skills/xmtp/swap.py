@@ -49,11 +49,7 @@ class XmtpSwap(XmtpBaseTool):
         slippage_bps: int = 100,
     ) -> tuple[str, list[ChatMessageAttachment]]:
         # Input validation
-        if (
-            not from_address
-            or not from_address.startswith("0x")
-            or len(from_address) != 42
-        ):
+        if not from_address or not from_address.startswith("0x") or len(from_address) != 42:
             raise ToolException("from_address must be a valid Ethereum address")
 
         if not from_token or not from_token.startswith("0x") or len(from_token) != 42:
@@ -139,9 +135,7 @@ class XmtpSwap(XmtpBaseTool):
         # Validate that we have the required fields from CDP
         # Note: Pydantic model guarantees these fields exist, but keeping checks for safety isn't harmful
         if not hasattr(quote, "to") or not hasattr(quote, "data"):
-            raise ToolException(
-                "CDP swap quote missing required transaction fields (to, data)"
-            )
+            raise ToolException("CDP swap quote missing required transaction fields (to, data)")
 
         # Format value field - ensure it's a hex string
         value_hex = "0x0"

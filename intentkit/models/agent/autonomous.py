@@ -67,9 +67,7 @@ class XianDexPriceChangeTrigger(BaseModel):
     )
     price_base: str = PydanticField(
         default="token1_per_token0",
-        description=(
-            "How to derive price from reserves: token1_per_token0 or token0_per_token1."
-        ),
+        description=("How to derive price from reserves: token1_per_token0 or token0_per_token1."),
         pattern=r"^(token1_per_token0|token0_per_token1)$",
     )
 
@@ -94,15 +92,12 @@ class XianEventTrigger(BaseModel):
     filters: dict[str, str] | None = PydanticField(
         default=None,
         description=(
-            "Optional exact-match filters applied against the merged indexed "
-            "event payload."
+            "Optional exact-match filters applied against the merged indexed event payload."
         ),
     )
     cooldown_seconds: int = PydanticField(
         default=0,
-        description=(
-            "Minimum time between successful trigger executions for this task."
-        ),
+        description=("Minimum time between successful trigger executions for this task."),
         ge=0,
         le=86400,
     )
@@ -173,14 +168,10 @@ class AutonomousCreateRequest(BaseModel):
             if not self.cron:
                 raise ValueError("cron is required for scheduled autonomous tasks")
             if self.xian_event is not None:
-                raise ValueError(
-                    "xian_event cannot be set for scheduled autonomous tasks"
-                )
+                raise ValueError("xian_event cannot be set for scheduled autonomous tasks")
         else:
             if self.xian_event is None:
-                raise ValueError(
-                    "xian_event is required for xian_event autonomous tasks"
-                )
+                raise ValueError("xian_event is required for xian_event autonomous tasks")
             if self.cron:
                 raise ValueError("cron cannot be set for xian_event autonomous tasks")
         return self
@@ -397,20 +388,14 @@ class AgentAutonomous(BaseModel):
 
         if trigger_type == AgentAutonomousTriggerType.SCHEDULE:
             if self.xian_event is not None:
-                raise ValueError(
-                    "xian_event cannot be set for scheduled autonomous tasks"
-                )
+                raise ValueError("xian_event cannot be set for scheduled autonomous tasks")
             if self.minutes is None and not self.cron:
                 return self
         else:
             if self.xian_event is None:
-                raise ValueError(
-                    "xian_event is required for xian_event autonomous tasks"
-                )
+                raise ValueError("xian_event is required for xian_event autonomous tasks")
             if self.minutes is not None or self.cron:
-                raise ValueError(
-                    "xian_event autonomous tasks cannot define minutes or cron"
-                )
+                raise ValueError("xian_event autonomous tasks cannot define minutes or cron")
         return self
 
     @field_serializer("next_run_time")
@@ -429,9 +414,7 @@ class AgentAutonomous(BaseModel):
         if len(v.encode()) > 20:
             raise ValueError("id must be at most 20 bytes")
         if not re.match(r"^[a-z0-9-]+$", v):
-            raise ValueError(
-                "id must contain only lowercase letters, numbers, and dashes"
-            )
+            raise ValueError("id must contain only lowercase letters, numbers, and dashes")
         return v
 
     def normalize_status_defaults(self) -> "AgentAutonomous":
@@ -473,15 +456,9 @@ class AgentTasksGroup(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
     agent_id: str = PydanticField(description="Agent ID")
-    agent_slug: str | None = PydanticField(
-        default=None, description="Agent slug for URL routing"
-    )
-    agent_name: str | None = PydanticField(
-        default=None, description="Agent display name"
-    )
-    agent_image: str | None = PydanticField(
-        default=None, description="Agent picture URL"
-    )
+    agent_slug: str | None = PydanticField(default=None, description="Agent slug for URL routing")
+    agent_name: str | None = PydanticField(default=None, description="Agent display name")
+    agent_image: str | None = PydanticField(default=None, description="Agent picture URL")
     tasks: list[AgentAutonomous] = PydanticField(
         default_factory=list, description="Tasks for this agent"
     )

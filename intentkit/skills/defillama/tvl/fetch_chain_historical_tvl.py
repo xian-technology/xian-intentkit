@@ -7,9 +7,7 @@ from pydantic import BaseModel, Field
 from intentkit.skills.defillama.api import fetch_chain_historical_tvl
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_HISTORICAL_TVL_PROMPT = (
-    """Fetch historical TVL for a specific chain via DefiLlama."""
-)
+FETCH_HISTORICAL_TVL_PROMPT = """Fetch historical TVL for a specific chain via DefiLlama."""
 
 
 class HistoricalTVLDataPoint(BaseModel):
@@ -29,9 +27,7 @@ class FetchChainHistoricalTVLResponse(BaseModel):
     """Response schema for chain-specific historical TVL data."""
 
     chain: str = Field(..., description="Chain name")
-    data: list[HistoricalTVLDataPoint] = Field(
-        default_factory=list, description="TVL data points"
-    )
+    data: list[HistoricalTVLDataPoint] = Field(default_factory=list, description="TVL data points")
     error: str | None = Field(default=None, description="Error message")
 
 

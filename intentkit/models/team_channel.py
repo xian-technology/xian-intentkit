@@ -125,19 +125,15 @@ class TeamChannel(BaseModel):
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
     team_id: Annotated[str, Field(description="Team ID")]
-    channel_type: Annotated[
-        str, Field(description="Channel type (telegram, discord, etc.)")
-    ]
-    enabled: Annotated[
-        bool, Field(default=True, description="Whether the channel is enabled")
-    ] = True
+    channel_type: Annotated[str, Field(description="Channel type (telegram, discord, etc.)")]
+    enabled: Annotated[bool, Field(default=True, description="Whether the channel is enabled")] = (
+        True
+    )
     config: Annotated[
         dict[str, object] | None,
         Field(default=None, description="Platform-specific config"),
     ] = None
-    owner_id: Annotated[
-        str | None, Field(default=None, description="IntentKit user_id")
-    ] = None
+    owner_id: Annotated[str | None, Field(default=None, description="IntentKit user_id")] = None
     created_by: Annotated[str, Field(description="Who set this up")]
     created_at: Annotated[datetime, Field(description="Creation timestamp")]
     updated_at: Annotated[datetime, Field(description="Last update timestamp")]

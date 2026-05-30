@@ -30,9 +30,7 @@ class SearchWebInput(BaseModel):
     """Input schema for web search."""
 
     query: str = Field(..., description="The search query")
-    search_recency_filter: (
-        Literal["oneDay", "oneWeek", "oneMonth", "oneYear"] | None
-    ) = Field(
+    search_recency_filter: Literal["oneDay", "oneWeek", "oneMonth", "oneYear"] | None = Field(
         default=None,
         description="Filter results by recency: oneDay, oneWeek, oneMonth, or oneYear. Omit for no time limit.",
     )
@@ -61,17 +59,13 @@ class SearchWebZaiSkill(SystemSkill):
 
             api_key = config.zai_plan_api_key
             if not api_key:
-                raise ToolException(
-                    "Z.AI Plan API is not configured. Set ZAI_PLAN_API_KEY."
-                )
+                raise ToolException("Z.AI Plan API is not configured. Set ZAI_PLAN_API_KEY.")
 
             arguments: dict = {"search_query": query}
             if search_recency_filter:
                 arguments["search_recency_filter"] = search_recency_filter
 
-            return await call_mcp_tool(
-                _ZAI_SEARCH_SERVER, api_key, "web_search_prime", arguments
-            )
+            return await call_mcp_tool(_ZAI_SEARCH_SERVER, api_key, "web_search_prime", arguments)
 
         except ToolException:
             raise

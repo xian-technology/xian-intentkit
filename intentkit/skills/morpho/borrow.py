@@ -21,9 +21,7 @@ class BorrowInput(BaseModel):
     """Input for Morpho Blue borrow."""
 
     market_id: str = Field(description="Morpho Blue market ID (bytes32 hex string)")
-    amount: str = Field(
-        description="Amount to borrow in whole units (e.g. '1000' for 1000 USDC)"
-    )
+    amount: str = Field(description="Amount to borrow in whole units (e.g. '1000' for 1000 USDC)")
 
 
 class MorphoBorrow(MorphoBaseTool):

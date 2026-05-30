@@ -91,7 +91,7 @@ def decode_payment_response_header(
     """Decode the base64-encoded payment response header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_response_header))
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return None
 
 
@@ -101,7 +101,7 @@ def decode_payment_required_header(
     """Decode the base64-encoded payment required header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_required_header))
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return None
 
 
@@ -120,7 +120,7 @@ def decode_payment_signature_header(
     """Decode the base64-encoded payment signature header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_signature_header))
-    except (json.JSONDecodeError, ValueError):
+    except json.JSONDecodeError, ValueError:
         return None
 
 
@@ -288,7 +288,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
             agent_id = context.agent_id
             network_id = agent.network_id if agent else None
             wallet_provider = agent.wallet_provider if agent else None
-        except (AttributeError, ValueError):
+        except AttributeError, ValueError:
             agent_id = "unknown"
             network_id = None
             wallet_provider = None
@@ -347,25 +347,19 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 try:
                     payment_data = response.json()
                 except ValueError as exc:
-                    raise ValueError(
-                        "Failed to parse payment required response body."
-                    ) from exc
+                    raise ValueError("Failed to parse payment required response body.") from exc
                 default_version = 1
 
             try:
                 normalized = normalize_payment_required_payload(
                     payment_data, default_version=default_version
                 )
-                version = normalized.get("x402Version") or normalized.get(
-                    "x402_version"
-                )
+                version = normalized.get("x402Version") or normalized.get("x402_version")
                 if version == 1:
                     return PaymentRequiredV1.model_validate(normalized)
                 return PaymentRequired.model_validate(normalized)
             except Exception as exc:
-                raise ValueError(
-                    f"Failed to parse payment requirements: {exc}"
-                ) from exc
+                raise ValueError(f"Failed to parse payment requirements: {exc}") from exc
 
     @staticmethod
     def _select_payment_requirement(
@@ -388,9 +382,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
         rpc_url = privy_wallet_data.get("rpc_url")
         if not rpc_url and config.chain_provider:
             try:
-                chain_config = config.chain_provider.get_chain_config(
-                    normalized_network_id
-                )
+                chain_config = config.chain_provider.get_chain_config(normalized_network_id)
                 rpc_url = chain_config.rpc_url
             except Exception as exc:
                 logger.warning("Failed to get RPC URL from chain provider: %s", exc)
@@ -399,9 +391,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
             if chain_config and chain_config.rpc_url:
                 rpc_url = chain_config.rpc_url
         if not rpc_url:
-            raise ValueError(
-                f"RPC URL not configured for network {normalized_network_id}"
-            )
+            raise ValueError(f"RPC URL not configured for network {normalized_network_id}")
         return rpc_url
 
     async def _get_erc20_balance(
@@ -411,9 +401,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
         wallet_address: str,
     ) -> int:
         balance_selector = keccak(text="balanceOf(address)")[:4]
-        call_data = balance_selector + encode(
-            ["address"], [to_checksum_address(wallet_address)]
-        )
+        call_data = balance_selector + encode(["address"], [to_checksum_address(wallet_address)])
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 rpc_url,
@@ -432,9 +420,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 timeout=30.0,
             )
         if response.status_code != 200:
-            raise ValueError(
-                f"Failed to get token balance: HTTP {response.status_code}"
-            )
+            raise ValueError(f"Failed to get token balance: HTTP {response.status_code}")
         try:
             payload = response.json()
         except ValueError as exc:
@@ -478,10 +464,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
         except KeyError as exc:
             raise ValueError("Privy wallet data missing required fields.") from exc
         network_id = (
-            privy_wallet_data.get("network_id")
-            or agent.network_id
-            or network
-            or DEFAULT_NETWORK_ID
+            privy_wallet_data.get("network_id") or agent.network_id or network or DEFAULT_NETWORK_ID
         )
         normalized_network_id = normalize_network_id(network_id) or network_id
         rpc_url = self._resolve_rpc_url(normalized_network_id, privy_wallet_data)
@@ -643,9 +626,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
             # Extract payment details
             amount = payment_data.get("amount")
-            amount_text = payment_data.get("amountText") or payment_data.get(
-                "amount_text"
-            )
+            amount_text = payment_data.get("amountText") or payment_data.get("amount_text")
             asset = payment_data.get("asset")
             network = payment_data.get("network")
             pay_to = payment_data.get("payTo", payment_data.get("pay_to"))
@@ -677,9 +658,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 )
 
             if response.request:
-                signature_header = get_payment_signature_header(
-                    response.request.headers
-                )
+                signature_header = get_payment_signature_header(response.request.headers)
                 if signature_header:
                     signature_data = decode_payment_signature_header(signature_header)
                     if isinstance(signature_data, dict):
@@ -716,11 +695,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
                             )
                             asset = asset or accepted.get("asset")
                             network = network or accepted.get("network")
-                            pay_to = (
-                                pay_to
-                                or accepted.get("payTo")
-                                or accepted.get("pay_to")
-                            )
+                            pay_to = pay_to or accepted.get("payTo") or accepted.get("pay_to")
                             payment_id = (
                                 payment_id
                                 or accepted.get("paymentId")
@@ -740,7 +715,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
             try:
                 amount = int(amount) if amount is not None else 0
-            except (TypeError, ValueError):
+            except TypeError, ValueError:
                 amount = 0
 
             asset = asset or "unknown"
@@ -777,9 +752,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
                 description=description,
             )
             _ = await X402Order.create(order)
-            logger.info(
-                f"Recorded x402 order for agent {agent_id}: {tx_hash or 'no tx'}"
-            )
+            logger.info(f"Recorded x402 order for agent {agent_id}: {tx_hash or 'no tx'}")
 
         except Exception as e:
             # Don't fail the skill execution if order recording fails

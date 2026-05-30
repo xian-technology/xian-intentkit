@@ -36,9 +36,7 @@ class MorphoBaseTool(IntentKitOnChainSkill):
         """Convert market_id hex string to bytes32."""
         market_id_bytes = bytes.fromhex(market_id.replace("0x", ""))
         if len(market_id_bytes) != 32:
-            raise ToolException(
-                "Error: market_id must be a 32-byte hex string (bytes32)"
-            )
+            raise ToolException("Error: market_id must be a 32-byte hex string (bytes32)")
         return market_id_bytes
 
     async def _get_market_params(
@@ -57,9 +55,7 @@ class MorphoBaseTool(IntentKitOnChainSkill):
         loan_token, collateral_token, oracle, irm, lltv = result
 
         if loan_token == "0x0000000000000000000000000000000000000000":
-            raise ToolException(
-                f"Error: Market {market_id} does not exist on Morpho Blue"
-            )
+            raise ToolException(f"Error: Market {market_id} does not exist on Morpho Blue")
 
         return (
             Web3.to_checksum_address(loan_token),

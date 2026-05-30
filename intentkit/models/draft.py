@@ -30,12 +30,8 @@ class AgentExtra(BaseModel):
 
     state: AgentState = Field(default=AgentState.PRIVATE, description="Agent state")
     draft_id: str = Field(description="Draft ID")
-    project_id: str | None = Field(
-        default=None, description="Project ID, forward compatible"
-    )
-    request_id: str | None = Field(
-        default=None, description="Request ID, forward compatible"
-    )
+    project_id: str | None = Field(default=None, description="Project ID, forward compatible")
+    request_id: str | None = Field(default=None, description="Request ID, forward compatible")
     create_tx_id: str | None = Field(
         default=None, description="Transaction hash used when the agent was created"
     )
@@ -53,9 +49,7 @@ class AgentDraftTable(Base, AgentUserInputColumns):
         # Index for queries ordering by created_at (for latest draft queries)
         Index("idx_agent_drafts_created_at", "created_at"),
         # Composite index for agent_id, owner, and created_at (covers all common query patterns)
-        Index(
-            "idx_agent_drafts_agent_owner_created", "agent_id", "owner", "created_at"
-        ),
+        Index("idx_agent_drafts_agent_owner_created", "agent_id", "owner", "created_at"),
     )
 
     id: Mapped[str] = mapped_column(
@@ -176,15 +170,11 @@ class AgentDraft(AgentUserInput):
     # auto timestamp
     created_at: Annotated[
         datetime,
-        Field(
-            description="Timestamp when the agent was created, will ignore when importing"
-        ),
+        Field(description="Timestamp when the agent was created, will ignore when importing"),
     ]
     updated_at: Annotated[
         datetime,
-        Field(
-            description="Timestamp when the agent was last updated, will ignore when importing"
-        ),
+        Field(description="Timestamp when the agent was last updated, will ignore when importing"),
     ]
 
     @staticmethod
@@ -199,11 +189,7 @@ class AgentDraft(AgentUserInput):
             IntentKitAPIError: 404 if agent not found, 403 if user doesn't own the agent
         """
         async with get_session() as session:
-            query = (
-                select(AgentDraftTable)
-                .where(AgentDraftTable.agent_id == agent_id)
-                .limit(1)
-            )
+            query = select(AgentDraftTable).where(AgentDraftTable.agent_id == agent_id).limit(1)
             result = await session.execute(query)
             draft = result.scalar_one_or_none()
 

@@ -138,9 +138,7 @@ async def get_post(
     stmt = select(AgentPostTable).where(AgentPostTable.id == post_id)
     post = (await db.scalars(stmt)).first()
     if not post:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Post not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
     return AgentPost.model_validate(post)
 
 
@@ -174,9 +172,7 @@ async def get_post_by_slug(
     )
     post = (await db.scalars(stmt)).first()
     if not post:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Post not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
     return AgentPost.model_validate(post)
 
 
@@ -194,9 +190,7 @@ async def get_post_pdf(
     stmt = select(AgentPostTable).where(AgentPostTable.id == post_id)
     post = (await db.scalars(stmt)).first()
     if not post:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Post not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
     return await post_pdf_response(post, cdn_base=config.aws_s3_cdn_url)
 
 
@@ -218,12 +212,8 @@ async def get_post_pdf_by_slug(
     )
     post = (await db.scalars(stmt)).first()
     if not post:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Post not found"
-        )
-    return await post_pdf_response(
-        post, filename=f"{slug}.pdf", cdn_base=config.aws_s3_cdn_url
-    )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
+    return await post_pdf_response(post, filename=f"{slug}.pdf", cdn_base=config.aws_s3_cdn_url)
 
 
 # ---------------------------------------------------------------------------

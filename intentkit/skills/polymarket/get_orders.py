@@ -49,9 +49,7 @@ class GetOrders(PolymarketBaseTool):
 
         data = await self._clob_auth_get("/orders", params=params)
 
-        raw_orders: list[Any] = (
-            data if isinstance(data, list) else data.get("orders", [])
-        )
+        raw_orders: list[Any] = data if isinstance(data, list) else data.get("orders", [])
         formatted = []
         for order in raw_orders:
             if not isinstance(order, dict):

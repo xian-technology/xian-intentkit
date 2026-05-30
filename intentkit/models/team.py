@@ -70,8 +70,7 @@ PLAN_CONFIGS: dict[TeamPlan, PlanConfig] = {
     TeamPlan.FREE: PlanConfig(
         name="Free",
         description=(
-            "Basic plan with limited credits. "
-            "Refills 10 credits/day. No monthly permanent credits."
+            "Basic plan with limited credits. Refills 10 credits/day. No monthly permanent credits."
         ),
         free_quota=Decimal("50"),
         refill_amount=Decimal("10"),
@@ -355,9 +354,7 @@ class Team(TeamCreate):
     ] = None
     role: Annotated[
         TeamRole | None,
-        Field(
-            default=None, description="User's role (only set in user-specific queries)"
-        ),
+        Field(default=None, description="User's role (only set in user-specific queries)"),
     ] = None
     plan: Annotated[
         TeamPlan,
@@ -380,12 +377,8 @@ class Team(TeamCreate):
         datetime | None,
         Field(default=None, description="Next scheduled monthly credit issue"),
     ] = None
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this team was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this team was last updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this team was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this team was last updated")]
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -409,9 +402,7 @@ class Team(TeamCreate):
     @property
     def plan_month_price_cents(self) -> int:
         """Monthly price in cents derived from the plan's PlanConfig."""
-        return PLAN_CONFIGS.get(
-            self.plan, PLAN_CONFIGS[TeamPlan.NONE]
-        ).month_price_cents
+        return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).month_price_cents
 
     @computed_field  # type: ignore[prop-decorator]
     @property
@@ -419,9 +410,7 @@ class Team(TeamCreate):
         """Yearly price in cents derived from the plan's PlanConfig."""
         return PLAN_CONFIGS.get(self.plan, PLAN_CONFIGS[TeamPlan.NONE]).year_price_cents
 
-    @field_serializer(
-        "created_at", "updated_at", "plan_expires_at", "next_credit_issue_at"
-    )
+    @field_serializer("created_at", "updated_at", "plan_expires_at", "next_credit_issue_at")
     @classmethod
     def serialize_datetime(cls, v: datetime | None) -> str | None:
         if v is None:
@@ -482,15 +471,11 @@ class Team(TeamCreate):
                 cast(updates, JSONB)
             )
             await db.execute(
-                sa_update(TeamTable)
-                .where(TeamTable.id == team_id)
-                .values(lead_agent=merged_expr)
+                sa_update(TeamTable).where(TeamTable.id == team_id).values(lead_agent=merged_expr)
             )
             await db.commit()
             # Read back the merged result
-            result = await db.scalar(
-                select(TeamTable.lead_agent).where(TeamTable.id == team_id)
-            )
+            result = await db.scalar(select(TeamTable.lead_agent).where(TeamTable.id == team_id))
             return result or {}
 
     @classmethod

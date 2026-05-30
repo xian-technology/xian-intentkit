@@ -57,9 +57,7 @@ class ERC721Transfer(ERC721BaseTool):
             w3 = Web3()
             checksum_contract = w3.to_checksum_address(contract_address)
             checksum_destination = w3.to_checksum_address(destination)
-            checksum_from = w3.to_checksum_address(
-                from_address if from_address else wallet.address
-            )
+            checksum_from = w3.to_checksum_address(from_address if from_address else wallet.address)
 
             # Encode transferFrom function
             contract = w3.eth.contract(address=checksum_contract, abi=ERC721_ABI)

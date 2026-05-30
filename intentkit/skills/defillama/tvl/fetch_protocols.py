@@ -54,18 +54,14 @@ class Protocol(BaseModel):
     misrepresentedTokens: bool | None = Field(None, description="Misrepresented tokens")
     hallmarks: list[Hallmark] | None = Field(None, description="Key events")
     tvl: float | None = Field(None, description="TVL in USD")
-    chainTvls: dict[str, float] = Field(
-        default_factory=dict, description="TVL by chain"
-    )
+    chainTvls: dict[str, float] = Field(default_factory=dict, description="TVL by chain")
     change_1h: float | None = Field(None, description="1h change %")
     change_1d: float | None = Field(None, description="1d change %")
     change_7d: float | None = Field(None, description="7d change %")
     staking: float | None = Field(None, description="Staking value")
     pool2: float | None = Field(None, description="Pool2 value")
     borrowed: float | None = Field(None, description="Borrowed value")
-    tokenBreakdowns: dict[str, float] = Field(
-        default_factory=dict, description="TVL by token"
-    )
+    tokenBreakdowns: dict[str, float] = Field(default_factory=dict, description="TVL by token")
     mcap: float | None = Field(None, description="Market cap")
 
 

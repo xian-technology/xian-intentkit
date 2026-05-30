@@ -144,9 +144,7 @@ def test_cancel_checkout_input():
 # --- Skill execution tests (mocked HTTP) ---
 
 
-def _make_mock_response(
-    json_data: dict | list, status_code: int = 200
-) -> httpx.Response:
+def _make_mock_response(json_data: dict | list, status_code: int = 200) -> httpx.Response:
     """Create a mock httpx.Response."""
     import json
 
@@ -228,9 +226,7 @@ async def test_complete_checkout_execution():
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
-        mock_client.request = AsyncMock(
-            return_value=_make_mock_response(mock_completed)
-        )
+        mock_client.request = AsyncMock(return_value=_make_mock_response(mock_completed))
         mock_client_class.return_value = mock_client
 
         result = await skill._arun(
@@ -256,9 +252,7 @@ async def test_cancel_checkout_execution():
         mock_client = AsyncMock()
         mock_client.__aenter__ = AsyncMock(return_value=mock_client)
         mock_client.__aexit__ = AsyncMock(return_value=False)
-        mock_client.request = AsyncMock(
-            return_value=_make_mock_response(mock_cancelled)
-        )
+        mock_client.request = AsyncMock(return_value=_make_mock_response(mock_cancelled))
         mock_client_class.return_value = mock_client
 
         result = await skill._arun(

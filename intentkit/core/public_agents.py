@@ -96,9 +96,7 @@ async def sync_public_agents() -> None:
 
     # Parse and validate all YAML files first
     # Each entry: (slug, AgentUpdate, hash, description, tags)
-    agents_to_sync: list[
-        tuple[str, AgentUpdate, str, str | None, list[str] | None]
-    ] = []
+    agents_to_sync: list[tuple[str, AgentUpdate, str, str | None, list[str] | None]] = []
     for yaml_file in yaml_files:
         try:
             with open(yaml_file) as f:
@@ -128,9 +126,7 @@ async def sync_public_agents() -> None:
 
     async with get_session() as session:
         # Bulk-fetch all existing predefined agents
-        result = await session.execute(
-            select(AgentTable).where(AgentTable.owner == OWNER)
-        )
+        result = await session.execute(select(AgentTable).where(AgentTable.owner == OWNER))
         existing_by_slug: dict[str, AgentTable] = {}
         all_predefined: dict[str, AgentTable] = {}
         for a in result.scalars().all():

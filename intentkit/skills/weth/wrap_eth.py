@@ -29,7 +29,9 @@ class WETHWrapEth(WethBaseTool):
     """
 
     name: str = "weth_wrap_eth"
-    description: str = "Wrap ETH to WETH (1:1 conversion). Ensure sufficient ETH for the amount plus gas fees."
+    description: str = (
+        "Wrap ETH to WETH (1:1 conversion). Ensure sufficient ETH for the amount plus gas fees."
+    )
     args_schema: ArgsSchema | None = WrapEthInput
 
     @override
@@ -53,9 +55,7 @@ class WETHWrapEth(WethBaseTool):
             # Get WETH address for this network
             weth_address = get_weth_address(network_id)
             if not weth_address:
-                raise ToolException(
-                    f"Error: WETH not supported on network {network_id}"
-                )
+                raise ToolException(f"Error: WETH not supported on network {network_id}")
             # Convert human-readable ETH amount to wei (ETH has 18 decimals)
             amount_decimal = Decimal(amount_to_wrap)
             amount_in_wei = int(amount_decimal * Decimal(10**18))

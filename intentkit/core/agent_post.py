@@ -72,9 +72,7 @@ async def get_agent_post(post_id: str) -> AgentPost | None:
         return AgentPost.model_validate(cached_data)
 
     async with get_session() as session:
-        result = await session.execute(
-            select(AgentPostTable).where(AgentPostTable.id == post_id)
-        )
+        result = await session.execute(select(AgentPostTable).where(AgentPostTable.id == post_id))
         db_post = result.scalar_one_or_none()
 
         if db_post is None:

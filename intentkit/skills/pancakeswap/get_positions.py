@@ -58,13 +58,9 @@ class PancakeSwapGetPositions(PancakeSwapBaseTool):
 
             count = min(balance, MAX_POSITIONS)
             for i in range(count):
-                token_id = await pm.functions.tokenOfOwnerByIndex(
-                    wallet_address, i
-                ).call()
+                token_id = await pm.functions.tokenOfOwnerByIndex(wallet_address, i).call()
                 pos_info = await pm.functions.positions(token_id).call()
-                entry = await _format_position(
-                    w3, chain_id, token_id, pos_info, staked=False
-                )
+                entry = await _format_position(w3, chain_id, token_id, pos_info, staked=False)
                 if entry:
                     positions.append(entry)
 
@@ -79,16 +75,12 @@ class PancakeSwapGetPositions(PancakeSwapBaseTool):
                     )
                     for token_id in staked_data["token_ids"][:MAX_POSITIONS]:
                         try:
-                            user_info = await mc.functions.userPositionInfos(
-                                token_id
-                            ).call()
+                            user_info = await mc.functions.userPositionInfos(token_id).call()
                             # user_info[6] is the user address
                             if user_info[6].lower() != wallet_address.lower():
                                 continue
                             pos_info = await pm.functions.positions(token_id).call()
-                            pending_cake = await mc.functions.pendingCake(
-                                token_id
-                            ).call()
+                            pending_cake = await mc.functions.pendingCake(token_id).call()
                             entry = await _format_position(
                                 w3,
                                 chain_id,

@@ -71,9 +71,7 @@ async def render_agent(agent: Agent) -> Agent:
     # Get template_id and fetch template in a single session
     # Since Agent model may not have template_id mapped, we query from DB
     async with get_session() as db:
-        result = await db.execute(
-            select(AgentTable.template_id).where(AgentTable.id == agent.id)
-        )
+        result = await db.execute(select(AgentTable.template_id).where(AgentTable.id == agent.id))
         row = result.first()
         if row is None:
             return agent
@@ -82,13 +80,9 @@ async def render_agent(agent: Agent) -> Agent:
         if not template_id:
             return agent
 
-        template_row = await db.scalar(
-            select(TemplateTable).where(TemplateTable.id == template_id)
-        )
+        template_row = await db.scalar(select(TemplateTable).where(TemplateTable.id == template_id))
         if template_row is None:
-            logger.warning(
-                "Template '%s' not found for agent '%s'", template_id, agent.id
-            )
+            logger.warning("Template '%s' not found for agent '%s'", template_id, agent.id)
             return agent
 
         template = Template.model_validate(template_row)
@@ -117,9 +111,7 @@ async def render_agent(agent: Agent) -> Agent:
 class AgentCreationFromTemplate(BaseModel):
     """Data structure for creating an agent from a template."""
 
-    template_id: str = PydanticField(
-        description="ID of the template to create the agent from"
-    )
+    template_id: str = PydanticField(description="ID of the template to create the agent from")
     name: str | None = PydanticField(
         default=None,
         description="Name of the agent (overrides template name if provided)",
@@ -128,9 +120,7 @@ class AgentCreationFromTemplate(BaseModel):
         default=None,
         description="Picture URL for the agent (overrides template picture if provided)",
     )
-    description: str | None = PydanticField(
-        default=None, description="Description of the agent"
-    )
+    description: str | None = PydanticField(default=None, description="Description of the agent")
     readonly_wallet_address: str | None = PydanticField(
         default=None, description="Read-only wallet address for the agent"
     )

@@ -161,19 +161,13 @@ def build_hmac_signature(
 
 def _get_signature_hex(signed: Any) -> str:
     """Extract hex signature string from a signed message, with 0x prefix."""
-    sig = (
-        signed.signature.hex()
-        if hasattr(signed.signature, "hex")
-        else str(signed.signature)
-    )
+    sig = signed.signature.hex() if hasattr(signed.signature, "hex") else str(signed.signature)
     if not sig.startswith("0x"):
         sig = "0x" + sig
     return sig
 
 
-async def _http_get(
-    url: str, params: dict[str, Any] | None = None, **kwargs: Any
-) -> Any:
+async def _http_get(url: str, params: dict[str, Any] | None = None, **kwargs: Any) -> Any:
     """Shared GET helper using httpx."""
     async with httpx.AsyncClient() as client:
         resp = await client.get(url, params=params, **kwargs)
@@ -244,8 +238,7 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
         """
         cached = await self.get_agent_skill_data_raw(self.category, "api_creds")
         if cached and all(
-            k in cached
-            for k in ("api_key", "api_secret", "api_passphrase", "wallet_address")
+            k in cached for k in ("api_key", "api_secret", "api_passphrase", "wallet_address")
         ):
             return cached
 
@@ -278,8 +271,7 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
         creds = {
             "api_key": result.get("apiKey") or result.get("api_key", ""),
             "api_secret": result.get("secret") or result.get("api_secret", ""),
-            "api_passphrase": result.get("passphrase")
-            or result.get("api_passphrase", ""),
+            "api_passphrase": result.get("passphrase") or result.get("api_passphrase", ""),
             "wallet_address": wallet_address,
         }
 
@@ -297,9 +289,7 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
     ) -> dict[str, str]:
         """Build POLY_* HMAC auth headers."""
         timestamp = int(time.time())
-        signature = build_hmac_signature(
-            creds["api_secret"], timestamp, method, path, body
-        )
+        signature = build_hmac_signature(creds["api_secret"], timestamp, method, path, body)
         return {
             "POLY_ADDRESS": creds["wallet_address"],
             "POLY_SIGNATURE": signature,
@@ -308,9 +298,7 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
             "POLY_PASSPHRASE": creds["api_passphrase"],
         }
 
-    async def _clob_auth_get(
-        self, path: str, params: dict[str, Any] | None = None
-    ) -> Any:
+    async def _clob_auth_get(self, path: str, params: dict[str, Any] | None = None) -> Any:
         """Authenticated GET to CLOB API."""
         creds = await self._ensure_api_creds()
         full_path = path
@@ -327,13 +315,9 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
         body_str = json.dumps(body, separators=(",", ":"))
         headers = self._build_auth_headers(creds, "POST", path, body_str)
         headers["Content-Type"] = "application/json"
-        return await _http_request(
-            "POST", f"{CLOB_URL}{path}", headers, body_str, (200, 201)
-        )
+        return await _http_request("POST", f"{CLOB_URL}{path}", headers, body_str, (200, 201))
 
-    async def _clob_auth_delete(
-        self, path: str, body: dict[str, Any] | None = None
-    ) -> Any:
+    async def _clob_auth_delete(self, path: str, body: dict[str, Any] | None = None) -> Any:
         """Authenticated DELETE to CLOB API."""
         creds = await self._ensure_api_creds()
         body_str = json.dumps(body, separators=(",", ":")) if body else None
@@ -366,9 +350,7 @@ class PolymarketBaseTool(IntentKitOnChainSkill):
         if wallet_provider in ("safe", "privy"):
             provider = await self.get_wallet_provider()
             maker_address = provider.get_address()
-            sig_type = (
-                SIG_POLY_GNOSIS_SAFE if wallet_provider == "safe" else SIG_POLY_PROXY
-            )
+            sig_type = SIG_POLY_GNOSIS_SAFE if wallet_provider == "safe" else SIG_POLY_PROXY
         else:
             maker_address = signer_address
             sig_type = SIG_EOA

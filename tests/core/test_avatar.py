@@ -296,9 +296,7 @@ class TestGenerateAvatar:
             assert path == "test/avatars/test-agent-123/abc.png"
 
     @pytest.mark.asyncio
-    async def test_generate_avatar_returns_none_on_image_failure(
-        self, mock_config, mock_agent
-    ):
+    async def test_generate_avatar_returns_none_on_image_failure(self, mock_config, mock_agent):
         with (
             patch(
                 "intentkit.core.avatar._generate_image_prompt",
@@ -315,9 +313,7 @@ class TestGenerateAvatar:
             assert path is None
 
     @pytest.mark.asyncio
-    async def test_generate_avatar_returns_none_on_s3_failure(
-        self, mock_config, mock_agent
-    ):
+    async def test_generate_avatar_returns_none_on_s3_failure(self, mock_config, mock_agent):
         mock_config.openrouter_api_key = "or-key"
 
         with (
@@ -348,9 +344,7 @@ class TestExtractOpenrouterImageUrl:
 
     def test_returns_url_from_content_part(self):
         resp = _make_openrouter_response(
-            content_parts=[
-                {"type": "image_url", "image_url": {"url": "http://x/y.png"}}
-            ]
+            content_parts=[{"type": "image_url", "image_url": {"url": "http://x/y.png"}}]
         )
         assert _extract_openrouter_image_url(resp) == "http://x/y.png"
 
@@ -389,17 +383,13 @@ class TestProviderFunctions:
         mock_chat.send_async = mock_send
         mock_client = MagicMock(chat=mock_chat)
 
-        patch_ctx = patch(
-            "intentkit.core.avatar.openrouter.OpenRouter", return_value=mock_client
-        )
+        patch_ctx = patch("intentkit.core.avatar.openrouter.OpenRouter", return_value=mock_client)
         return patch_ctx, mock_send
 
     @pytest.mark.asyncio
     async def test_openrouter_with_data_url_response(self):
         fake_b64 = base64.b64encode(b"image-data").decode()
-        response = _make_openrouter_response(
-            images=[f"data:image/png;base64,{fake_b64}"]
-        )
+        response = _make_openrouter_response(images=[f"data:image/png;base64,{fake_b64}"])
         patch_ctx, mock_send = self._patch_openrouter_sdk(response)
 
         with patch("intentkit.core.avatar.config") as mock_config:
@@ -493,9 +483,7 @@ class TestProviderFunctions:
             with patch("intentkit.core.avatar.genai") as mock_genai:
                 mock_client = MagicMock()
                 mock_genai.Client.return_value = mock_client
-                mock_client.aio.models.generate_content = AsyncMock(
-                    return_value=mock_response
-                )
+                mock_client.aio.models.generate_content = AsyncMock(return_value=mock_response)
 
                 result = await generate_image_google("test prompt")
                 assert result == b"google-image-bytes"
@@ -516,9 +504,7 @@ class TestProviderFunctions:
             with patch("intentkit.core.avatar.genai") as mock_genai:
                 mock_client = MagicMock()
                 mock_genai.Client.return_value = mock_client
-                mock_client.aio.models.generate_content = AsyncMock(
-                    return_value=mock_response
-                )
+                mock_client.aio.models.generate_content = AsyncMock(return_value=mock_response)
 
                 result = await generate_image_google("test prompt")
                 assert result is None

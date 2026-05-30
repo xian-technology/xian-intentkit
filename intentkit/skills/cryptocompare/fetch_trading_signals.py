@@ -74,10 +74,7 @@ class CryptoCompareFetchTradingSignals(CryptoCompareBaseTool):
             result = []
             if "Data" in signals_data and signals_data["Data"]:
                 for indicator_name, indicator_data in signals_data["Data"].items():
-                    if (
-                        isinstance(indicator_data, dict)
-                        and "sentiment" in indicator_data
-                    ):
+                    if isinstance(indicator_data, dict) and "sentiment" in indicator_data:
                         result.append(
                             TradingSignal(
                                 symbol=from_symbol,

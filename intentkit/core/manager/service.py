@@ -58,11 +58,9 @@ def agent_draft_json_schema() -> dict[str, object]:
                     json.JSONDecodeError,
                     jsonref.JsonRefError,
                 ) as exc:
-                    logger.warning(
-                        "Failed to load schema for skill '%s': %s", entry.name, exc
-                    )
+                    logger.warning("Failed to load schema for skill '%s': %s", entry.name, exc)
                     continue
-    except (AttributeError, ModuleNotFoundError, ImportError):
+    except AttributeError, ModuleNotFoundError, ImportError:
         logger.warning("intentkit skills package not found when building schema")
         return schema
 
@@ -91,12 +89,8 @@ def get_skills_hierarchical_text() -> str:
                 try:
                     skill_schema = _load_skill_schema(schema_path)
                     skill_name = entry.name
-                    skill_title = skill_schema.get(
-                        "title", skill_name.replace("_", " ").title()
-                    )
-                    skill_description = skill_schema.get(
-                        "description", "No description available"
-                    )
+                    skill_title = skill_schema.get("title", skill_name.replace("_", " ").title())
+                    skill_description = skill_schema.get("description", "No description available")
                     skill_tags = cast(list[str], skill_schema.get("x-tags", ["Other"]))
 
                     # Use the first tag as the primary category
@@ -115,9 +109,7 @@ def get_skills_hierarchical_text() -> str:
                                 if isinstance(ind_def, dict)
                                 else "No description available"
                             )
-                            individual_skills.append(
-                                {"name": ind_name, "description": ind_desc}
-                            )
+                            individual_skills.append({"name": ind_name, "description": ind_desc})
 
                     categories[primary_category].append(
                         {
@@ -134,11 +126,9 @@ def get_skills_hierarchical_text() -> str:
                     json.JSONDecodeError,
                     jsonref.JsonRefError,
                 ) as exc:
-                    logger.warning(
-                        "Failed to load schema for skill '%s': %s", entry.name, exc
-                    )
+                    logger.warning("Failed to load schema for skill '%s': %s", entry.name, exc)
                     continue
-    except (AttributeError, ModuleNotFoundError, ImportError):
+    except AttributeError, ModuleNotFoundError, ImportError:
         logger.warning("intentkit skills package not found when building skills text")
         return "No skills available"
 
@@ -154,16 +144,10 @@ def get_skills_hierarchical_text() -> str:
 
         # Sort skills within category alphabetically by name
         for skill in sorted(categories[category], key=lambda x: x["name"]):
-            text_lines.append(
-                f"- **{skill['name']}** ({skill['title']}): {skill['description']}"
-            )
+            text_lines.append(f"- **{skill['name']}** ({skill['title']}): {skill['description']}")
             # Add individual skills indented under the category skill
-            for ind_skill in sorted(
-                skill.get("individual_skills", []), key=lambda x: x["name"]
-            ):
-                text_lines.append(
-                    f"  - `{ind_skill['name']}`: {ind_skill['description']}"
-                )
+            for ind_skill in sorted(skill.get("individual_skills", []), key=lambda x: x["name"]):
+                text_lines.append(f"  - `{ind_skill['name']}`: {ind_skill['description']}")
 
         text_lines.append("")
 
@@ -175,15 +159,11 @@ def _load_skill_schema(schema_path: Path) -> dict[str, object]:
     with schema_path.open("r", encoding="utf-8") as schema_file:
         embedded_schema: dict[str, object] = cast(
             dict[str, object],
-            jsonref.load(
-                schema_file, base_uri=base_uri, proxies=False, lazy_load=False
-            ),
+            jsonref.load(schema_file, base_uri=base_uri, proxies=False, lazy_load=False),
         )
 
     schema_copy = dict(embedded_schema)
-    _ = schema_copy.setdefault(
-        "title", schema_path.parent.name.replace("_", " ").title()
-    )
+    _ = schema_copy.setdefault("title", schema_path.parent.name.replace("_", " ").title())
     return schema_copy
 
 
@@ -227,9 +207,7 @@ def get_valid_skills_registry() -> dict[str, dict[str, str]]:
                     json.JSONDecodeError,
                     jsonref.JsonRefError,
                 ) as exc:
-                    logger.warning(
-                        "Failed to load schema for skill '%s': %s", entry.name, exc
-                    )
+                    logger.warning("Failed to load schema for skill '%s': %s", entry.name, exc)
                     continue
 
                 state_props = _get_states_properties(skill_schema)
@@ -252,10 +230,8 @@ def get_valid_skills_registry() -> dict[str, dict[str, str]]:
                 if skills:
                     registry[category_name] = skills
 
-    except (AttributeError, ModuleNotFoundError, ImportError):
-        logger.warning(
-            "intentkit skills package not found when building skills registry"
-        )
+    except AttributeError, ModuleNotFoundError, ImportError:
+        logger.warning("intentkit skills package not found when building skills registry")
 
     return registry
 
@@ -355,9 +331,7 @@ async def get_latest_public_info(*, agent_id: str, user_id: str) -> AgentPublicI
 
     agent = await get_agent(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status.HTTP_404_NOT_FOUND, "AgentNotFound", "Agent not found"
-        )
+        raise IntentKitAPIError(status.HTTP_404_NOT_FOUND, "AgentNotFound", "Agent not found")
 
     if agent.owner != user_id:
         raise IntentKitAPIError(

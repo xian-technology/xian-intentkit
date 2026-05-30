@@ -117,9 +117,7 @@ async def append_agent_message(
             await executor.aupdate_state(config, {"messages": [ai_msg]})
             logger.info("Appended push message to checkpoint: %s", thread_id)
         else:
-            logger.debug(
-                "No cached executor for %s, skipping checkpoint update", agent_id
-            )
+            logger.debug("No cached executor for %s, skipping checkpoint update", agent_id)
     except Exception:
         logger.warning(
             "Failed to append message to checkpoint for %s-%s",

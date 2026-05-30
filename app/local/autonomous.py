@@ -77,9 +77,7 @@ async def list_autonomous(
 )
 async def add_autonomous(
     agent_id: str = Path(..., description="ID of the agent"),
-    task_request: AutonomousCreateRequest = Body(
-        ..., description="Autonomous task configuration"
-    ),
+    task_request: AutonomousCreateRequest = Body(..., description="Autonomous task configuration"),
 ) -> AutonomousResponse:
     """Add a new autonomous task to an agent.
 
@@ -106,9 +104,7 @@ async def add_autonomous(
 async def update_autonomous(
     agent_id: str = Path(..., description="ID of the agent"),
     autonomous_id: str = Path(..., description="ID of the autonomous task"),
-    task_update: AutonomousUpdateRequest = Body(
-        ..., description="Task update configuration"
-    ),
+    task_update: AutonomousUpdateRequest = Body(..., description="Task update configuration"),
 ) -> AutonomousResponse:
     """Update a specific autonomous task.
 

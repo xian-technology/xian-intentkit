@@ -13,12 +13,8 @@ from intentkit.skills.xian.utils import format_structured
 class XianListEventsInput(BaseModel):
     contract: str = Field(..., description="Contract name.")
     event: str = Field(..., description="Event name.")
-    limit: int = Field(
-        default=20, ge=1, le=100, description="Maximum events to return."
-    )
-    offset: int = Field(
-        default=0, ge=0, description="Offset when after_id is not used."
-    )
+    limit: int = Field(default=20, ge=1, le=100, description="Maximum events to return.")
+    offset: int = Field(default=0, ge=0, description="Offset when after_id is not used.")
     after_id: int | None = Field(
         default=None,
         description="Resume listing from the first event after this indexed event ID.",
@@ -51,9 +47,7 @@ class XianListEvents(XianBaseTool):
             if not events:
                 return f"No indexed events found for {contract}.{event}."
             payload = [item.raw for item in events]
-            return (
-                f"Indexed events for {contract}.{event}:\n{format_structured(payload)}"
-            )
+            return f"Indexed events for {contract}.{event}:\n{format_structured(payload)}"
         except ToolException:
             raise
         except Exception as exc:

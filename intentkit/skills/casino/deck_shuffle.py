@@ -8,9 +8,7 @@ from langchain_core.tools import ArgsSchema
 try:
     import httpx
 except ImportError:
-    raise ImportError(
-        "httpx is required for Casino skills. Install it with: pip install httpx"
-    )
+    raise ImportError("httpx is required for Casino skills. Install it with: pip install httpx")
 from pydantic import BaseModel, Field
 
 from intentkit.skills.casino.base import CasinoBaseTool

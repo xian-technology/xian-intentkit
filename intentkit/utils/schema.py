@@ -63,9 +63,7 @@ def resolve_schema_refs(schema: dict[str, Any]) -> dict[str, Any]:
                     return obj
             else:
                 # Recursively process all values in the dictionary
-                return {
-                    key: resolve_refs(value, defs_dict) for key, value in obj.items()
-                }
+                return {key: resolve_refs(value, defs_dict) for key, value in obj.items()}
         elif isinstance(obj, list):
             # Recursively process all items in the list
             return [resolve_refs(item, defs_dict) for item in obj]
@@ -77,9 +75,7 @@ def resolve_schema_refs(schema: dict[str, Any]) -> dict[str, Any]:
     return resolve_refs(resolved_schema, defs)
 
 
-def create_array_schema(
-    item_schema: dict[str, Any], resolve_refs: bool = True
-) -> dict[str, Any]:
+def create_array_schema(item_schema: dict[str, Any], resolve_refs: bool = True) -> dict[str, Any]:
     """Create an array schema with the given item schema.
 
     Args:

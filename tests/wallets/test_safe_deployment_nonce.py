@@ -36,15 +36,11 @@ async def testdeploy_safe_with_allowance_nonce_threading(monkeypatch):
     mock_safe_client_instance.build_safe_initializer.return_value = b"\x00" * 32
 
     mock_safe_client_class = MagicMock(return_value=mock_safe_client_instance)
-    monkeypatch.setattr(
-        "intentkit.wallets.privy_safe.SafeClient", mock_safe_client_class
-    )
+    monkeypatch.setattr("intentkit.wallets.privy_safe.SafeClient", mock_safe_client_class)
 
     monkeypatch.setattr(
         "intentkit.wallets.privy_safe.deploy_safe",
-        AsyncMock(
-            return_value=("0xDeployTx", "0x00000000000000000000000000000000000000Aa")
-        ),
+        AsyncMock(return_value=("0xDeployTx", "0x00000000000000000000000000000000000000Aa")),
     )
 
     monkeypatch.setattr(
@@ -265,18 +261,14 @@ async def test_set_safe_token_spending_limit_reads_decimals_via_network_id(monke
         AsyncMock(return_value=True),
     )
     mock_set_limit = AsyncMock(return_value="0xLimitTx")
-    monkeypatch.setattr(
-        "intentkit.wallets.privy_safe.set_spending_limit", mock_set_limit
-    )
+    monkeypatch.setattr("intentkit.wallets.privy_safe.set_spending_limit", mock_set_limit)
 
     mock_contract = MagicMock()
     mock_contract.functions.decimals.return_value.call = AsyncMock(return_value=6)
     mock_web3_instance = MagicMock()
     mock_web3_instance.eth.contract.return_value = mock_contract
     mock_get_web3 = MagicMock(return_value=mock_web3_instance)
-    monkeypatch.setattr(
-        "intentkit.wallets.privy_safe.get_async_web3_client", mock_get_web3
-    )
+    monkeypatch.setattr("intentkit.wallets.privy_safe.get_async_web3_client", mock_get_web3)
 
     result = await set_safe_token_spending_limit(
         privy_client=privy_client,

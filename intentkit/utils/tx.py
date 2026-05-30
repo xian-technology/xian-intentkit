@@ -6,12 +6,8 @@ from web3 import Web3
 
 class EvmTx(BaseModel):
     data: str | None = Field(None, description="Data of the transaction.")
-    to: str | None = Field(
-        None, description="Address of the receiver of the transaction."
-    )
-    from_: str | None = Field(
-        None, description="Address of the sender of the transaction."
-    )
+    to: str | None = Field(None, description="Address of the receiver of the transaction.")
+    from_: str | None = Field(None, description="Address of the sender of the transaction.")
     value: str | None = Field(None, description="Amount of token to send.")
     gas: int | None = Field(None, description="Gas amount.")
     gasPrice: int | None = Field(None, description="Gas Price.")
@@ -23,9 +19,7 @@ class EvmContractWrapper:
     fn: Any
     fn_args: dict[str, Any]
 
-    def __init__(
-        self, rpc_url: str, abi: list[dict[str, Any]], tx_data: dict[str, Any]
-    ):
+    def __init__(self, rpc_url: str, abi: list[dict[str, Any]], tx_data: dict[str, Any]):
         w3 = Web3(Web3.HTTPProvider(rpc_url))
         contract = w3.eth.contract(abi=abi)
 

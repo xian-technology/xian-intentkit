@@ -16,9 +16,7 @@ class VeniceImageUpscaleBaseTool(VeniceImageBaseTool):
     """
 
     args_schema: ArgsSchema | None = VeniceImageUpscaleInput
-    name: str = Field(
-        default="", description="The unique name of the image upscaling tool."
-    )
+    name: str = Field(default="", description="The unique name of the image upscaling tool.")
     description: str = Field(
         default="", description="A description of what the image upscaling tool does."
     )

@@ -91,10 +91,7 @@ class CDPNativeTransfer(CDPBaseTool):
             # Wait for receipt
             await wallet.wait_for_receipt(tx_hash)
 
-            return (
-                f"Transferred {value} {native_symbol} to {to}\n"
-                f"Transaction hash: {tx_hash}"
-            )
+            return f"Transferred {value} {native_symbol} to {to}\nTransaction hash: {tx_hash}"
 
         except ToolException:
             raise

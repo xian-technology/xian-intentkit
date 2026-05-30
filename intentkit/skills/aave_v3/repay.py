@@ -56,9 +56,7 @@ class AaveV3Repay(AaveV3BaseTool):
             chain_id = self._resolve_chain_id()
 
             if interest_rate_mode not in (1, 2):
-                raise ToolException(
-                    "interest_rate_mode must be 1 (stable) or 2 (variable)"
-                )
+                raise ToolException("interest_rate_mode must be 1 (stable) or 2 (variable)")
 
             wallet = await self.get_unified_wallet()
             w3 = self.web3_client()
@@ -82,9 +80,7 @@ class AaveV3Repay(AaveV3BaseTool):
                 approve_amount = amount_raw
                 amount_display = amount
 
-            await ensure_allowance(
-                w3, wallet, checksum_token, checksum_pool, approve_amount
-            )
+            await ensure_allowance(w3, wallet, checksum_token, checksum_pool, approve_amount)
 
             pool = w3.eth.contract(address=checksum_pool, abi=POOL_ABI)
             repay_data = pool.encode_abi(

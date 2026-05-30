@@ -11,9 +11,7 @@ from intentkit.models.chat import AuthorType
 async def testshould_schedule_chat_summary_when_third_user_message(monkeypatch):
     import app.common.chat as common_chat_module
 
-    monkeypatch.setattr(
-        common_chat_module, "_count_user_messages", AsyncMock(return_value=2)
-    )
+    monkeypatch.setattr(common_chat_module, "_count_user_messages", AsyncMock(return_value=2))
 
     should_schedule = await common_chat_module.should_schedule_chat_summary(
         "agent-1", "chat-1", AuthorType.WEB
@@ -26,9 +24,7 @@ async def testshould_schedule_chat_summary_when_third_user_message(monkeypatch):
 async def test_should_not_schedule_chat_summary_for_non_third_message(monkeypatch):
     import app.common.chat as common_chat_module
 
-    monkeypatch.setattr(
-        common_chat_module, "_count_user_messages", AsyncMock(return_value=1)
-    )
+    monkeypatch.setattr(common_chat_module, "_count_user_messages", AsyncMock(return_value=1))
 
     should_schedule = await common_chat_module.should_schedule_chat_summary(
         "agent-1", "chat-1", AuthorType.WEB
@@ -63,14 +59,10 @@ async def test_send_message_schedules_background_summary_task(monkeypatch):
 
     monkeypatch.setattr(chat_module, "get_agent", AsyncMock(return_value=MagicMock()))
     monkeypatch.setattr(chat_module.Chat, "get", AsyncMock(return_value=mock_chat))
-    monkeypatch.setattr(
-        chat_module, "should_schedule_chat_summary", AsyncMock(return_value=True)
-    )
+    monkeypatch.setattr(chat_module, "should_schedule_chat_summary", AsyncMock(return_value=True))
     monkeypatch.setattr(chat_module, "execute_agent", AsyncMock(return_value=[]))
     schedule_mock = MagicMock()
-    monkeypatch.setattr(
-        chat_module, "schedule_chat_summary_title_update", schedule_mock
-    )
+    monkeypatch.setattr(chat_module, "schedule_chat_summary_title_update", schedule_mock)
 
     request = chat_module.LocalChatMessageRequest(
         message="hello",
@@ -88,9 +80,7 @@ async def test_update_chat_summary_title_logs_info_when_chat_missing(monkeypatch
 
     monkeypatch.setattr(common_chat_module.Chat, "get", AsyncMock(return_value=None))
     generate_mock = AsyncMock(return_value="should-not-run")
-    monkeypatch.setattr(
-        common_chat_module, "_generate_chat_summary_title", generate_mock
-    )
+    monkeypatch.setattr(common_chat_module, "_generate_chat_summary_title", generate_mock)
     info_mock = MagicMock()
     monkeypatch.setattr(common_chat_module.logger, "info", info_mock)
 
@@ -127,14 +117,10 @@ async def test_create_chat_thread_triggers_summary_with_long_first_message(monke
     mock_full_chat = MagicMock()
 
     monkeypatch.setattr(chat_module, "get_agent", AsyncMock(return_value=mock_agent))
-    monkeypatch.setattr(
-        chat_module.ChatCreate, "save", AsyncMock(return_value=mock_chat)
-    )
+    monkeypatch.setattr(chat_module.ChatCreate, "save", AsyncMock(return_value=mock_chat))
     monkeypatch.setattr(chat_module.Chat, "get", AsyncMock(return_value=mock_full_chat))
     update_mock = AsyncMock()
-    monkeypatch.setattr(
-        chat_module, "update_chat_summary_from_first_message", update_mock
-    )
+    monkeypatch.setattr(chat_module, "update_chat_summary_from_first_message", update_mock)
 
     request = chat_module.LocalChatCreateRequest(
         first_message="This first message is clearly longer than twenty bytes.",
@@ -158,14 +144,10 @@ async def test_create_chat_thread_skips_summary_with_short_first_message(monkeyp
     mock_full_chat = MagicMock()
 
     monkeypatch.setattr(chat_module, "get_agent", AsyncMock(return_value=mock_agent))
-    monkeypatch.setattr(
-        chat_module.ChatCreate, "save", AsyncMock(return_value=mock_chat)
-    )
+    monkeypatch.setattr(chat_module.ChatCreate, "save", AsyncMock(return_value=mock_chat))
     monkeypatch.setattr(chat_module.Chat, "get", AsyncMock(return_value=mock_full_chat))
     update_mock = AsyncMock()
-    monkeypatch.setattr(
-        chat_module, "update_chat_summary_from_first_message", update_mock
-    )
+    monkeypatch.setattr(chat_module, "update_chat_summary_from_first_message", update_mock)
 
     request = chat_module.LocalChatCreateRequest(first_message="short msg")
     _ = await chat_module.create_chat_thread(request=request, aid="agent-1")

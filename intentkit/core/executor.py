@@ -102,12 +102,8 @@ async def build_executor(
     llm_model = await create_llm_model(
         model_name=agent.model,
         temperature=agent.temperature if agent.temperature is not None else 0.7,
-        frequency_penalty=(
-            agent.frequency_penalty if agent.frequency_penalty is not None else 0.0
-        ),
-        presence_penalty=(
-            agent.presence_penalty if agent.presence_penalty is not None else 0.0
-        ),
+        frequency_penalty=(agent.frequency_penalty if agent.frequency_penalty is not None else 0.0),
+        presence_penalty=(agent.presence_penalty if agent.presence_penalty is not None else 0.0),
     )
 
     # ==== Store buffered conversation history in memory.
@@ -224,9 +220,7 @@ async def build_executor(
 
     # filter out unavailable skills
     tools = [t for t in tools if not isinstance(t, IntentKitSkill) or t.available()]
-    private_tools = [
-        t for t in private_tools if not isinstance(t, IntentKitSkill) or t.available()
-    ]
+    private_tools = [t for t in private_tools if not isinstance(t, IntentKitSkill) or t.available()]
 
     # filter the duplicate tools
     def _tool_key(tool: BaseTool | dict[str, Any]) -> str:
@@ -273,9 +267,7 @@ async def build_executor(
         if selector_model_name:
             selector_llm = await create_llm_model(model_name=selector_model_name)
             selector_model = await selector_llm.create_instance()
-            always_include = [
-                t.name for t in private_tools if isinstance(t, SystemSkill)
-            ]
+            always_include = [t.name for t in private_tools if isinstance(t, SystemSkill)]
             middleware.append(
                 SafeLLMToolSelectorMiddleware(
                     model=selector_model,
@@ -354,9 +346,7 @@ def _cleanup_cache() -> None:
             logger.debug("Evicted expired executor cache for %s", aid)
 
 
-async def build_and_cache_executor(
-    aid: str, agent: Agent, agent_data: AgentData
-) -> None:
+async def build_and_cache_executor(aid: str, agent: Agent, agent_data: AgentData) -> None:
     """Build an agent executor and cache it with timestamp tracking.
 
     This function:
@@ -386,9 +376,7 @@ async def agent_executor(
 
     agent = await get_agent(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="AgentNotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="AgentNotFound", message="Agent not found")
     agent_data = await AgentData.get(agent_id)
     agent_ts = agent.deployed_at if agent.deployed_at else agent.updated_at
     updated_at = max(agent_ts, agent_data.updated_at)

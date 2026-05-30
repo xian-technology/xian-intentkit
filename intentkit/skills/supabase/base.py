@@ -98,9 +98,7 @@ class SupabaseBaseTool(IntentKitSkill):
         if not public_write_tables:
             return
 
-        allowed_tables = [
-            t.strip() for t in public_write_tables.split(",") if t.strip()
-        ]
+        allowed_tables = [t.strip() for t in public_write_tables.split(",") if t.strip()]
         if table not in allowed_tables:
             raise ToolException(
                 f"Table '{table}' is not allowed for public write operations. "

@@ -33,9 +33,7 @@ logger = logging.getLogger(__name__)
 
 _MANAGER_CACHE_TTL = timedelta(hours=1)
 
-_manager_executors: dict[
-    str, CompiledStateGraph[AgentState, AgentContext, Any, Any]
-] = {}
+_manager_executors: dict[str, CompiledStateGraph[AgentState, AgentContext, Any, Any]] = {}
 _manager_agents: dict[str, Agent] = {}
 _manager_cached_at: dict[str, datetime] = {}
 
@@ -45,9 +43,7 @@ async def stream_manager(
 ) -> AsyncGenerator[ChatMessage, None]:
     """Stream chat messages for the manager agent of a specific agent."""
 
-    executor, manager_agent, cold_start_cost = await _get_manager_executor(
-        agent_id, user_id
-    )
+    executor, manager_agent, cold_start_cost = await _get_manager_executor(agent_id, user_id)
 
     if not message.agent_id:
         message.agent_id = manager_agent.id
@@ -206,9 +202,7 @@ async def _get_manager_executor(
 
         cold_start_cost = time.perf_counter() - start
         _manager_cached_at[cache_key] = now
-        logger.info(
-            "Initialized manager executor for agent %s and user %s", agent_id, user_id
-        )
+        logger.info("Initialized manager executor for agent %s and user %s", agent_id, user_id)
     else:
         _manager_cached_at[cache_key] = now
 

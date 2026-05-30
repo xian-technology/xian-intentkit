@@ -29,9 +29,7 @@ class XmtpBaseTool(IntentKitOnChainSkill):
         "optimism-mainnet": "optimism",
     }
 
-    def validate_network_and_get_chain_id(
-        self, network_id: str, skill_name: str
-    ) -> str:
+    def validate_network_and_get_chain_id(self, network_id: str, skill_name: str) -> str:
         """Validate network and return chain ID hex.
 
         Args:

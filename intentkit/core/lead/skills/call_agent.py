@@ -48,7 +48,9 @@ class LeadCallAgent(LeadSkill):
     """
 
     name: str = "lead_call_agent"
-    description: str = "Delegate a task to a sub-agent by sending it a message and receiving its response."
+    description: str = (
+        "Delegate a task to a sub-agent by sending it a message and receiving its response."
+    )
     args_schema: ArgsSchema | None = LeadCallAgentInput
     response_format: Literal["content", "content_and_artifact"] = "content_and_artifact"
 
@@ -89,9 +91,7 @@ class LeadCallAgent(LeadSkill):
                     resolved_attachments,
                 )
 
-            return await self._call_db_agent(
-                context, agent_id, message, resolved_attachments
-            )
+            return await self._call_db_agent(context, agent_id, message, resolved_attachments)
 
         except TimeoutError as e:
             self.logger.error(
@@ -100,8 +100,7 @@ class LeadCallAgent(LeadSkill):
                 agent_id,
             )
             raise ToolException(
-                f"Agent '{agent_id}' did not respond within "
-                f"{CALL_AGENT_TIMEOUT} seconds"
+                f"Agent '{agent_id}' did not respond within {CALL_AGENT_TIMEOUT} seconds"
             ) from e
         except ToolException:
             raise
@@ -211,9 +210,7 @@ class LeadCallAgent(LeadSkill):
             raise ToolException(f"No response received from agent '{agent_id}'")
 
         if last_message.author_type == AuthorType.AGENT:
-            response_text = last_message.message + render_attachments_awareness(
-                all_attachments
-            )
+            response_text = last_message.message + render_attachments_awareness(all_attachments)
             return response_text, all_attachments
 
         if last_message.author_type == AuthorType.SYSTEM:
@@ -221,8 +218,7 @@ class LeadCallAgent(LeadSkill):
             if last_message.error_type:
                 error_info = f" (error_type: {last_message.error_type})"
             raise ToolException(
-                f"Agent '{agent_id}' returned a system error{error_info}: "
-                f"{last_message.message}"
+                f"Agent '{agent_id}' returned a system error{error_info}: {last_message.message}"
             )
 
         raise ToolException(

@@ -62,9 +62,7 @@ async def list_autonomous_tasks(agent_id: str) -> list[AgentAutonomous]:
     async with get_session() as session:
         # Check if agent exists and get its autonomous storage and archived status
         result = await session.execute(
-            select(AgentTable.autonomous, AgentTable.archived_at).where(
-                AgentTable.id == agent_id
-            )
+            select(AgentTable.autonomous, AgentTable.archived_at).where(AgentTable.id == agent_id)
         )
         row = result.first()
 
@@ -159,9 +157,7 @@ async def update_autonomous_task(
                 task_dict = task.model_dump()
                 task_dict.update(update_data)
 
-                updated_task = AgentAutonomous.model_validate(
-                    task_dict
-                ).normalize_status_defaults()
+                updated_task = AgentAutonomous.model_validate(task_dict).normalize_status_defaults()
                 _validate_agent_task_compatibility(db_agent, updated_task)
                 rewritten_tasks.append(updated_task)
             else:

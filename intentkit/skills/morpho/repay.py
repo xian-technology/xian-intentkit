@@ -73,9 +73,7 @@ class MorphoRepay(MorphoBaseTool):
                 # For max repay: use shares-based repay (assets=0, shares=borrowShares)
                 morpho = w3.eth.contract(address=checksum_morpho, abi=MORPHO_BLUE_ABI)
                 market_id_bytes = self._parse_market_id(market_id)
-                position = await morpho.functions.position(
-                    market_id_bytes, wallet_address
-                ).call()
+                position = await morpho.functions.position(market_id_bytes, wallet_address).call()
                 _supply_shares, borrow_shares, _collateral = position
                 if borrow_shares == 0:
                     return "No debt to repay in this market."
@@ -92,15 +90,11 @@ class MorphoRepay(MorphoBaseTool):
                 approve_amount = atomic_amount
                 amount_display = amount
 
-            approve_data = token_contract.encode_abi(
-                "approve", [checksum_morpho, approve_amount]
-            )
+            approve_data = token_contract.encode_abi("approve", [checksum_morpho, approve_amount])
             approve_tx = await wallet.send_transaction(to=loan_token, data=approve_data)
             receipt = await wallet.wait_for_receipt(approve_tx)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Error: Approval transaction failed. Hash: {approve_tx}"
-                )
+                raise ToolException(f"Error: Approval transaction failed. Hash: {approve_tx}")
 
             market_params = (loan_token, collateral_token, oracle, irm, lltv)
 

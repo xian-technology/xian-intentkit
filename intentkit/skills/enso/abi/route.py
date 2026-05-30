@@ -25,9 +25,7 @@ ABI_ROUTE = [
     {
         "inputs": [],
         "name": "enso",
-        "outputs": [
-            {"internalType": "contract EnsoShortcuts", "name": "", "type": "address"}
-        ],
+        "outputs": [{"internalType": "contract EnsoShortcuts", "name": "", "type": "address"}],
         "stateMutability": "view",
         "type": "function",
     },
@@ -50,9 +48,7 @@ ABI_ROUTE = [
             {"internalType": "bytes[]", "name": "state", "type": "bytes[]"},
         ],
         "name": "routeMulti",
-        "outputs": [
-            {"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}
-        ],
+        "outputs": [{"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}],
         "stateMutability": "payable",
         "type": "function",
     },
@@ -64,9 +60,7 @@ ABI_ROUTE = [
             {"internalType": "bytes[]", "name": "state", "type": "bytes[]"},
         ],
         "name": "routeSingle",
-        "outputs": [
-            {"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}
-        ],
+        "outputs": [{"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}],
         "stateMutability": "payable",
         "type": "function",
     },
@@ -103,9 +97,7 @@ ABI_ROUTE = [
             {"internalType": "bytes[]", "name": "state", "type": "bytes[]"},
         ],
         "name": "safeRouteMulti",
-        "outputs": [
-            {"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}
-        ],
+        "outputs": [{"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}],
         "stateMutability": "payable",
         "type": "function",
     },
@@ -120,9 +112,7 @@ ABI_ROUTE = [
             {"internalType": "bytes[]", "name": "state", "type": "bytes[]"},
         ],
         "name": "safeRouteSingle",
-        "outputs": [
-            {"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}
-        ],
+        "outputs": [{"internalType": "bytes[]", "name": "returnData", "type": "bytes[]"}],
         "stateMutability": "payable",
         "type": "function",
     },

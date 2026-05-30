@@ -63,13 +63,9 @@ class TavilyExtract(TavilyBaseTool):
         """
         context = self.get_context()
         skill_config = context.agent.skill_config(self.category)
-        logger.debug(
-            f"tavily_extract.py: Running web extraction with context {context}"
-        )
+        logger.debug(f"tavily_extract.py: Running web extraction with context {context}")
 
-        if skill_config.get("rate_limit_number") and skill_config.get(
-            "rate_limit_minutes"
-        ):
+        if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
             await self.user_rate_limit_by_category(
                 skill_config["rate_limit_number"],
                 skill_config["rate_limit_minutes"] * 60,
@@ -78,9 +74,7 @@ class TavilyExtract(TavilyBaseTool):
         # Get the API key from the agent's configuration
         api_key = self.get_api_key()
         if not api_key:
-            raise ToolException(
-                "Error: No Tavily API key provided in the configuration."
-            )
+            raise ToolException("Error: No Tavily API key provided in the configuration.")
         # Validate extract_depth
         if extract_depth not in ["basic", "advanced"]:
             extract_depth = "basic"

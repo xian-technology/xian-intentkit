@@ -145,9 +145,7 @@ class TestGetTeam:
     @pytest.mark.asyncio
     @patch(f"{MODULE}.Team.get", new_callable=AsyncMock)
     @patch(f"{MODULE}.get_redis")
-    async def test_cache_miss_queries_db_and_caches(
-        self, mock_get_redis, mock_team_get
-    ):
+    async def test_cache_miss_queries_db_and_caches(self, mock_get_redis, mock_team_get):
         from intentkit.core.team.membership import get_team
 
         team = _make_team()
@@ -402,9 +400,7 @@ class TestJoinTeam:
         mock_result_member = MagicMock()
         mock_result_member.scalar_one_or_none.return_value = existing_member
 
-        mock_session.execute = AsyncMock(
-            side_effect=[mock_result_invite, mock_result_member]
-        )
+        mock_session.execute = AsyncMock(side_effect=[mock_result_invite, mock_result_member])
 
         with pytest.raises(ValueError, match="already a member"):
             await join_team("code-123", "user-1")
@@ -479,9 +475,7 @@ class TestChangeMemberRole:
     @patch(f"{MODULE}._invalidate_role_cache", new_callable=AsyncMock)
     @patch(f"{MODULE}._get_member_role", new_callable=AsyncMock)
     @patch(f"{MODULE}.get_session")
-    async def test_successful_role_change(
-        self, mock_get_session, mock_get_role, mock_invalidate
-    ):
+    async def test_successful_role_change(self, mock_get_session, mock_get_role, mock_invalidate):
         from intentkit.core.team.membership import change_member_role
 
         mock_session = MagicMock()
@@ -527,9 +521,7 @@ class TestRemoveMember:
     @patch(f"{MODULE}._invalidate_role_cache", new_callable=AsyncMock)
     @patch(f"{MODULE}._get_member_role", new_callable=AsyncMock)
     @patch(f"{MODULE}.get_session")
-    async def test_successful_removal(
-        self, mock_get_session, mock_get_role, mock_invalidate
-    ):
+    async def test_successful_removal(self, mock_get_session, mock_get_role, mock_invalidate):
         from intentkit.core.team.membership import remove_member
 
         mock_session = MagicMock()
@@ -593,9 +585,7 @@ class TestCheckPermission:
     @pytest.mark.asyncio
     @patch(f"{MODULE}.get_session")
     @patch(f"{MODULE}.get_redis")
-    async def test_owner_has_permission_for_member_role(
-        self, mock_get_redis, mock_get_session
-    ):
+    async def test_owner_has_permission_for_member_role(self, mock_get_redis, mock_get_session):
         from intentkit.core.team.membership import check_permission
 
         mock_redis = AsyncMock()

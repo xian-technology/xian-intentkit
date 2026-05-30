@@ -28,9 +28,7 @@ logger = logging.getLogger(__name__)
 class GetTokensInfoInput(BaseModel):
     """Input schema for the DexScreener get_tokens_info tool."""
 
-    chain_id: str = Field(
-        description="Blockchain chain ID (e.g., ethereum, solana, bsc)"
-    )
+    chain_id: str = Field(description="Blockchain chain ID (e.g., ethereum, solana, bsc)")
     token_addresses: list[str] = Field(
         description=f"List of token contract addresses (max {MAX_TOKENS_BATCH})"
     )
@@ -147,9 +145,7 @@ class GetTokensInfo(DexScreenerBaseTool):
                 try:
                     pairs.sort(key=get_liquidity_value, reverse=True)
                 except Exception as sort_err:
-                    logger.warning(
-                        "Failed to sort pairs for token %s: %s", token_addr, sort_err
-                    )
+                    logger.warning("Failed to sort pairs for token %s: %s", token_addr, sort_err)
 
             logger.info(
                 "Found %s total pairs across %s tokens for %s requested addresses on %s",
@@ -162,8 +158,7 @@ class GetTokensInfo(DexScreenerBaseTool):
             return format_success_response(
                 {
                     "tokens_data": {
-                        addr: [p.model_dump() for p in pairs]
-                        for addr, pairs in tokens_data.items()
+                        addr: [p.model_dump() for p in pairs] for addr, pairs in tokens_data.items()
                     },
                     "all_pairs": [p.model_dump() for p in pairs_list],
                     "chain_id": chain_id,
@@ -196,9 +191,7 @@ class GetTokensInfo(DexScreenerBaseTool):
         truncated_details = truncate_large_fields(error_details)
         return format_success_response(truncated_details)
 
-    async def _handle_unexpected_runtime_error(
-        self, e: Exception, query_info: str
-    ) -> str:
+    async def _handle_unexpected_runtime_error(self, e: Exception, query_info: str) -> str:
         """Formats unexpected runtime exception details into a JSON string."""
         logger.exception(
             f"An unexpected runtime error occurred in get_tokens_info tool _arun method for {query_info}: {e}"

@@ -46,9 +46,7 @@ logger = logging.getLogger(__name__)
 
 
 class CreateTeamRequest(BaseModel):
-    id: str = Field(
-        ..., min_length=3, max_length=20, pattern=r"^[a-z]([a-z0-9-]*[a-z0-9])?$"
-    )
+    id: str = Field(..., min_length=3, max_length=20, pattern=r"^[a-z]([a-z0-9-]*[a-z0-9])?$")
     name: str = Field(..., min_length=1, max_length=100)
 
 
@@ -79,9 +77,7 @@ async def create_team_endpoint(
     if plan != TeamPlan.NONE:
         async with get_session() as db:
             await db.execute(
-                sa_update(TeamTable)
-                .where(TeamTable.id == team.id)
-                .values(plan=plan.value)
+                sa_update(TeamTable).where(TeamTable.id == team.id).values(plan=plan.value)
             )
             await db.commit()
         team = team.model_copy(update={"plan": plan})
@@ -258,9 +254,7 @@ async def generate_team_avatar(
     # the team has enough to cover a 100%-platform-fee expense (2x base).
     min_required = AVATAR_GENERATION_BASE_PRICE * 2
     team_account = await CreditAccount.get_or_create(OwnerType.TEAM, team_id)
-    total_credits = (
-        team_account.credits + team_account.free_credits + team_account.reward_credits
-    )
+    total_credits = team_account.credits + team_account.free_credits + team_account.reward_credits
     if total_credits < min_required:
         raise IntentKitAPIError(
             status_code=402,

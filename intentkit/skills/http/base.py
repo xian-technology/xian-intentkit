@@ -37,15 +37,8 @@ def validate_url(url: str) -> None:
     # Check if hostname is an IP address in a private/reserved range
     try:
         addr = ipaddress.ip_address(hostname)
-        if (
-            addr.is_private
-            or addr.is_reserved
-            or addr.is_loopback
-            or addr.is_link_local
-        ):
-            raise ToolException(
-                f"Blocked request to internal/reserved IP address: {hostname}"
-            )
+        if addr.is_private or addr.is_reserved or addr.is_loopback or addr.is_link_local:
+            raise ToolException(f"Blocked request to internal/reserved IP address: {hostname}")
     except ValueError:
         # Not an IP literal — it's a domain name, which is fine
         pass

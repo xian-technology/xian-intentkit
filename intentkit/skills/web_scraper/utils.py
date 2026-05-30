@@ -98,9 +98,7 @@ class VectorStoreManager:
                 file_path = os.path.join(temp_dir, filename)
                 if os.path.isfile(file_path):
                     with open(file_path, "rb") as f:
-                        encoded_files[filename] = base64.b64encode(f.read()).decode(
-                            "utf-8"
-                        )
+                        encoded_files[filename] = base64.b64encode(f.read()).decode("utf-8")
 
             return encoded_files
 
@@ -160,9 +158,7 @@ class VectorStoreManager:
                 return existing_vector_store, True
 
             except Exception as e:
-                logger.warning(
-                    "[%s] Merge failed, creating new vector store: %s", agent_id, e
-                )
+                logger.warning("[%s] Merge failed, creating new vector store: %s", agent_id, e)
             logger.info("[%s] Creating new vector store", agent_id)
 
         # Create new vector store
@@ -301,9 +297,7 @@ class DocumentProcessor:
         cleaned_content = DocumentProcessor.clean_text(content)
 
         # Parse tags
-        tag_list = (
-            [tag.strip() for tag in tags.split(",") if tag.strip()] if tags else []
-        )
+        tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()] if tags else []
 
         metadata = {
             "title": title,
@@ -346,9 +340,7 @@ class MetadataManager:
         for url in urls:
             url_metadata = {
                 "indexed_at": current_time,
-                "chunks": len(
-                    [doc for doc in split_docs if doc.metadata.get("source") == url]
-                ),
+                "chunks": len([doc for doc in split_docs if doc.metadata.get("source") == url]),
                 "source_type": source_type,
             }
 
@@ -376,18 +368,14 @@ class MetadataManager:
                 "title": title,
                 "source": source,
                 "source_type": "document_indexer",
-                "tags": [tag.strip() for tag in tags.split(",") if tag.strip()]
-                if tags
-                else [],
+                "tags": [tag.strip() for tag in tags.split(",") if tag.strip()] if tags else [],
                 "indexed_at": str(asyncio.get_event_loop().time()),
                 "chunks": len(split_docs),
                 "length": document_length,
             }
         }
 
-    async def update_metadata(
-        self, agent_id: str, new_metadata: dict[str, Any]
-    ) -> None:
+    async def update_metadata(self, agent_id: str, new_metadata: dict[str, Any]) -> None:
         """Update metadata for an agent."""
         _, metadata_key = self._vector_manager.get_storage_keys(agent_id)
 
@@ -433,9 +421,7 @@ class ResponseFormatter:
             if size_limit_reached and total_requested_urls > 0:
                 content_summary = f"Processed {processed_count} of {total_requested_urls} URLs (size limit reached)"
             else:
-                content_summary = (
-                    f"Successfully {operation_type} {processed_count} URLs"
-                )
+                content_summary = f"Successfully {operation_type} {processed_count} URLs"
 
             if len(urls) <= 5:
                 url_list = "\n".join([f"- {url}" for url in urls])
@@ -467,9 +453,7 @@ class ResponseFormatter:
         if current_size_bytes > 0:
             formatted_size = VectorStoreManager.format_size(current_size_bytes)
             max_size = VectorStoreManager.format_size(MAX_CONTENT_SIZE_BYTES)
-            response_parts.append(
-                f"Current storage size: {formatted_size} / {max_size}"
-            )
+            response_parts.append(f"Current storage size: {formatted_size} / {max_size}")
 
         if size_limit_reached:
             response_parts.append("Size limit reached - some URLs were not processed")
@@ -552,15 +536,11 @@ async def scrape_and_index_urls(
     for i, url in enumerate(valid_urls):
         if current_size >= MAX_CONTENT_SIZE_BYTES:
             size_limit_reached = True
-            logger.warning(
-                "[%s] Size limit reached after processing %s URLs", agent_id, i
-            )
+            logger.warning("[%s] Size limit reached after processing %s URLs", agent_id, i)
             break
 
         try:
-            logger.info(
-                "[%s] Processing URL %s/%s: %s", agent_id, i + 1, len(valid_urls), url
-            )
+            logger.info("[%s] Processing URL %s/%s: %s", agent_id, i + 1, len(valid_urls), url)
 
             # Load single URL with enhanced headers
             loader = WebBaseLoader(
@@ -606,14 +586,10 @@ async def scrape_and_index_urls(
                 continue
 
             # Check content size before processing
-            content_size = sum(
-                len(doc.page_content.encode("utf-8")) for doc in documents
-            )
+            content_size = sum(len(doc.page_content.encode("utf-8")) for doc in documents)
 
             if current_size + content_size > MAX_CONTENT_SIZE_BYTES:
-                logger.warning(
-                    "[%s] Adding %s would exceed size limit. Skipping.", agent_id, url
-                )
+                logger.warning("[%s] Adding %s would exceed size limit. Skipping.", agent_id, url)
                 size_limit_reached = True
                 break
 
@@ -653,9 +629,7 @@ async def scrape_and_index_urls(
             len(valid_urls),
         )
     else:
-        logger.info(
-            "[%s] Successfully processed all %s URLs", agent_id, len(processed_urls)
-        )
+        logger.info("[%s] Successfully processed all %s URLs", agent_id, len(processed_urls))
 
     return total_chunks, was_merged, processed_urls
 
@@ -686,9 +660,7 @@ async def index_documents(
     )
 
     # Save vector store
-    await vector_manager.save_vector_store(
-        vector_store, agent_id, chunk_size, chunk_overlap
-    )
+    await vector_manager.save_vector_store(vector_store, agent_id, chunk_size, chunk_overlap)
 
     return len(split_docs), was_merged
 

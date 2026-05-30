@@ -116,9 +116,7 @@ async def test_erc20_balance_of(w3: AsyncWeb3):
         address=w3.to_checksum_address(USDC_ADDRESS),
         abi=ERC20_ABI,
     )
-    balance = await contract.functions.balanceOf(
-        w3.to_checksum_address(KNOWN_ADDRESS)
-    ).call()
+    balance = await contract.functions.balanceOf(w3.to_checksum_address(KNOWN_ADDRESS)).call()
     assert isinstance(balance, int)
     assert balance >= 0
 
@@ -131,8 +129,6 @@ async def test_erc20_balance_of_zero_address(w3: AsyncWeb3):
         abi=ERC20_ABI,
     )
     zero_addr = "0x0000000000000000000000000000000000000000"
-    balance = await contract.functions.balanceOf(
-        w3.to_checksum_address(zero_addr)
-    ).call()
+    balance = await contract.functions.balanceOf(w3.to_checksum_address(zero_addr)).call()
     assert isinstance(balance, int)
     assert balance >= 0

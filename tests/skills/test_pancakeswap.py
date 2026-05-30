@@ -196,9 +196,7 @@ class TestPancakeSwapQuote:
         mock_quoter_contract.functions.quoteExactInputSingle = mock_quoter_fn2
 
         mock_decimals_contract = MagicMock()
-        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(
-            return_value=18
-        )
+        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(return_value=18)
 
         def mock_contract(address, abi):
             if any(item.get("name") == "quoteExactInputSingle" for item in abi):
@@ -316,9 +314,7 @@ class TestPancakeSwapSwap:
         mock_router.encode_abi = MagicMock(return_value="0xswapdata")
 
         mock_decimals_contract = MagicMock()
-        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(
-            return_value=18
-        )
+        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(return_value=18)
 
         def mock_contract(address, abi):
             if any(item.get("name") == "quoteExactInputSingle" for item in abi):
@@ -370,9 +366,7 @@ class TestPancakeSwapSwap:
         mock_quoter_contract.functions.quoteExactInputSingle = mock_quoter_fn
 
         mock_decimals_contract = MagicMock()
-        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(
-            return_value=18
-        )
+        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(return_value=18)
 
         def mock_contract(address, abi):
             if any(item.get("name") == "quoteExactInputSingle" for item in abi):
@@ -420,9 +414,7 @@ class TestPancakeSwapSwap:
 
         # Allowance already sufficient
         mock_erc20 = MagicMock()
-        mock_erc20.functions.allowance.return_value.call = AsyncMock(
-            return_value=10**36
-        )
+        mock_erc20.functions.allowance.return_value.call = AsyncMock(return_value=10**36)
         mock_erc20.functions.decimals.return_value.call = AsyncMock(return_value=18)
 
         mock_router = MagicMock()
@@ -482,9 +474,7 @@ class TestPancakeSwapSwap:
         mock_router.encode_abi = MagicMock(return_value="0xswapdata")
 
         mock_decimals_contract = MagicMock()
-        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(
-            return_value=18
-        )
+        mock_decimals_contract.functions.decimals.return_value.call = AsyncMock(return_value=18)
 
         def mock_contract(address, abi):
             if any(item.get("name") == "quoteExactInputSingle" for item in abi):
@@ -600,9 +590,7 @@ class TestPancakeSwapGetPositions:
 
         mock_pm = MagicMock()
         mock_pm.functions.balanceOf.return_value.call = AsyncMock(return_value=1)
-        mock_pm.functions.tokenOfOwnerByIndex.return_value.call = AsyncMock(
-            return_value=42
-        )
+        mock_pm.functions.tokenOfOwnerByIndex.return_value.call = AsyncMock(return_value=42)
         mock_pm.functions.positions.return_value.call = AsyncMock(return_value=pos)
 
         mock_symbol = MagicMock()
@@ -659,9 +647,7 @@ class TestPancakeSwapGetPositions:
         mock_mc.functions.userPositionInfos.return_value.call = AsyncMock(
             return_value=(1000, 0, -887200, 887200, 0, 0, wallet_addr, 0, 0)
         )
-        mock_mc.functions.pendingCake.return_value.call = AsyncMock(
-            return_value=5 * 10**18
-        )
+        mock_mc.functions.pendingCake.return_value.call = AsyncMock(return_value=5 * 10**18)
 
         mock_symbol = MagicMock()
         mock_symbol.functions.symbol.return_value.call = AsyncMock(return_value="TKA")
@@ -731,9 +717,7 @@ class TestPancakeSwapAddLiquidity:
 
         mock_erc20 = MagicMock()
         mock_erc20.functions.decimals.return_value.call = AsyncMock(return_value=18)
-        mock_erc20.functions.allowance.return_value.call = AsyncMock(
-            return_value=10**36
-        )
+        mock_erc20.functions.allowance.return_value.call = AsyncMock(return_value=10**36)
         mock_erc20.functions.symbol.return_value.call = AsyncMock(return_value="TKN")
 
         # Mint receipt with Transfer event
@@ -814,9 +798,7 @@ class TestPancakeSwapAddLiquidity:
 
         mock_erc20 = MagicMock()
         mock_erc20.functions.decimals.return_value.call = AsyncMock(return_value=18)
-        mock_erc20.functions.allowance.return_value.call = AsyncMock(
-            return_value=10**36
-        )
+        mock_erc20.functions.allowance.return_value.call = AsyncMock(return_value=10**36)
         mock_erc20.functions.symbol.return_value.call = AsyncMock(return_value="TKN")
 
         mint_receipt = {
@@ -1052,9 +1034,7 @@ class TestPancakeSwapRemoveLiquidity:
         mock_mc.functions.userPositionInfos.return_value.call = AsyncMock(
             return_value=(1000, 0, -887200, 887200, 0, 0, wallet_addr, 0, 0)
         )
-        mock_mc.functions.pendingCake.return_value.call = AsyncMock(
-            return_value=2 * 10**18
-        )
+        mock_mc.functions.pendingCake.return_value.call = AsyncMock(return_value=2 * 10**18)
         mock_mc.encode_abi = MagicMock(return_value="0xwithdraw")
 
         mock_symbol = MagicMock()

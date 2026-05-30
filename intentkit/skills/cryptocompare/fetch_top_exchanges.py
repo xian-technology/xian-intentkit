@@ -62,9 +62,7 @@ class CryptoCompareFetchTopExchanges(CryptoCompareBaseTool):
             api_key = self.get_api_key()
 
             # Fetch top exchanges data directly
-            exchanges_data = await self.fetch_top_exchanges(
-                api_key, from_symbol, to_symbol
-            )
+            exchanges_data = await self.fetch_top_exchanges(api_key, from_symbol, to_symbol)
 
             # Check for errors
             if "error" in exchanges_data:

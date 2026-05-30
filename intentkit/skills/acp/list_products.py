@@ -45,7 +45,5 @@ class AcpListProducts(AcpBaseTool):
         lines = ["Available products:"]
         for p in products:
             price_usd = p["price"] / 1_000_000
-            lines.append(
-                f"- {p['id']}: {p['name']} (${price_usd:.2f} USDC) - {p['description']}"
-            )
+            lines.append(f"- {p['id']}: {p['name']} (${price_usd:.2f} USDC) - {p['description']}")
         return truncate_response("\n".join(lines))

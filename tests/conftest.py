@@ -47,9 +47,7 @@ async def _truncate_tables(engine: AsyncEngine) -> None:
         tables = [row[0] for row in result]
         if tables:
             table_names = ", ".join(f'"{table}"' for table in tables)
-            await conn.execute(
-                text(f"TRUNCATE TABLE {table_names} RESTART IDENTITY CASCADE")
-            )
+            await conn.execute(text(f"TRUNCATE TABLE {table_names} RESTART IDENTITY CASCADE"))
 
 
 @pytest_asyncio.fixture()

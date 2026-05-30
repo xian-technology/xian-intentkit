@@ -24,9 +24,7 @@ class XianGetAllowanceInput(BaseModel):
 
 class XianGetAllowance(XianBaseTool):
     name: str = "xian_get_allowance"
-    description: str = (
-        "Read the current token allowance for a spender on a Xian token contract."
-    )
+    description: str = "Read the current token allowance for a spender on a Xian token contract."
     args_schema: ArgsSchema | None = XianGetAllowanceInput
 
     @override

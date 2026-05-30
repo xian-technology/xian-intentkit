@@ -38,9 +38,7 @@ class SearchAccountsInput(BaseModel):
     """Input for SearchAccounts tool."""
 
     searchQuery: str = Field(description="Search query for tweet content")
-    type: int | None = Field(
-        default=None, description="Tweet type: 0=Original, 1=Reply, 2=Quote"
-    )
+    type: int | None = Field(default=None, description="Tweet type: 0=Original, 1=Reply, 2=Quote")
     sortBy: int | None = Field(
         default=None,
         description="0=SmartEngagementPoints, 1=Impressions, 2=MatchingTweetsCount",
@@ -52,9 +50,7 @@ class SearchAccounts(CookieFunBaseTool):
     """Tool to search for Twitter accounts based on tweet content."""
 
     name: str = "cookiefun_search_accounts"
-    description: str = (
-        "Search Twitter accounts by tweet content with engagement metrics."
-    )
+    description: str = "Search Twitter accounts by tweet content with engagement metrics."
     price: Decimal = Decimal("70")
     args_schema: ArgsSchema | None = SearchAccountsInput
 
@@ -116,9 +112,7 @@ class SearchAccounts(CookieFunBaseTool):
                 response = await client.post(
                     ENDPOINTS["search_accounts"], headers=headers, json=payload
                 )
-                logger.debug(
-                    "Received response with status code: %d", response.status_code
-                )
+                logger.debug("Received response with status code: %d", response.status_code)
 
                 response.raise_for_status()
                 data = response.json()
@@ -133,9 +127,7 @@ class SearchAccounts(CookieFunBaseTool):
                     return accounts
                 elif data.get("success") and "ok" in data and "accounts" in data["ok"]:
                     accounts = data["ok"]["accounts"]
-                    logger.info(
-                        "Successfully retrieved %d matching accounts", len(accounts)
-                    )
+                    logger.info("Successfully retrieved %d matching accounts", len(accounts))
                     return accounts
                 elif data.get("success") and "ok" in data and "results" in data["ok"]:
                     accounts = data["ok"]["results"]
@@ -144,11 +136,7 @@ class SearchAccounts(CookieFunBaseTool):
                         len(accounts),
                     )
                     return accounts
-                elif (
-                    data.get("success")
-                    and "ok" in data
-                    and isinstance(data["ok"], list)
-                ):
+                elif data.get("success") and "ok" in data and isinstance(data["ok"], list):
                     accounts = data["ok"]
                     logger.info(
                         "Successfully retrieved %d matching accounts from ok list",
@@ -203,9 +191,7 @@ class SearchAccounts(CookieFunBaseTool):
                         "Could not find matching accounts in response structure. Full response: %s",
                         data,
                     )
-                    error_msg = data.get(
-                        "error", "Unknown error - check API response format"
-                    )
+                    error_msg = data.get("error", "Unknown error - check API response format")
                     logger.error("Error in API response: %s", error_msg)
                     raise ToolException(f"Error searching accounts: {error_msg}")
         except ToolException:

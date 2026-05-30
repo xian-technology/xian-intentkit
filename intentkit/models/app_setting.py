@@ -145,9 +145,7 @@ class AppSetting(BaseModel):
 
     key: Annotated[str, Field(description="Setting key")]
     value: Annotated[Any, Field(description="Setting value as JSON")]
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this setting was created")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this setting was created")]
     updated_at: Annotated[
         datetime, Field(description="Timestamp when this setting was last updated")
     ]

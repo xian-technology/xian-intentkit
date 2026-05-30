@@ -82,9 +82,7 @@ class TokenPrice(TokenBaseTool):
 
         if context is None:
             logger.error("Context is None, cannot retrieve API key")
-            return {
-                "error": "Cannot retrieve API key. Please check agent configuration."
-            }
+            return {"error": "Cannot retrieve API key. Please check agent configuration."}
 
         # Get the API key
         api_key = self.get_api_key()

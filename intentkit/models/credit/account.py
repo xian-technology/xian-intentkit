@@ -172,9 +172,7 @@ class CreditAccount(BaseModel):
     owner_id: Annotated[str, Field(description="ID of the account owner")]
     free_quota: Annotated[
         Decimal,
-        Field(
-            default=Decimal("0"), description="Daily credit quota that resets each day"
-        ),
+        Field(default=Decimal("0"), description="Daily credit quota that resets each day"),
     ]
     refill_amount: Annotated[
         Decimal,
@@ -189,9 +187,7 @@ class CreditAccount(BaseModel):
     ]
     reward_credits: Annotated[
         Decimal,
-        Field(
-            default=Decimal("0"), description="Reward credits earned through rewards"
-        ),
+        Field(default=Decimal("0"), description="Reward credits earned through rewards"),
     ]
     credits: Annotated[
         Decimal,
@@ -266,9 +262,7 @@ class CreditAccount(BaseModel):
             description="Total expense from permanent credit transactions",
         ),
     ]
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this account was created")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this account was created")]
     updated_at: Annotated[
         datetime, Field(description="Timestamp when this account was last updated")
     ]
@@ -372,9 +366,7 @@ class CreditAccount(BaseModel):
         return account
 
     @classmethod
-    async def get_or_create(
-        cls, owner_type: OwnerType, owner_id: str
-    ) -> "CreditAccount":
+    async def get_or_create(cls, owner_type: OwnerType, owner_id: str) -> "CreditAccount":
         """Get a credit account by owner type and ID.
 
         Args:
@@ -406,8 +398,7 @@ class CreditAccount(BaseModel):
         # Quantize the amount to ensure proper precision
         quantized_amount = amount.quantize(FOURPLACES, rounding=ROUND_HALF_UP)
         values_dict: dict[str, Any] = {
-            credit_type.value: getattr(CreditAccountTable, credit_type.value)
-            - quantized_amount,
+            credit_type.value: getattr(CreditAccountTable, credit_type.value) - quantized_amount,
             "expense_at": datetime.now(UTC),
             # Update total expense statistics
             "total_expense": CreditAccountTable.total_expense + quantized_amount,
@@ -502,9 +493,7 @@ class CreditAccount(BaseModel):
         for credit_type in [CreditType.FREE, CreditType.REWARD, CreditType.PERMANENT]:
             if credit_type in details:
                 # Quantize the amount to ensure proper precision
-                quantized_amount = details[credit_type].quantize(
-                    FOURPLACES, rounding=ROUND_HALF_UP
-                )
+                quantized_amount = details[credit_type].quantize(FOURPLACES, rounding=ROUND_HALF_UP)
                 values_dict[credit_type.value] = (
                     getattr(CreditAccountTable, credit_type.value) - quantized_amount
                 )
@@ -526,9 +515,7 @@ class CreditAccount(BaseModel):
 
         # Update total expense if there was any expense
         if total_expense_amount > 0:
-            values_dict["total_expense"] = (
-                CreditAccountTable.total_expense + total_expense_amount
-            )
+            values_dict["total_expense"] = CreditAccountTable.total_expense + total_expense_amount
 
         stmt = (
             update(CreditAccountTable)
@@ -606,9 +593,7 @@ class CreditAccount(BaseModel):
 
         # Update total income if there was any income
         if total_income_amount > 0:
-            values_dict["total_income"] = (
-                CreditAccountTable.total_income + total_income_amount
-            )
+            values_dict["total_income"] = CreditAccountTable.total_income + total_income_amount
 
         stmt = (
             update(CreditAccountTable)
@@ -695,9 +680,7 @@ class CreditAccount(BaseModel):
             credits=Decimal("0"),
             income_at=datetime.now(UTC),
             expense_at=None,
-            last_event_id=event_id
-            if owner_type in (OwnerType.USER, OwnerType.TEAM)
-            else None,
+            last_event_id=event_id if owner_type in (OwnerType.USER, OwnerType.TEAM) else None,
             # Initialize new statistics fields
             # For USER/TEAM accounts, initial free_quota counts as income
             total_income=free_quota,
@@ -816,9 +799,7 @@ class CreditAccount(BaseModel):
 
         # Check that at least one parameter is provided
         if free_quota is None and refill_amount is None:
-            raise ValueError(
-                "At least one of free_quota or refill_amount must be provided"
-            )
+            raise ValueError("At least one of free_quota or refill_amount must be provided")
 
         # Get current account to check existing values and validate
         user_account = await cls.get_or_create_in_session(

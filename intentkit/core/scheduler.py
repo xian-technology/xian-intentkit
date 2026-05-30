@@ -22,9 +22,7 @@ from intentkit.core.credit import refill_all_free_credits
 
 
 def create_scheduler(
-    jobstores: Mapping[str, BaseJobStore]
-    | MutableMapping[str, BaseJobStore]
-    | None = None,
+    jobstores: Mapping[str, BaseJobStore] | MutableMapping[str, BaseJobStore] | None = None,
 ) -> AsyncIOScheduler:
     """Create and configure the APScheduler with all periodic tasks."""
     scheduler = AsyncIOScheduler(jobstores=dict(jobstores or {}))
@@ -125,9 +123,7 @@ def create_scheduler(
 
         _ = scheduler.add_job(
             run_quick_account_checks,
-            trigger=CronTrigger(
-                hour="*/8", minute="30", timezone="UTC"
-            ),  # Run every 8 hours
+            trigger=CronTrigger(hour="*/8", minute="30", timezone="UTC"),  # Run every 8 hours
             id="quick_account_checks",
             name="Quick Account Consistency Checks",
             replace_existing=True,
@@ -136,9 +132,7 @@ def create_scheduler(
         # Run slow account consistency checks once a day at midnight UTC
         _ = scheduler.add_job(
             run_slow_account_checks,
-            trigger=CronTrigger(
-                hour="0,12", minute="0", timezone="UTC"
-            ),  # Run 2 times a day
+            trigger=CronTrigger(hour="0,12", minute="0", timezone="UTC"),  # Run 2 times a day
             id="slow_account_checks",
             name="Slow Account Consistency Checks",
             replace_existing=True,

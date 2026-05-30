@@ -103,9 +103,7 @@ class CryptoCompareBaseTool(IntentKitSkill):
             return {"error": f"API returned status code {response.status_code}"}
         return response.json()
 
-    async def fetch_trading_signals(
-        self, api_key: str, from_symbol: str
-    ) -> dict[str, Any]:
+    async def fetch_trading_signals(self, api_key: str, from_symbol: str) -> dict[str, Any]:
         """Fetch the latest trading signals.
 
         Args:

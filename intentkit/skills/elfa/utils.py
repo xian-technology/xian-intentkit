@@ -53,9 +53,7 @@ async def make_elfa_request(
 
     async with httpx.AsyncClient() as client:
         try:
-            response = await client.get(
-                url, headers=headers, timeout=timeout, params=params
-            )
+            response = await client.get(url, headers=headers, timeout=timeout, params=params)
             response.raise_for_status()
             json_dict = response.json()
 

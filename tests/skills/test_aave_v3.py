@@ -131,9 +131,7 @@ class TestEnsureAllowance:
     async def test_skips_when_sufficient(self):
         wallet = _mock_wallet()
         mock_contract = MagicMock()
-        mock_contract.functions.allowance.return_value.call = AsyncMock(
-            return_value=1000
-        )
+        mock_contract.functions.allowance.return_value.call = AsyncMock(return_value=1000)
         mock_w3 = MagicMock()
         mock_w3.eth.contract = MagicMock(return_value=mock_contract)
 

@@ -57,14 +57,10 @@ class OpenSeaOnChainBaseTool(OpenSeaApiMixin, IntentKitOnChainSkill):
             address=Web3.to_checksum_address(SEAPORT_ADDRESS),
             abi=SEAPORT_ABI,
         )
-        counter = await seaport.functions.getCounter(
-            Web3.to_checksum_address(offerer)
-        ).call()
+        counter = await seaport.functions.getCounter(Web3.to_checksum_address(offerer)).call()
         return counter
 
-    async def _ensure_nft_approval(
-        self, contract_address: str, owner_address: str
-    ) -> str | None:
+    async def _ensure_nft_approval(self, contract_address: str, owner_address: str) -> str | None:
         """Ensure the NFT contract is approved for OpenSea conduit.
 
         Returns:

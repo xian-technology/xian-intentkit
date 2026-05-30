@@ -16,9 +16,7 @@ class VeniceImageEnhanceBaseTool(VeniceImageBaseTool):
     """
 
     args_schema: ArgsSchema | None = VeniceImageEnhanceInput
-    name: str = Field(
-        default="", description="The unique name of the image Enchanching tool."
-    )
+    name: str = Field(default="", description="The unique name of the image Enchanching tool.")
     description: str = Field(
         default="", description="A description of what the image Enchanching tool does."
     )

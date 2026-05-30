@@ -16,9 +16,7 @@ class CarvInput(BaseModel):
     Defines parameters controllable by the user when invoking the tool.
     """
 
-    question: str = Field(
-        ..., description="Natural language question about on-chain data"
-    )
+    question: str = Field(..., description="Natural language question about on-chain data")
     chain: Literal["ethereum", "base", "bitcoin", "solana"] = Field(
         ..., description="Target blockchain"
     )

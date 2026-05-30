@@ -134,9 +134,7 @@ async def create_lead_chat_thread(
     )
     _ = await chat.save()
     if request and should_summarize_first_message(request.first_message):
-        await update_chat_summary_from_first_message(
-            agent_id, chat.id, request.first_message or ""
-        )
+        await update_chat_summary_from_first_message(agent_id, chat.id, request.first_message or "")
     full_chat = await Chat.get(chat.id)
     return full_chat
 
@@ -201,9 +199,7 @@ async def list_lead_messages(
     db: AsyncSession = Depends(get_db),
     auth: tuple[str, str] = Depends(verify_team_member),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get the message history for a lead chat thread."""
     user_id, team_id = auth
@@ -227,9 +223,7 @@ async def list_lead_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
         has_more=has_more,
@@ -260,9 +254,7 @@ async def send_lead_message(
     if not chat or chat.agent_id != agent_id or chat.user_id != user_id:
         raise _chat_not_found()
 
-    should_schedule_summary = await should_schedule_chat_summary(
-        agent_id, chat_id, AuthorType.WEB
-    )
+    should_schedule_summary = await should_schedule_chat_summary(agent_id, chat_id, AuthorType.WEB)
 
     if not chat.summary:
         summary = textwrap.shorten(request.message, width=20, placeholder="...")
@@ -377,9 +369,7 @@ async def set_lead_channel(
     try:
         return await set_team_channel(team_id, channel_type, config, created_by=user_id)
     except (ValueError, ValidationError) as e:
-        raise IntentKitAPIError(
-            status_code=400, key="InvalidChannelConfig", message=str(e)
-        )
+        raise IntentKitAPIError(status_code=400, key="InvalidChannelConfig", message=str(e))
 
 
 @team_lead_router.delete(
@@ -433,9 +423,7 @@ async def set_lead_default_channel(
     try:
         await set_default_channel(team_id, body.channel_type)
     except ValueError as e:
-        raise IntentKitAPIError(
-            status_code=400, key="InvalidDefaultChannel", message=str(e)
-        )
+        raise IntentKitAPIError(status_code=400, key="InvalidDefaultChannel", message=str(e))
     return {"default_channel": body.channel_type}
 
 
@@ -450,9 +438,7 @@ async def list_lead_default_channel_messages(
     auth: tuple[str, str] = Depends(verify_team_member),
     db: AsyncSession = Depends(get_db),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get the message history for the default channel chat."""
     _user_id, team_id = auth
@@ -479,9 +465,7 @@ async def list_lead_default_channel_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
         has_more=has_more,
@@ -543,6 +527,4 @@ async def remove_telegram_whitelist(
 
 
 def _chat_not_found():
-    return IntentKitAPIError(
-        status_code=404, key="ChatNotFound", message="Chat not found"
-    )
+    return IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")

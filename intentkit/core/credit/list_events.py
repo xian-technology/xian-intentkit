@@ -177,9 +177,7 @@ async def list_fee_events_by_agent(
         - A boolean indicating if there are more events available.
     """
     # 1. Find the account for the agent
-    agent_account = await CreditAccount.get_in_session(
-        session, OwnerType.AGENT, agent_id
-    )
+    agent_account = await CreditAccount.get_in_session(session, OwnerType.AGENT, agent_id)
     if not agent_account:
         return [], None, False
 
@@ -230,9 +228,7 @@ async def fetch_credit_event_by_upstream_tx_id(
         HTTPException: If the credit event is not found.
     """
     # Build the query to find the event by upstream_tx_id
-    stmt = select(CreditEventTable).where(
-        CreditEventTable.upstream_tx_id == upstream_tx_id
-    )
+    stmt = select(CreditEventTable).where(CreditEventTable.upstream_tx_id == upstream_tx_id)
 
     # Execute query
     result = await session.scalar(stmt)

@@ -19,9 +19,7 @@ class SupabaseUpsertDataInput(BaseModel):
     data: dict[str, Any] | list[dict[str, Any]] = Field(
         description="Object or list of objects to upsert"
     )
-    on_conflict: str = Field(
-        description="Conflict column(s), e.g. 'id' or 'email,username'"
-    )
+    on_conflict: str = Field(description="Conflict column(s), e.g. 'id' or 'email,username'")
     returning: str = Field(default="*", description="Columns to return after upsert")
 
 
@@ -52,9 +50,7 @@ class SupabaseUpsertData(SupabaseBaseTool):
             supabase = self.get_supabase_client(context)
 
             # Upsert data
-            response = (
-                supabase.table(table).upsert(data, on_conflict=on_conflict).execute()
-            )
+            response = supabase.table(table).upsert(data, on_conflict=on_conflict).execute()
 
             return {
                 "success": True,

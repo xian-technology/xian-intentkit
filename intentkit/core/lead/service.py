@@ -67,11 +67,7 @@ async def verify_agent_in_team(agent_id: str, team_id: str) -> Agent:
     async with get_session() as db:
         db_agent = await db.get(AgentTable, agent_id)
         if not db_agent:
-            raise IntentKitAPIError(
-                404, "AgentNotFound", f"Agent '{agent_id}' not found"
-            )
+            raise IntentKitAPIError(404, "AgentNotFound", f"Agent '{agent_id}' not found")
         if db_agent.team_id != team_id:
-            raise IntentKitAPIError(
-                403, "Forbidden", "Agent does not belong to this team"
-            )
+            raise IntentKitAPIError(403, "Forbidden", "Agent does not belong to this team")
         return Agent.model_validate(db_agent)

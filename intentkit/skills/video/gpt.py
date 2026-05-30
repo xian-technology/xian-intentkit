@@ -88,9 +88,7 @@ class SoraVideoBase(VideoBaseTool):
                     error_msg = error.message if error else "Unknown error"
                     raise ToolException(f"OpenAI video generation failed: {error_msg}")
 
-            raise ToolException(
-                f"OpenAI video generation timed out after {MAX_POLL_TIME} seconds"
-            )
+            raise ToolException(f"OpenAI video generation timed out after {MAX_POLL_TIME} seconds")
         except ToolException:
             raise
         except openai.OpenAIError as e:

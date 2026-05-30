@@ -127,9 +127,7 @@ async def test_list_credit_events_by_team_missing_account():
         new_callable=AsyncMock,
         return_value=None,
     ):
-        events, cursor, has_more = await list_credit_events_by_team(
-            mock_session, "missing"
-        )
+        events, cursor, has_more = await list_credit_events_by_team(mock_session, "missing")
 
     assert events == []
     assert cursor is None

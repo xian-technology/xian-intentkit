@@ -58,15 +58,9 @@ class Config:
             # format the db config
             self.db = {
                 "host": str(secret_db.get("host")) if secret_db.get("host") else None,
-                "username": str(secret_db.get("username"))
-                if secret_db.get("username")
-                else None,
-                "password": str(secret_db.get("password"))
-                if secret_db.get("password")
-                else None,
-                "dbname": str(secret_db.get("dbname"))
-                if secret_db.get("dbname")
-                else None,
+                "username": str(secret_db.get("username")) if secret_db.get("username") else None,
+                "password": str(secret_db.get("password")) if secret_db.get("password") else None,
+                "dbname": str(secret_db.get("dbname")) if secret_db.get("dbname") else None,
                 "port": str(secret_db.get("port", "5432")),
                 "auto_migrate": self.load("DB_AUTO_MIGRATE", "true") == "true",
                 "pool_size": self.load_int("DB_POOL_SIZE", 3),
@@ -100,13 +94,9 @@ class Config:
         self.aws_s3_endpoint_url: str | None = self.load("AWS_S3_ENDPOINT_URL")
         self.aws_s3_region_name: str | None = self.load("AWS_S3_REGION_NAME")
         self.aws_s3_access_key_id: str | None = self.load("AWS_S3_ACCESS_KEY_ID")
-        self.aws_s3_secret_access_key: str | None = self.load(
-            "AWS_S3_SECRET_ACCESS_KEY"
-        )
+        self.aws_s3_secret_access_key: str | None = self.load("AWS_S3_SECRET_ACCESS_KEY")
         # Internal API
-        self.internal_base_url: str = self.load(
-            "INTERNAL_BASE_URL", "http://intent-api"
-        )
+        self.internal_base_url: str = self.load("INTERNAL_BASE_URL", "http://intent-api")
         # Payment
         self.payment_enabled: bool = self.load("PAYMENT_ENABLED", "false") == "true"
         self.hourly_budget: Decimal | None = self.load_decimal("HOURLY_BUDGET")
@@ -118,20 +108,14 @@ class Config:
         self.cdp_api_key_secret: str | None = self.load("CDP_API_KEY_SECRET")
         self.cdp_wallet_secret: str | None = self.load("CDP_WALLET_SECRET")
         # Supabase Auth
-        self.supabase_jwt_signing_key: str | None = self.load(
-            "SUPABASE_JWT_SIGNING_KEY"
-        )
+        self.supabase_jwt_signing_key: str | None = self.load("SUPABASE_JWT_SIGNING_KEY")
         self.supabase_jwks_url: str | None = self.load("SUPABASE_JWKS_URL")
         self.supabase_url: str | None = self.load("SUPABASE_URL")
-        self.supabase_service_role_key: str | None = self.load(
-            "SUPABASE_SERVICE_ROLE_KEY"
-        )
+        self.supabase_service_role_key: str | None = self.load("SUPABASE_SERVICE_ROLE_KEY")
         # Privy and Safe
         self.privy_app_id: str | None = self.load("PRIVY_APP_ID")
         self.privy_app_secret: str | None = self.load("PRIVY_APP_SECRET")
-        self.privy_base_url: str = self.load(
-            "PRIVY_BASE_URL", "https://api.privy.io/v1"
-        )
+        self.privy_base_url: str = self.load("PRIVY_BASE_URL", "https://api.privy.io/v1")
         privy_auth_keys_raw = self.load("PRIVY_AUTHORIZATION_KEYS") or self.load(
             "PRIVY_AUTHORIZATION_KEY"
         )
@@ -142,9 +126,7 @@ class Config:
         )
         self.safe_api_key: str | None = self.load("SAFE_API_KEY")
         # Master wallet for gas sponsorship (pays for Safe deployments)
-        self.master_wallet_private_key: str | None = self.load(
-            "MASTER_WALLET_PRIVATE_KEY"
-        )
+        self.master_wallet_private_key: str | None = self.load("MASTER_WALLET_PRIVATE_KEY")
         # LLM providers
         self.openai_api_key: str | None = self.load("OPENAI_API_KEY")
         self.anthropic_api_key: str | None = self.load("ANTHROPIC_API_KEY")
@@ -158,32 +140,20 @@ class Config:
         self.minimax_api_key: str | None = self.load("MINIMAX_API_KEY")
         self.openrouter_api_key: str | None = self.load("OPENROUTER_API_KEY")
         # OpenAI Compatible provider
-        self.openai_compatible_api_key: str | None = self.load(
-            "OPENAI_COMPATIBLE_API_KEY"
-        )
+        self.openai_compatible_api_key: str | None = self.load("OPENAI_COMPATIBLE_API_KEY")
         self.openai_compatible_provider: str = self.load(
             "OPENAI_COMPATIBLE_PROVIDER", "OpenAI Compatible"
         )
-        self.openai_compatible_base_url: str | None = self.load(
-            "OPENAI_COMPATIBLE_BASE_URL"
-        )
+        self.openai_compatible_base_url: str | None = self.load("OPENAI_COMPATIBLE_BASE_URL")
         self.openai_compatible_model: str | None = self.load("OPENAI_COMPATIBLE_MODEL")
-        self.openai_compatible_model_lite: str | None = self.load(
-            "OPENAI_COMPATIBLE_MODEL_LITE"
-        )
+        self.openai_compatible_model_lite: str | None = self.load("OPENAI_COMPATIBLE_MODEL_LITE")
         # Anthropic Compatible provider
-        self.anthropic_compatible_api_key: str | None = self.load(
-            "ANTHROPIC_COMPATIBLE_API_KEY"
-        )
+        self.anthropic_compatible_api_key: str | None = self.load("ANTHROPIC_COMPATIBLE_API_KEY")
         self.anthropic_compatible_provider: str = self.load(
             "ANTHROPIC_COMPATIBLE_PROVIDER", "Anthropic Compatible"
         )
-        self.anthropic_compatible_base_url: str | None = self.load(
-            "ANTHROPIC_COMPATIBLE_BASE_URL"
-        )
-        self.anthropic_compatible_model: str | None = self.load(
-            "ANTHROPIC_COMPATIBLE_MODEL"
-        )
+        self.anthropic_compatible_base_url: str | None = self.load("ANTHROPIC_COMPATIBLE_BASE_URL")
+        self.anthropic_compatible_model: str | None = self.load("ANTHROPIC_COMPATIBLE_MODEL")
         self.anthropic_compatible_model_lite: str | None = self.load(
             "ANTHROPIC_COMPATIBLE_MODEL_LITE"
         )
@@ -200,15 +170,9 @@ class Config:
         # Telegram server settings
         self.tg_system_prompt: str | None = self.load("TG_SYSTEM_PROMPT")
         # Twitter
-        self.twitter_oauth2_client_id: str | None = self.load(
-            "TWITTER_OAUTH2_CLIENT_ID"
-        )
-        self.twitter_oauth2_client_secret: str | None = self.load(
-            "TWITTER_OAUTH2_CLIENT_SECRET"
-        )
-        self.twitter_oauth2_redirect_uri: str | None = self.load(
-            "TWITTER_OAUTH2_REDIRECT_URI"
-        )
+        self.twitter_oauth2_client_id: str | None = self.load("TWITTER_OAUTH2_CLIENT_ID")
+        self.twitter_oauth2_client_secret: str | None = self.load("TWITTER_OAUTH2_CLIENT_SECRET")
+        self.twitter_oauth2_redirect_uri: str | None = self.load("TWITTER_OAUTH2_REDIRECT_URI")
         # Slack Alert
         self.slack_alert_token: str | None = self.load("SLACK_ALERT_TOKEN")
         self.slack_alert_channel: str | None = self.load("SLACK_ALERT_CHANNEL")
@@ -242,9 +206,7 @@ class Config:
         # Sentry
         self.sentry_dsn: str | None = self.load("SENTRY_DSN")
         self.sentry_sample_rate: float = self.load_float("SENTRY_SAMPLE_RATE", 0.1)
-        self.sentry_traces_sample_rate: float = self.load_float(
-            "SENTRY_TRACES_SAMPLE_RATE", 0.01
-        )
+        self.sentry_traces_sample_rate: float = self.load_float("SENTRY_TRACES_SAMPLE_RATE", 0.01)
         self.sentry_profiles_sample_rate: float = self.load_float(
             "SENTRY_PROFILES_SAMPLE_RATE", 0.01
         )
@@ -332,10 +294,8 @@ class Config:
             return default
         try:
             return int(value)
-        except (ValueError, TypeError):
-            logger.warning(
-                "Invalid integer value for %s, using default: %s", key, default
-            )
+        except ValueError, TypeError:
+            logger.warning("Invalid integer value for %s, using default: %s", key, default)
             return default
 
     def load_float(self, key: str, default: float = 0.0) -> float:
@@ -345,10 +305,8 @@ class Config:
             return default
         try:
             return float(value)
-        except (ValueError, TypeError):
-            logger.warning(
-                "Invalid float value for %s, using default: %s", key, default
-            )
+        except ValueError, TypeError:
+            logger.warning("Invalid float value for %s, using default: %s", key, default)
             return default
 
     def load_decimal(self, key: str, default: Decimal | None = None) -> Decimal | None:
@@ -359,10 +317,8 @@ class Config:
             return default_value
         try:
             return Decimal(value)
-        except (InvalidOperation, ValueError, TypeError):
-            logger.warning(
-                f"Invalid decimal value for {key}, using default: {default_value}"
-            )
+        except InvalidOperation, ValueError, TypeError:
+            logger.warning(f"Invalid decimal value for {key}, using default: {default_value}")
             return default_value
 
 

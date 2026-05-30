@@ -50,9 +50,7 @@ class FirecrawlDocumentProcessor:
         split_docs = []
         for doc in documents:
             # Sanitize content before splitting
-            sanitized_content = FirecrawlDocumentProcessor.sanitize_for_database(
-                doc.page_content
-            )
+            sanitized_content = FirecrawlDocumentProcessor.sanitize_for_database(doc.page_content)
             doc.page_content = sanitized_content
 
             # Split the document
@@ -79,9 +77,7 @@ class FirecrawlVectorStoreManager:
     def create_embeddings(self) -> OpenAIEmbeddings:
         """Create OpenAI embeddings instance."""
         openai_api_key = self._resolve_api_key()
-        return OpenAIEmbeddings(
-            api_key=SecretStr(openai_api_key), model="text-embedding-3-small"
-        )
+        return OpenAIEmbeddings(api_key=SecretStr(openai_api_key), model="text-embedding-3-small")
 
     def encode_vector_store(self, vector_store: FAISS) -> dict[str, str]:
         """Encode FAISS vector store to base64 for storage (compatible with web_scraper)."""
@@ -98,9 +94,7 @@ class FirecrawlVectorStoreManager:
                     file_path = os.path.join(temp_dir, filename)
                     if os.path.isfile(file_path):
                         with open(file_path, "rb") as f:
-                            encoded_files[filename] = base64.b64encode(f.read()).decode(
-                                "utf-8"
-                            )
+                            encoded_files[filename] = base64.b64encode(f.read()).decode("utf-8")
 
                 return encoded_files
         except Exception as e:
@@ -137,9 +131,7 @@ class FirecrawlVectorStoreManager:
         """Load existing vector store for an agent."""
         try:
             vector_store_key = f"vector_store_{agent_id}"
-            stored_data = await AgentSkillData.get(
-                agent_id, "web_scraper", vector_store_key
-            )
+            stored_data = await AgentSkillData.get(agent_id, "web_scraper", vector_store_key)
 
             if not stored_data or "faiss_files" not in stored_data:
                 return None
@@ -263,13 +255,9 @@ async def index_documents(
             was_merged = False
 
         # Save the vector store
-        await vector_manager.save_vector_store(
-            agent_id, vector_store, chunk_size, chunk_overlap
-        )
+        await vector_manager.save_vector_store(agent_id, vector_store, chunk_size, chunk_overlap)
 
-        logger.info(
-            "Successfully indexed %s chunks for agent %s", len(split_docs), agent_id
-        )
+        logger.info("Successfully indexed %s chunks for agent %s", len(split_docs), agent_id)
         return len(split_docs), was_merged
 
     except Exception as e:

@@ -28,9 +28,7 @@ class FetchWalletPortfolioInput(BaseModel):
         description="EVM chain IDs to check (all if empty).",
     )
     include_solana: bool = Field(default=True, description="Include Solana.")
-    solana_network: str = Field(
-        default="mainnet", description="Network: mainnet or devnet."
-    )
+    solana_network: str = Field(default="mainnet", description="Network: mainnet or devnet.")
 
 
 class TokenBalance(BaseModel):
@@ -70,7 +68,9 @@ class FetchWalletPortfolio(WalletBaseTool):
     """
 
     name: str = "moralis_fetch_wallet_portfolio"
-    description: str = "Fetch wallet portfolio across EVM chains and Solana, including balances and net worth."
+    description: str = (
+        "Fetch wallet portfolio across EVM chains and Solana, including balances and net worth."
+    )
     args_schema: ArgsSchema | None = FetchWalletPortfolioInput
 
     async def _arun(
@@ -221,9 +221,7 @@ class FetchWalletPortfolio(WalletBaseTool):
 
                 # Try to get token price
                 if token.get("mint"):
-                    price_result = await get_token_price(
-                        self.api_key, token["mint"], network
-                    )
+                    price_result = await get_token_price(self.api_key, token["mint"], network)
 
                     if "error" not in price_result:
                         token_price_usd = float(price_result.get("usdPrice", 0))
@@ -241,9 +239,7 @@ class FetchWalletPortfolio(WalletBaseTool):
                 )
         else:
             # If portfolio endpoint fails, try to fetch balance and tokens separately
-            sol_balance_result = await get_solana_balance(
-                self.api_key, address, network
-            )
+            sol_balance_result = await get_solana_balance(self.api_key, address, network)
 
             if "error" not in sol_balance_result:
                 sol_balance = float(sol_balance_result.get("solana", 0))
@@ -285,9 +281,7 @@ class FetchWalletPortfolio(WalletBaseTool):
 
                     # Try to get token price
                     if token.get("mint"):
-                        price_result = await get_token_price(
-                            self.api_key, token["mint"], network
-                        )
+                        price_result = await get_token_price(self.api_key, token["mint"], network)
 
                         if "error" not in price_result:
                             token_price_usd = float(price_result.get("usdPrice", 0))

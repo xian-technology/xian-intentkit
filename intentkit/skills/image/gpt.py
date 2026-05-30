@@ -77,9 +77,7 @@ class GPTImageMini(GPTImageBase):
     """Generate images using GPT Image 1 Mini."""
 
     name: str = "image_gpt_mini"
-    description: str = (
-        "Generate images from text prompts using GPT Image 1 Mini (faster, cheaper)."
-    )
+    description: str = "Generate images from text prompts using GPT Image 1 Mini (faster, cheaper)."
     price: Decimal = Decimal("20")
     native_model: str = "gpt-image-1-mini"
     openrouter_model: str = "openai/gpt-image-1-mini"

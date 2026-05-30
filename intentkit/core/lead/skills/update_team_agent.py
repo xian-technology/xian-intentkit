@@ -23,32 +23,20 @@ class UpdateTeamAgentInput(BaseModel):
     principles: str | None = Field(default=None, description="Principles or values")
     model: str | None = Field(default=None, description="LLM model ID")
     prompt: str | None = Field(default=None, description="Base system prompt")
-    prompt_append: str | None = Field(
-        default=None, description="Additional system prompt"
-    )
+    prompt_append: str | None = Field(default=None, description="Additional system prompt")
     temperature: float | None = Field(default=None, description="Temperature (0.0~2.0)")
-    skills: dict[str, Any] | None = Field(
-        default=None, description="Skill configurations"
-    )
+    skills: dict[str, Any] | None = Field(default=None, description="Skill configurations")
     slug: str | None = Field(default=None, description="URL-friendly slug")
-    search_internet: bool | None = Field(
-        default=None, description="Enable internet search"
-    )
+    search_internet: bool | None = Field(default=None, description="Enable internet search")
     super_mode: bool | None = Field(default=None, description="Enable super mode")
     enable_todo: bool | None = Field(default=None, description="Enable todo list")
-    enable_activity: bool | None = Field(
-        default=None, description="Enable activity skills"
-    )
+    enable_activity: bool | None = Field(default=None, description="Enable activity skills")
     enable_post: bool | None = Field(default=None, description="Enable post skills")
     enable_long_term_memory: bool | None = Field(
         default=None, description="Enable long-term memory"
     )
-    sub_agents: list[str] | None = Field(
-        default=None, description="Sub-agent IDs or slugs"
-    )
-    sub_agent_prompt: str | None = Field(
-        default=None, description="Instructions for sub-agents"
-    )
+    sub_agents: list[str] | None = Field(default=None, description="Sub-agent IDs or slugs")
+    sub_agent_prompt: str | None = Field(default=None, description="Instructions for sub-agents")
     visibility: int | None = Field(
         default=None, description="Visibility: PRIVATE(0), TEAM(10), PUBLIC(20)"
     )
@@ -58,18 +46,10 @@ class UpdateTeamAgentInput(BaseModel):
     telegram_entrypoint_prompt: str | None = Field(
         default=None, description="Extra prompt for telegram"
     )
-    telegram_config: dict[str, Any] | None = Field(
-        default=None, description="Telegram config"
-    )
-    discord_entrypoint_enabled: bool | None = Field(
-        default=None, description="Enable discord bot"
-    )
-    discord_config: dict[str, Any] | None = Field(
-        default=None, description="Discord config"
-    )
-    xmtp_entrypoint_prompt: str | None = Field(
-        default=None, description="Extra prompt for XMTP"
-    )
+    telegram_config: dict[str, Any] | None = Field(default=None, description="Telegram config")
+    discord_entrypoint_enabled: bool | None = Field(default=None, description="Enable discord bot")
+    discord_config: dict[str, Any] | None = Field(default=None, description="Discord config")
+    xmtp_entrypoint_prompt: str | None = Field(default=None, description="Extra prompt for XMTP")
     wechat_entrypoint_prompt: str | None = Field(
         default=None, description="Extra prompt for WeChat"
     )

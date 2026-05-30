@@ -43,9 +43,7 @@ async def get_team_usage(
 
     async with get_session() as session:
         try:
-            account = await CreditAccount.get_in_session(
-                session, OwnerType.TEAM, team_id
-            )
+            account = await CreditAccount.get_in_session(session, OwnerType.TEAM, team_id)
         except IntentKitAPIError:
             account = None
 

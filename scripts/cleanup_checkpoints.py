@@ -36,9 +36,7 @@ async def main():
     if count == 0:
         return
 
-    confirm = input(
-        f"Are you sure you want to delete {count} threads and their history? (y/N): "
-    )
+    confirm = input(f"Are you sure you want to delete {count} threads and their history? (y/N): ")
     if confirm.lower() != "y":
         print("Aborted.")
         return

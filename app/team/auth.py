@@ -31,9 +31,7 @@ def _get_jwks_client() -> PyJWKClient:
     if not jwks_url:
         # Derive from supabase_url if JWKS URL not explicitly set
         if config.supabase_url:
-            jwks_url = (
-                f"{config.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
-            )
+            jwks_url = f"{config.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json"
         else:
             raise IntentKitAPIError(
                 status_code=500,

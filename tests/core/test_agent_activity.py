@@ -300,9 +300,7 @@ async def test_format_activity_push_plain():
 @pytest.mark.asyncio
 async def test_format_activity_push_with_link():
     activity = _make_activity(link="https://example.com/x")
-    assert await _format_activity_push(activity) == (
-        "[Alice] hello world\nhttps://example.com/x"
-    )
+    assert await _format_activity_push(activity) == ("[Alice] hello world\nhttps://example.com/x")
 
 
 @pytest.mark.asyncio
@@ -328,9 +326,7 @@ async def test_format_activity_push_with_post_id(monkeypatch):
             created_at=datetime.now(),
         )
 
-    monkeypatch.setattr(
-        agent_activity_module, "create_share_link", fake_create_share_link
-    )
+    monkeypatch.setattr(agent_activity_module, "create_share_link", fake_create_share_link)
 
     activity = _make_activity(text="Published a new post: hi", post_id="post-42")
     assert await _format_activity_push(activity) == (
@@ -347,9 +343,7 @@ async def test_format_activity_push_post_fallback_on_error(monkeypatch):
     async def broken_create_share_link(*_args, **_kwargs):
         raise RuntimeError("db down")
 
-    monkeypatch.setattr(
-        agent_activity_module, "create_share_link", broken_create_share_link
-    )
+    monkeypatch.setattr(agent_activity_module, "create_share_link", broken_create_share_link)
 
     activity = _make_activity(text="Published a new post: hi", post_id="post-42")
     assert await _format_activity_push(activity) == (

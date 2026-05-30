@@ -72,9 +72,7 @@ class ImageGenerationCyberRealisticXL(HeuristBaseTool):
         # Get the Heurist API key from configuration
         if "api_key" in skill_config and skill_config["api_key"]:
             api_key = skill_config["api_key"]
-            if skill_config.get("rate_limit_number") and skill_config.get(
-                "rate_limit_minutes"
-            ):
+            if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
                 await self.user_rate_limit_by_category(
                     skill_config["rate_limit_number"],
                     skill_config["rate_limit_minutes"] * 60,
@@ -139,7 +137,9 @@ class ImageGenerationCyberRealisticXL(HeuristBaseTool):
                 error_json = e.response.json()
                 error_code = error_json.get("error", "")
                 error_message = error_json.get("message", "")
-                full_error = f"Heurist API error: Error code: {error_code}, Message: {error_message}"
+                full_error = (
+                    f"Heurist API error: Error code: {error_code}, Message: {error_message}"
+                )
             except Exception:
                 full_error = f"Heurist API error: {e}"
 

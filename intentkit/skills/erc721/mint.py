@@ -88,6 +88,4 @@ class ERC721Mint(ERC721BaseTool):
             )
 
         except Exception as e:
-            raise ToolException(
-                f"Error minting NFT {contract_address} to {destination}: {e!s}"
-            )
+            raise ToolException(f"Error minting NFT {contract_address} to {destination}: {e!s}")

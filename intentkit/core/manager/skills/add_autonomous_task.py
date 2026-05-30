@@ -18,9 +18,7 @@ class AddAutonomousTaskInput(AutonomousCreateRequest):
 class AddAutonomousTaskOutput(BaseModel):
     """Output model for add_autonomous_task skill."""
 
-    task: AgentAutonomous = Field(
-        description="The created autonomous task configuration"
-    )
+    task: AgentAutonomous = Field(description="The created autonomous task configuration")
 
 
 class AddAutonomousTask(ManagerSkill):

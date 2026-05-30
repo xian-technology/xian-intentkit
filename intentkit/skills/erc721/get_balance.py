@@ -27,9 +27,7 @@ class ERC721GetBalance(ERC721BaseTool):
     """
 
     name: str = "erc721_get_balance"
-    description: str = (
-        "Get the number of NFTs (ERC721) owned by an address for a given contract."
-    )
+    description: str = "Get the number of NFTs (ERC721) owned by an address for a given contract."
     args_schema: ArgsSchema | None = GetBalanceInput
 
     async def _arun(
@@ -69,6 +67,4 @@ class ERC721GetBalance(ERC721BaseTool):
             )
 
         except Exception as e:
-            raise ToolException(
-                f"Error getting NFT balance for contract {contract_address}: {e!s}"
-            )
+            raise ToolException(f"Error getting NFT balance for contract {contract_address}: {e!s}")

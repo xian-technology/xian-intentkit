@@ -61,25 +61,17 @@ class MorphoDeposit(MorphoBaseTool):
             decimals = await token_contract.functions.decimals().call()
             atomic_assets = int(assets_decimal * (10**decimals))
 
-            approve_data = token_contract.encode_abi(
-                "approve", [checksum_vault, atomic_assets]
-            )
+            approve_data = token_contract.encode_abi("approve", [checksum_vault, atomic_assets])
             approve_tx_hash = await wallet.send_transaction(
                 to=checksum_token,
                 data=approve_data,
             )
             receipt = await wallet.wait_for_receipt(approve_tx_hash)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Error: Approval transaction failed. Hash: {approve_tx_hash}"
-                )
+                raise ToolException(f"Error: Approval transaction failed. Hash: {approve_tx_hash}")
 
-            morpho_contract = w3.eth.contract(
-                address=checksum_vault, abi=METAMORPHO_ABI
-            )
-            deposit_data = morpho_contract.encode_abi(
-                "deposit", [atomic_assets, checksum_receiver]
-            )
+            morpho_contract = w3.eth.contract(address=checksum_vault, abi=METAMORPHO_ABI)
+            deposit_data = morpho_contract.encode_abi("deposit", [atomic_assets, checksum_receiver])
 
             tx_hash = await wallet.send_transaction(
                 to=checksum_vault,

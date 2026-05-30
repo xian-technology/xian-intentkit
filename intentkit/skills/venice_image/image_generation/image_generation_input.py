@@ -93,9 +93,7 @@ class InpaintMask(BaseModel):
         ...,
         description="A text prompt describing the original input image that an image model would use to produce a similar/identical image, including the changed features the user will be inpainting.",
     )
-    inferred_object: str = Field(
-        ..., description="The content being added via inpainting."
-    )
+    inferred_object: str = Field(..., description="The content being added via inpainting.")
     object_target: str = Field(
         ..., description="Element(s) in the original image to be inpainted over."
     )
@@ -151,9 +149,7 @@ class VeniceImageGenerationInput(BaseModel):
         description="Classifier-Free Guidance (CFG) scale controls how closely the image follows the prompt. "
         "Higher values (1-20) result in more adherence. Default is 7.5.",
     )
-    style_preset: str | None = Field(
-        default="Photographic", description=STYLE_PRESETS_DESCRIPTION
-    )
+    style_preset: str | None = Field(default="Photographic", description=STYLE_PRESETS_DESCRIPTION)
     inpainting: Inpaint | None = Field(
         default=None,
         description="Optional inpainting operation that allows modification of specific objects within an image. "

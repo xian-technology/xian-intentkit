@@ -57,9 +57,7 @@ async def get_skills(
 
     # Iterate through all known skills defined in the map
     for skill_name in _SKILL_NAME_TO_CLASS_MAP:
-        state = skill_states.get(
-            skill_name, "disabled"
-        )  # Default to disabled if not in config
+        state = skill_states.get(skill_name, "disabled")  # Default to disabled if not in config
 
         if state == "disabled":
             continue

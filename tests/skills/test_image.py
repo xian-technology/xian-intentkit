@@ -41,9 +41,7 @@ def test_input_schema_valid():
     assert inp.prompt == "a cat"
     assert inp.images is None
 
-    inp2 = ImageGenerationInput(
-        prompt="edit this", images=["https://example.com/img.png"]
-    )
+    inp2 = ImageGenerationInput(prompt="edit this", images=["https://example.com/img.png"])
     assert inp2.images == ["https://example.com/img.png"]
 
 
@@ -82,9 +80,7 @@ def test_available_with_xai_key():
 
 
 def test_available_with_openrouter_key():
-    with patch(
-        "intentkit.skills.image.system_config", _MockConfig(openrouter_api_key="k")
-    ):
+    with patch("intentkit.skills.image.system_config", _MockConfig(openrouter_api_key="k")):
         assert available() is True
 
 
@@ -175,9 +171,7 @@ async def test_openrouter_payload_uses_image_only_modalities():
                 message=SimpleNamespace(
                     images=[
                         SimpleNamespace(
-                            image_url=SimpleNamespace(
-                                url=f"data:image/png;base64,{fake_b64}"
-                            )
+                            image_url=SimpleNamespace(url=f"data:image/png;base64,{fake_b64}")
                         )
                     ],
                 )

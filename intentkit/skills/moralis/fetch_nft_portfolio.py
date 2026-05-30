@@ -19,9 +19,7 @@ class FetchNftPortfolioInput(BaseModel):
     address: str = Field(..., description="Wallet address.")
     chain_id: int | None = Field(None, description="Chain ID (all chains if empty).")
     include_solana: bool = Field(default=False, description="Include Solana NFTs.")
-    solana_network: str = Field(
-        default="mainnet", description="Solana network: mainnet or devnet."
-    )
+    solana_network: str = Field(default="mainnet", description="Solana network: mainnet or devnet.")
     limit: int | None = Field(100, description="Max NFTs to return.")
     normalize_metadata: bool = Field(True, description="Normalize metadata.")
 
@@ -70,9 +68,7 @@ class FetchNftPortfolio(WalletBaseTool):
     """
 
     name: str = "moralis_fetch_nft_portfolio"
-    description: str = (
-        "Fetch NFT holdings for a wallet, including metadata and floor prices."
-    )
+    description: str = "Fetch NFT holdings for a wallet, including metadata and floor prices."
     args_schema: ArgsSchema | None = FetchNftPortfolioInput
 
     async def _arun(
@@ -105,9 +101,7 @@ class FetchNftPortfolio(WalletBaseTool):
             # Fetch EVM NFTs
             if chain_id is not None:
                 # Fetch from specific chain
-                await self._fetch_evm_nfts(
-                    address, chain_id, limit, normalize_metadata, result
-                )
+                await self._fetch_evm_nfts(address, chain_id, limit, normalize_metadata, result)
             else:
                 # Fetch from all supported chains
                 from intentkit.skills.moralis.base import CHAIN_MAPPING

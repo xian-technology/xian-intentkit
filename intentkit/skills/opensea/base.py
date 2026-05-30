@@ -122,9 +122,7 @@ class OpenSeaApiMixin:
         response = None
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.post(
-                    url, json=json_data, headers=self._headers()
-                )
+                response = await client.post(url, json=json_data, headers=self._headers())
 
                 try:
                     response_data = response.json()

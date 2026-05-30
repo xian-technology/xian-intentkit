@@ -69,11 +69,7 @@ def render_attachments_awareness(
         # JSONB round-trips the enum as its string value, so att_type may be
         # either the enum or a raw str at runtime. Both compare equal under
         # `match` because ChatMessageAttachmentType inherits from str.
-        type_label = (
-            att_type.value
-            if isinstance(att_type, ChatMessageAttachmentType)
-            else att_type
-        )
+        type_label = att_type.value if isinstance(att_type, ChatMessageAttachmentType) else att_type
         lead_text = att["lead_text"]
         url = att["url"]
         data = att.get("json") or {}
@@ -181,7 +177,9 @@ class CallAgentSkill(SystemSkill):
     """
 
     name: str = "call_agent"
-    description: str = "Delegate a task to another agent by sending it a message and receiving its response."
+    description: str = (
+        "Delegate a task to another agent by sending it a message and receiving its response."
+    )
     args_schema: ArgsSchema | None = CallAgentInput
     response_format: Literal["content", "content_and_artifact"] = "content_and_artifact"
 
@@ -240,9 +238,7 @@ class CallAgentSkill(SystemSkill):
                     and actual_agent_id not in allowed
                     and (not slug or slug not in allowed)
                 ):
-                    raise ToolException(
-                        f"Agent '{agent_id}' is not in the allowed sub-agents list"
-                    )
+                    raise ToolException(f"Agent '{agent_id}' is not in the allowed sub-agents list")
 
             # Create a chat message for the called agent
             # Inherit context from the current skill execution
@@ -264,9 +260,7 @@ class CallAgentSkill(SystemSkill):
                 results = await execute_agent(chat_message)
 
             if not results:
-                raise ToolException(
-                    f"No response received from the called agent '{agent_id}'"
-                )
+                raise ToolException(f"No response received from the called agent '{agent_id}'")
 
             # Collect all attachments from the message queue
             all_attachments: list[ChatMessageAttachment] = []
@@ -279,9 +273,7 @@ class CallAgentSkill(SystemSkill):
 
             # Check if the last message is from the agent
             if last_message.author_type == AuthorType.AGENT:
-                response_text = last_message.message + render_attachments_awareness(
-                    all_attachments
-                )
+                response_text = last_message.message + render_attachments_awareness(all_attachments)
                 return response_text, all_attachments
 
             # If the last message is a system message, include the error details
@@ -306,8 +298,7 @@ class CallAgentSkill(SystemSkill):
                 agent_id,
             )
             raise ToolException(
-                f"Agent '{agent_id}' did not respond within "
-                f"{CALL_AGENT_TIMEOUT} seconds"
+                f"Agent '{agent_id}' did not respond within {CALL_AGENT_TIMEOUT} seconds"
             ) from e
         except ToolException:
             raise

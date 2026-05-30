@@ -119,9 +119,7 @@ def get_liquidity_value(pair: PairModel) -> float:
     Returns:
         Liquidity value in USD as float
     """
-    return (
-        pair.liquidity.usd if pair.liquidity and pair.liquidity.usd is not None else 0.0
-    )
+    return pair.liquidity.usd if pair.liquidity and pair.liquidity.usd is not None else 0.0
 
 
 def get_volume_value(
@@ -214,15 +212,11 @@ def filter_ticker_pairs(pairs: list[PairModel], target_ticker: str) -> list[Pair
     return [
         p
         for p in pairs
-        if p.baseToken
-        and p.baseToken.symbol
-        and p.baseToken.symbol.upper() == target_ticker_upper
+        if p.baseToken and p.baseToken.symbol and p.baseToken.symbol.upper() == target_ticker_upper
     ]
 
 
-def filter_address_pairs(
-    pairs: list[PairModel], target_address: str
-) -> list[PairModel]:
+def filter_address_pairs(pairs: list[PairModel], target_address: str) -> list[PairModel]:
     """
     Filter pairs to only include those matching the target address.
     Checks pairAddress, baseToken.address, and quoteToken.address.
@@ -326,7 +320,9 @@ def handle_validation_error(
     Returns:
         JSON error response string
     """
-    log_message = f"Failed to validate DexScreener response structure for {query_info}. Error: {error}"
+    log_message = (
+        f"Failed to validate DexScreener response structure for {query_info}. Error: {error}"
+    )
     if data_length:
         log_message += f". Raw data length: {data_length}"
 
@@ -340,9 +336,7 @@ def handle_validation_error(
     )
 
 
-def truncate_large_fields(
-    data: dict[str, Any], max_length: int = 500
-) -> dict[str, Any]:
+def truncate_large_fields(data: dict[str, Any], max_length: int = 500) -> dict[str, Any]:
     """
     Truncate large string fields in error response data to avoid overwhelming the LLM.
 

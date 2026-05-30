@@ -39,13 +39,9 @@ class GetPositions(PolymarketBaseTool):
         wallet_address = await self.get_wallet_address()
 
         try:
-            positions = await self._data_get(
-                "/positions", params={"user": wallet_address}
-            )
+            positions = await self._data_get("/positions", params={"user": wallet_address})
         except Exception:
-            positions = await self._clob_auth_get(
-                "/positions", params={"user": wallet_address}
-            )
+            positions = await self._clob_auth_get("/positions", params={"user": wallet_address})
 
         if not positions:
             return json.dumps(

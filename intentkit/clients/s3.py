@@ -113,9 +113,7 @@ async def store_image(url: str, key: str) -> str:
         # Download the image from the URL asynchronously using streaming
         # to avoid buffering oversized responses into memory.
         async with httpx.AsyncClient(timeout=30) as http_client:
-            async with http_client.stream(
-                "GET", url, follow_redirects=True
-            ) as response:
+            async with http_client.stream("GET", url, follow_redirects=True) as response:
                 response.raise_for_status()
                 content_length = response.headers.get("content-length")
                 if content_length and int(content_length) > max_content_length:
@@ -127,9 +125,7 @@ async def store_image(url: str, key: str) -> str:
                 async for chunk in response.aiter_bytes():
                     total += len(chunk)
                     if total > max_content_length:
-                        raise ValueError(
-                            f"Response too large: >{max_content_length} bytes"
-                        )
+                        raise ValueError(f"Response too large: >{max_content_length} bytes")
                     chunks.append(chunk)
             content = b"".join(chunks)
             resp_content_type = response.headers.get("Content-Type", "")
@@ -169,9 +165,7 @@ async def store_image(url: str, key: str) -> str:
         raise
 
 
-async def store_image_bytes(
-    image_bytes: bytes, key: str, content_type: str | None = None
-) -> str:
+async def store_image_bytes(image_bytes: bytes, key: str, content_type: str | None = None) -> str:
     """
     Store raw image bytes to S3.
 
@@ -263,9 +257,7 @@ async def store_file(
     detected_content_type = content_type
     if not detected_content_type:
         kind = filetype.guess(content)
-        detected_content_type = (
-            kind.mime if kind and kind.mime else "application/octet-stream"
-        )
+        detected_content_type = kind.mime if kind and kind.mime else "application/octet-stream"
 
     prefixed_key = f"{_prefix}{key}"
     file_obj = BytesIO(content)
@@ -321,9 +313,7 @@ async def store_file_bytes(
         raise ValueError("File bytes cannot be empty")
 
     if size_limit_bytes is not None and len(file_bytes) > size_limit_bytes:
-        raise ValueError(
-            f"File size exceeds the allowed limit of {size_limit_bytes} bytes"
-        )
+        raise ValueError(f"File size exceeds the allowed limit of {size_limit_bytes} bytes")
 
     try:
         # Prepare the S3 key with prefix

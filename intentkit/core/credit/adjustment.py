@@ -47,9 +47,7 @@ async def adjustment(
         Updated team credit account
     """
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.API, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.API, upstream_tx_id)
 
     if amount == Decimal("0"):
         raise ValueError("Adjustment amount cannot be zero")

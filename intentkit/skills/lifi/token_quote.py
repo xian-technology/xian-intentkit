@@ -21,21 +21,13 @@ from intentkit.skills.lifi.utils import (
 class TokenQuoteInput(BaseModel):
     """Input for the TokenQuote skill."""
 
-    from_chain: str = Field(
-        description="Source chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key."
-    )
+    from_chain: str = Field(description="Source chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key.")
     to_chain: str = Field(
         description="Destination chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key."
     )
-    from_token: str = Field(
-        description="Token to send (e.g. 'USDC', 'ETH'). Address or symbol."
-    )
-    to_token: str = Field(
-        description="Token to receive (e.g. 'USDC', 'ETH'). Address or symbol."
-    )
-    from_amount: str = Field(
-        description="Amount in smallest unit (e.g. '1000000' for 1 USDC)."
-    )
+    from_token: str = Field(description="Token to send (e.g. 'USDC', 'ETH'). Address or symbol.")
+    to_token: str = Field(description="Token to receive (e.g. 'USDC', 'ETH'). Address or symbol.")
+    from_amount: str = Field(description="Amount in smallest unit (e.g. '1000000' for 1 USDC).")
     slippage: float = Field(
         default=0.03,
         description="Max slippage as decimal (e.g. 0.03 for 3%).",
@@ -150,11 +142,11 @@ class TokenQuote(LiFiBaseTool):
 
             # Build result string
             result = "### Token Transfer Quote\n\n"
-            result += f"**From:** {info['from_amount']} {info['from_token']} on {info['from_chain']}\n"
-            result += f"**To:** {info['to_amount']} {info['to_token']} on {info['to_chain']}\n"
             result += (
-                f"**Minimum Received:** {info['to_amount_min']} {info['to_token']}\n"
+                f"**From:** {info['from_amount']} {info['from_token']} on {info['from_chain']}\n"
             )
+            result += f"**To:** {info['to_amount']} {info['to_token']} on {info['to_chain']}\n"
+            result += f"**Minimum Received:** {info['to_amount_min']} {info['to_token']}\n"
             result += f"**Bridge/Exchange:** {info['tool']}\n\n"
 
             # Add USD values if available
@@ -179,9 +171,7 @@ class TokenQuote(LiFiBaseTool):
                 result += route_text + "\n"
 
             result += "---\n"
-            result += (
-                "*Use token_execute to perform this transfer with your CDP wallet*"
-            )
+            result += "*Use token_execute to perform this transfer with your CDP wallet*"
 
             return result
 

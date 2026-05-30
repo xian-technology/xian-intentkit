@@ -53,9 +53,7 @@ async def verify_activity_creation():
     # Let's try to patch get_runtime
     from unittest.mock import patch
 
-    with patch(
-        "intentkit.core.system_skills.create_activity.get_runtime"
-    ) as mock_get_runtime:
+    with patch("intentkit.core.system_skills.create_activity.get_runtime") as mock_get_runtime:
         mock_get_runtime.return_value.context = MockContext(agent_id)
 
         skill = CreateActivitySkill()
@@ -118,9 +116,7 @@ async def verify_post_creation():
 
     from unittest.mock import patch
 
-    with patch(
-        "intentkit.core.system_skills.create_post.get_runtime"
-    ) as mock_get_runtime:
+    with patch("intentkit.core.system_skills.create_post.get_runtime") as mock_get_runtime:
         mock_get_runtime.return_value.context = MockContext(agent_id)
 
         skill = CreatePostSkill()
@@ -162,9 +158,7 @@ async def verify_post_creation():
                 # Verify associated activity
                 from intentkit.models.agent_activity import AgentActivityTable
 
-                stmt2 = select(AgentActivityTable).where(
-                    AgentActivityTable.post_id == post_id
-                )
+                stmt2 = select(AgentActivityTable).where(AgentActivityTable.post_id == post_id)
                 r2 = await session.execute(stmt2)
                 activity = r2.scalar_one()
 

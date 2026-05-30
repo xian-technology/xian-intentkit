@@ -81,9 +81,7 @@ class TestDefiLlamaAPI(unittest.TestCase):  # pyright: ignore[reportUninitialize
     def run_async(self, coro):
         """Helper to run async functions in test methods with timeout"""
         try:
-            return self.loop.run_until_complete(
-                asyncio.wait_for(coro, timeout=self.timeout)
-            )
+            return self.loop.run_until_complete(asyncio.wait_for(coro, timeout=self.timeout))
         except TimeoutError:
             raise AssertionError(f"Test timed out after {self.timeout} seconds")
         except Exception as e:
@@ -133,9 +131,7 @@ class TestDefiLlamaAPI(unittest.TestCase):  # pyright: ignore[reportUninitialize
 
         # Test fetch_historical_prices
         timestamp = int((datetime.now() - timedelta(days=1)).timestamp())
-        historical_prices = self.run_async(
-            fetch_historical_prices(timestamp, test_coins)
-        )
+        historical_prices = self.run_async(fetch_historical_prices(timestamp, test_coins))
         self.assert_successful_response(historical_prices)
         self.assertIsInstance(historical_prices, dict)
 

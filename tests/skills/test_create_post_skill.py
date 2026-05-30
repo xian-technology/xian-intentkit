@@ -44,9 +44,7 @@ def mock_db_session():
     mock_get_session_cm.__aexit__.return_value = None
 
     with (
-        patch(
-            "intentkit.core.agent_post.get_session", return_value=mock_get_session_cm
-        ),
+        patch("intentkit.core.agent_post.get_session", return_value=mock_get_session_cm),
         patch(
             "intentkit.core.agent_activity.get_session",
             return_value=mock_get_session_cm,
@@ -92,12 +90,8 @@ async def test_create_post_success(mock_db_session):
     assert mock_db_session.add.call_count == 2
 
     added_objects = [call[0][0] for call in mock_db_session.add.call_args_list]
-    post_obj = next(
-        (obj for obj in added_objects if isinstance(obj, AgentPostTable)), None
-    )
-    activity_obj = next(
-        (obj for obj in added_objects if isinstance(obj, AgentActivityTable)), None
-    )
+    post_obj = next((obj for obj in added_objects if isinstance(obj, AgentPostTable)), None)
+    activity_obj = next((obj for obj in added_objects if isinstance(obj, AgentActivityTable)), None)
 
     assert post_obj is not None
     assert post_obj.slug == slug

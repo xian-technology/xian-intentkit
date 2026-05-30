@@ -33,9 +33,7 @@ class FirecrawlQueryIndexedContent(FirecrawlBaseTool):
     """
 
     name: str = "firecrawl_query_indexed_content"
-    description: str = (
-        "Search previously indexed Firecrawl content to find relevant information."
-    )
+    description: str = "Search previously indexed Firecrawl content to find relevant information."
     args_schema: ArgsSchema | None = FirecrawlQueryInput
 
     async def _arun(
@@ -48,15 +46,11 @@ class FirecrawlQueryIndexedContent(FirecrawlBaseTool):
         try:
             context = self.get_context()
             if not context or not context.agent_id:
-                raise ToolException(
-                    "Agent ID is required but not found in configuration"
-                )
+                raise ToolException("Agent ID is required but not found in configuration")
 
             agent_id = context.agent_id
 
-            logger.info(
-                "[%s] Starting Firecrawl query operation: '%s'", agent_id, query
-            )
+            logger.info("[%s] Starting Firecrawl query operation: '%s'", agent_id, query)
 
             # Import query utilities from firecrawl utils
             from intentkit.skills.firecrawl.utils import (
@@ -67,9 +61,7 @@ class FirecrawlQueryIndexedContent(FirecrawlBaseTool):
 
             # Query the indexed content
             vector_manager = FirecrawlVectorStoreManager()
-            docs = await query_indexed_content(
-                query, agent_id, vector_manager, max_results
-            )
+            docs = await query_indexed_content(query, agent_id, vector_manager, max_results)
 
             if not docs:
                 logger.info("[%s] No relevant documents found for query", agent_id)
@@ -79,9 +71,7 @@ class FirecrawlQueryIndexedContent(FirecrawlBaseTool):
             results = []
             for i, doc in enumerate(docs, 1):
                 # Sanitize content to prevent database storage errors
-                content = FirecrawlDocumentProcessor.sanitize_for_database(
-                    doc.page_content.strip()
-                )
+                content = FirecrawlDocumentProcessor.sanitize_for_database(doc.page_content.strip())
                 source = doc.metadata.get("source", "Unknown")
                 source_type = doc.metadata.get("source_type", "unknown")
 
@@ -93,9 +83,7 @@ class FirecrawlQueryIndexedContent(FirecrawlBaseTool):
                 else:
                     source_indicator = ""
 
-                results.append(
-                    f"**Source {i}:** {source} {source_indicator}\n{content}"
-                )
+                results.append(f"**Source {i}:** {source} {source_indicator}\n{content}")
 
             response = "\n\n".join(results)
             logger.info(

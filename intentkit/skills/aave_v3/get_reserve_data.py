@@ -90,9 +90,7 @@ class AaveV3GetReserveData(AaveV3BaseTool):
             ) = config_data
 
             total_supplied = format_amount(total_atoken, decimals)
-            total_borrowed = format_amount(
-                total_stable_debt + total_variable_debt, decimals
-            )
+            total_borrowed = format_amount(total_stable_debt + total_variable_debt, decimals)
 
             status_parts = []
             if not is_active:

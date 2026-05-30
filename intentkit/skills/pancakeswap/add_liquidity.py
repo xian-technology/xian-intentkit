@@ -36,15 +36,9 @@ NAME = "pancakeswap_add_liquidity"
 class PancakeSwapAddLiquidityInput(BaseModel):
     """Input for PancakeSwap add liquidity."""
 
-    token_a: str = Field(
-        description="First token address, or 'native' for native token"
-    )
-    token_b: str = Field(
-        description="Second token address, or 'native' for native token"
-    )
-    amount_a: str = Field(
-        description="Amount of first token in human-readable format (e.g. '1.5')"
-    )
+    token_a: str = Field(description="First token address, or 'native' for native token")
+    token_b: str = Field(description="Second token address, or 'native' for native token")
+    amount_a: str = Field(description="Amount of first token in human-readable format (e.g. '1.5')")
     amount_b: str = Field(
         description="Amount of second token in human-readable format (e.g. '1.5')"
     )
@@ -94,9 +88,7 @@ class PancakeSwapAddLiquidity(PancakeSwapBaseTool):
 
             tick_spacing = TICK_SPACINGS.get(fee_tier)
             if not tick_spacing:
-                raise ToolException(
-                    f"Invalid fee tier {fee_tier}. Valid: 100, 500, 2500, 10000"
-                )
+                raise ToolException(f"Invalid fee tier {fee_tier}. Valid: 100, 500, 2500, 10000")
 
             wallet = await self.get_unified_wallet()
             w3 = self.web3_client()
@@ -135,13 +127,9 @@ class PancakeSwapAddLiquidity(PancakeSwapBaseTool):
                 address=Web3.to_checksum_address(FACTORY_ADDRESS),
                 abi=FACTORY_ABI,
             )
-            pool_address = await factory.functions.getPool(
-                token0, token1, fee_tier
-            ).call()
+            pool_address = await factory.functions.getPool(token0, token1, fee_tier).call()
             if pool_address == "0x0000000000000000000000000000000000000000":
-                raise ToolException(
-                    f"No pool exists for this pair with fee tier {fee_tier}"
-                )
+                raise ToolException(f"No pool exists for this pair with fee tier {fee_tier}")
 
             # Handle native tokens: wrap by sending to WETH/WBNB contract
             wrapped_addr = WRAPPED_NATIVE_ADDRESSES.get(chain_id)
@@ -274,13 +262,9 @@ class PancakeSwapAddLiquidity(PancakeSwapBaseTool):
 
             # Persist staked token ID
             staked_data = await self.get_agent_skill_data("staked_token_ids")
-            token_ids: list[int] = (
-                staked_data.get("token_ids", []) if staked_data else []
-            )
+            token_ids: list[int] = staked_data.get("token_ids", []) if staked_data else []
             token_ids.append(token_id)
-            await self.save_agent_skill_data(
-                "staked_token_ids", {"token_ids": token_ids}
-            )
+            await self.save_agent_skill_data("staked_token_ids", {"token_ids": token_ids})
 
             return "Staked in MasterChef V3 farm"
         except ToolException:

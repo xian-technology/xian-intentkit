@@ -42,12 +42,8 @@ class AerodromeAddLiquidityInput(BaseModel):
     """Input for Aerodrome add liquidity."""
 
     token_a: str = Field(description="First token address, or 'native' for ETH on Base")
-    token_b: str = Field(
-        description="Second token address, or 'native' for ETH on Base"
-    )
-    amount_a: str = Field(
-        description="Amount of first token in human-readable format (e.g. '1.5')"
-    )
+    token_b: str = Field(description="Second token address, or 'native' for ETH on Base")
+    amount_a: str = Field(description="Amount of first token in human-readable format (e.g. '1.5')")
     amount_b: str = Field(
         description="Amount of second token in human-readable format (e.g. '1.5')"
     )
@@ -92,15 +88,12 @@ class AerodromeAddLiquidity(AerodromeBaseTool):
             chain_id = NETWORK_TO_CHAIN_ID.get(network_id)
             if not chain_id:
                 raise ToolException(
-                    f"Aerodrome is only supported on Base. "
-                    f"Current network: {network_id}"
+                    f"Aerodrome is only supported on Base. Current network: {network_id}"
                 )
 
             if tick_spacing not in TICK_SPACINGS:
                 valid = ", ".join(str(t) for t in TICK_SPACINGS)
-                raise ToolException(
-                    f"Invalid tick spacing {tick_spacing}. Valid: {valid}"
-                )
+                raise ToolException(f"Invalid tick spacing {tick_spacing}. Valid: {valid}")
 
             wallet = await self.get_unified_wallet()
             w3 = self.web3_client()
@@ -135,9 +128,7 @@ class AerodromeAddLiquidity(AerodromeBaseTool):
                 address=Web3.to_checksum_address(CL_FACTORY_ADDRESS),
                 abi=CL_FACTORY_ABI,
             )
-            pool_address = await factory.functions.getPool(
-                token0, token1, tick_spacing
-            ).call()
+            pool_address = await factory.functions.getPool(token0, token1, tick_spacing).call()
             if pool_address == "0x0000000000000000000000000000000000000000":
                 raise ToolException(
                     f"No pool exists for this pair with tick spacing {tick_spacing}"
@@ -209,9 +200,7 @@ class AerodromeAddLiquidity(AerodromeBaseTool):
 
             farming_status = "Not staked (no gauge found)"
             if token_id and gauge_address:
-                farming_status = await self._try_auto_stake(
-                    wallet, w3, pm, token_id, gauge_address
-                )
+                farming_status = await self._try_auto_stake(wallet, w3, pm, token_id, gauge_address)
 
             sym0 = await get_token_symbol(w3, token0)
             sym1 = await get_token_symbol(w3, token1)
@@ -280,15 +269,9 @@ class AerodromeAddLiquidity(AerodromeBaseTool):
                 return "Not staked (gauge deposit failed)"
 
             # Use shared namespace so get_positions and remove_liquidity can read
-            staked_data = await self.get_agent_skill_data_raw(
-                SKILL_DATA_NAMESPACE, STAKED_DATA_KEY
-            )
-            token_ids: list[int] = (
-                staked_data.get("token_ids", []) if staked_data else []
-            )
-            gauges: dict[str, str] = (
-                staked_data.get("gauges", {}) if staked_data else {}
-            )
+            staked_data = await self.get_agent_skill_data_raw(SKILL_DATA_NAMESPACE, STAKED_DATA_KEY)
+            token_ids: list[int] = staked_data.get("token_ids", []) if staked_data else []
+            gauges: dict[str, str] = staked_data.get("gauges", {}) if staked_data else {}
             token_ids.append(token_id)
             gauges[str(token_id)] = gauge_address
             await self.save_agent_skill_data_raw(

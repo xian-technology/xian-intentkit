@@ -140,9 +140,7 @@ async def test_get_agent_activities(monkeypatch, sample_activities):
     mock_scalars.all.return_value = agent1_activities
     mock_session.scalars.return_value = mock_scalars
 
-    result = await content_module.get_agent_activities(
-        agent_id="agent-1", db=mock_session
-    )
+    result = await content_module.get_agent_activities(agent_id="agent-1", db=mock_session)
 
     assert len(result) == 2
     assert all(a.agent_id == "agent-1" for a in result)

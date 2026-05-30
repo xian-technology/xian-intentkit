@@ -60,9 +60,7 @@ class MorphoGetVaultData(MorphoBaseTool):
 
             one_share = 10**18
             if total_supply > 0:
-                assets_per_share = await vault_contract.functions.convertToAssets(
-                    one_share
-                ).call()
+                assets_per_share = await vault_contract.functions.convertToAssets(one_share).call()
                 share_price = Decimal(assets_per_share) / Decimal(10**decimals)
             else:
                 share_price = Decimal("1")

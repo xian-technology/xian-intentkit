@@ -148,9 +148,7 @@ async def update_lead_chat_thread(
     """Update a lead chat thread."""
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != LEAD_AGENT_ID:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
     updated_chat = await chat.update_summary(request.summary)
     return updated_chat
 
@@ -168,9 +166,7 @@ async def delete_lead_chat_thread(
     """Delete a lead chat thread."""
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != LEAD_AGENT_ID:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
     await chat.delete()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
@@ -191,16 +187,12 @@ async def list_lead_messages(
     chat_id: str = Path(..., description="Chat ID"),
     db: AsyncSession = Depends(get_db),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get the message history for a lead chat thread."""
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != LEAD_AGENT_ID:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     stmt = (
         select(ChatMessageTable)
@@ -217,9 +209,7 @@ async def list_lead_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
         has_more=has_more,
@@ -245,9 +235,7 @@ async def send_lead_message(
     """Send a new message to a lead chat thread."""
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != LEAD_AGENT_ID:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     should_schedule_summary = await should_schedule_chat_summary(
         LEAD_AGENT_ID, chat_id, AuthorType.WEB
@@ -289,9 +277,7 @@ async def send_lead_message(
             if current_task:
                 register_task(LEAD_AGENT_ID, chat_id, current_task)
             try:
-                async for chunk in stream_lead(
-                    LEAD_TEAM_ID, LEAD_USER_ID, user_message
-                ):
+                async for chunk in stream_lead(LEAD_TEAM_ID, LEAD_USER_ID, user_message):
                     yield f"event: message\ndata: {chunk.model_dump_json()}\n\n"
                 yield "event: message\ndata: [DONE]\n\n"
                 if should_schedule_summary:
@@ -361,13 +347,9 @@ async def set_lead_channel(
 ):
     """Create or update a channel integration for the lead agent."""
     try:
-        return await set_team_channel(
-            LEAD_TEAM_ID, channel_type, config, created_by=LEAD_USER_ID
-        )
+        return await set_team_channel(LEAD_TEAM_ID, channel_type, config, created_by=LEAD_USER_ID)
     except (ValueError, ValidationError) as e:
-        raise IntentKitAPIError(
-            status_code=400, key="InvalidChannelConfig", message=str(e)
-        )
+        raise IntentKitAPIError(status_code=400, key="InvalidChannelConfig", message=str(e))
 
 
 @lead_router.delete(
@@ -414,9 +396,7 @@ async def set_lead_default_channel(
     try:
         await set_default_channel(LEAD_TEAM_ID, body.channel_type)
     except ValueError as e:
-        raise IntentKitAPIError(
-            status_code=400, key="InvalidDefaultChannel", message=str(e)
-        )
+        raise IntentKitAPIError(status_code=400, key="InvalidDefaultChannel", message=str(e))
     return {"default_channel": body.channel_type}
 
 
@@ -430,9 +410,7 @@ async def set_lead_default_channel(
 async def list_lead_default_channel_messages(
     db: AsyncSession = Depends(get_db),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get the message history for the default channel chat."""
     team = await db.get(TeamTable, LEAD_TEAM_ID)
@@ -458,9 +436,7 @@ async def list_lead_default_channel_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
         has_more=has_more,

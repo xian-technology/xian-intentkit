@@ -9,9 +9,7 @@ from langchain_core.tools.base import ToolException
 try:
     import httpx
 except ImportError:
-    raise ImportError(
-        "httpx is required for Casino skills. Install it with: pip install httpx"
-    )
+    raise ImportError("httpx is required for Casino skills. Install it with: pip install httpx")
 from pydantic import BaseModel, Field
 
 from intentkit.skills.casino.base import CasinoBaseTool

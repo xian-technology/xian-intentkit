@@ -82,9 +82,7 @@ def validate_inputs(
     """
     # Validate slippage
     if slippage < 0.001 or slippage > 0.5:
-        raise ToolException(
-            "Invalid slippage: must be between 0.001 (0.1%) and 0.5 (50%)"
-        )
+        raise ToolException("Invalid slippage: must be between 0.001 (0.1%) and 0.5 (50%)")
 
     # Validate chain identifiers can be converted to chain IDs
     try:
@@ -114,9 +112,7 @@ def validate_inputs(
         if amount_float <= 0:
             raise ToolException("Amount must be greater than 0")
     except ValueError:
-        raise ToolException(
-            f"Invalid amount format: {from_amount}. Must be a numeric value."
-        )
+        raise ToolException(f"Invalid amount format: {from_amount}. Must be a numeric value.")
 
 
 def format_amount(amount: str, decimals: int) -> str:
@@ -143,7 +139,7 @@ def format_amount(amount: str, decimals: int) -> str:
             return f"{amount_float:.6f}"
         else:
             return f"{amount_float:.8f}"
-    except (ValueError, TypeError):
+    except ValueError, TypeError:
         return str(amount)
 
 
@@ -202,7 +198,7 @@ def handle_api_response(
             error_data = response.json()
             error_message = error_data.get("message", response.text)
             return None, f"Invalid request: {error_message}"
-        except (ValueError, TypeError, AttributeError):
+        except ValueError, TypeError, AttributeError:
             return None, f"Invalid request: {response.text}"
     elif response.status_code == 404:
         return (
@@ -334,7 +330,7 @@ def convert_amount_to_wei(amount: str, token_symbol: str = "ETH") -> str:
             rounding=ROUND_DOWN,
         )
         return str(int(scaled_amount))
-    except (InvalidOperation, ValueError, TypeError):
+    except InvalidOperation, ValueError, TypeError:
         # If conversion fails, fall back to the original value to avoid
         # accidentally submitting an incorrect amount.
         return normalized_amount
@@ -408,7 +404,7 @@ def _convert_hex_or_decimal(value: Any) -> int | None:
             return int(stripped, 16)
         try:
             return int(Decimal(stripped))
-        except (InvalidOperation, ValueError):
+        except InvalidOperation, ValueError:
             return None
 
     return None
@@ -546,13 +542,9 @@ def format_fees_and_gas(data: dict[str, Any]) -> tuple[str, str]:
 
             fee_amount_formatted = format_amount(fee_amount, fee_decimals)
             percentage_str = (
-                f" ({float(fee_percentage) * 100:.3f}%)"
-                if fee_percentage != "0"
-                else ""
+                f" ({float(fee_percentage) * 100:.3f}%)" if fee_percentage != "0" else ""
             )
-            fees_text += (
-                f"- {fee_name}: {fee_amount_formatted} {fee_token}{percentage_str}"
-            )
+            fees_text += f"- {fee_name}: {fee_amount_formatted} {fee_token}{percentage_str}"
 
             if fee_usd and float(fee_usd) > 0:
                 fees_text += f" (${fee_usd})"
@@ -644,7 +636,7 @@ def get_api_error_message(response: httpx.Response) -> str:
     try:
         error_data = response.json()
         return error_data.get("message", response.text)
-    except (ValueError, TypeError, AttributeError):
+    except ValueError, TypeError, AttributeError:
         return response.text
 
 

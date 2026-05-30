@@ -346,9 +346,7 @@ class ChainProvider(ABC):
     ) -> ChainConfig:
         chain_config = self.chain_configs.get(supported_network)
         if not chain_config:
-            raise IntentKitLookUpError(
-                f"chain config for network {supported_network} not found"
-            )
+            raise IntentKitLookUpError(f"chain config for network {supported_network} not found")
         return chain_config
 
     def get_chain_config_by_id(self, network_id: NetworkId) -> ChainConfig:
@@ -453,16 +451,12 @@ class QuicknodeChainProvider(ChainProvider):
                 )
                 return
             except Exception as exc:
-                logger.exception(
-                    "Unexpected error while fetching QuickNode chain configs: %s", exc
-                )
+                logger.exception("Unexpected error while fetching QuickNode chain configs: %s", exc)
                 return
 
         data = json_dict.get("data", [])
         if not isinstance(data, list):
-            logger.error(
-                "QuickNode chain configs response 'data' is not a list: %s", data
-            )
+            logger.error("QuickNode chain configs response 'data' is not a list: %s", data)
             return
 
         for item in data:
@@ -475,9 +469,7 @@ class QuicknodeChainProvider(ChainProvider):
                 network_value = str(item["network"]).lower()
                 rpc_url = item["http_url"]
                 chain_value = QUICKNODE_CHAIN_ALIASES.get(chain_value, chain_value)
-                network_value = QUICKNODE_NETWORK_ALIASES.get(
-                    network_value, network_value
-                )
+                network_value = QUICKNODE_NETWORK_ALIASES.get(network_value, network_value)
                 chain = Chain(chain_value)
                 # Ensure we have a valid QuickNodeSlug first
                 try:
@@ -491,9 +483,7 @@ class QuicknodeChainProvider(ChainProvider):
                 # Since the values might not match exactly or we only support a subset
                 supported_network = self._map_slug_to_supported_network(qn_slug)
                 if not supported_network:
-                    logger.debug(
-                        "QuickNode slug %s not in SupportedNetwork list", qn_slug
-                    )
+                    logger.debug("QuickNode slug %s not in SupportedNetwork list", qn_slug)
                     continue
 
                 ens_url = item.get("ens_url", rpc_url)
@@ -502,14 +492,10 @@ class QuicknodeChainProvider(ChainProvider):
                 logger.debug("Skipping unsupported QuickNode entry %s: %s", item, exc)
                 continue
             except KeyError as exc:
-                logger.error(
-                    "Missing field %s in QuickNode chain config item %s", exc, item
-                )
+                logger.error("Missing field %s in QuickNode chain config item %s", exc, item)
                 continue
             except Exception as exc:
-                logger.error(
-                    "Failed processing QuickNode chain config item %s: %s", item, exc
-                )
+                logger.error("Failed processing QuickNode chain config item %s: %s", item, exc)
                 continue
 
             self.chain_configs[supported_network] = ChainConfig(
@@ -520,9 +506,7 @@ class QuicknodeChainProvider(ChainProvider):
                 wss_url,
             )
 
-    def _map_slug_to_supported_network(
-        self, slug: QuickNodeSlug
-    ) -> SupportedNetwork | None:
+    def _map_slug_to_supported_network(self, slug: QuickNodeSlug) -> SupportedNetwork | None:
         # Simple mapping based on values or explicit map
         # Since we aligned SupportedNetwork values with expected user inputs,
         # we can map carefully.

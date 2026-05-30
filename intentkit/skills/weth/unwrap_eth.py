@@ -53,9 +53,7 @@ class WETHUnwrapEth(WethBaseTool):
             # Get WETH address for this network
             weth_address = get_weth_address(network_id)
             if not weth_address:
-                raise ToolException(
-                    f"Error: WETH not supported on network {network_id}"
-                )
+                raise ToolException(f"Error: WETH not supported on network {network_id}")
             # Convert human-readable WETH amount to wei (WETH has 18 decimals)
             amount_decimal = Decimal(amount_to_unwrap)
             amount_in_wei = int(amount_decimal * Decimal(10**18))

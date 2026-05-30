@@ -86,15 +86,11 @@ class ScrapeAndIndex(WebScraperBaseTool):
 
             context = self.get_context()
             if not context or not context.agent_id:
-                raise ToolException(
-                    "Agent ID is required but not found in configuration"
-                )
+                raise ToolException("Agent ID is required but not found in configuration")
 
             agent_id = context.agent_id
 
-            logger.info(
-                f"[{agent_id}] Starting scrape and index operation with {len(urls)} URLs"
-            )
+            logger.info(f"[{agent_id}] Starting scrape and index operation with {len(urls)} URLs")
 
             embedding_api_key = self.get_openai_api_key()
             vector_manager = VectorStoreManager(embedding_api_key)
@@ -118,18 +114,14 @@ class ScrapeAndIndex(WebScraperBaseTool):
                 )
             if total_chunks == 0:
                 logger.error("[%s] No content extracted from URLs", agent_id)
-                raise ToolException(
-                    "Error: No content could be extracted from the provided URLs."
-                )
+                raise ToolException("Error: No content could be extracted from the provided URLs.")
             # Get current storage size for response
             current_size = await vector_manager.get_content_size(agent_id)
             size_limit_reached = len(valid_urls) < len(urls)
 
             # Update metadata
             metadata_manager = MetadataManager(vector_manager)
-            new_metadata = metadata_manager.create_url_metadata(
-                valid_urls, [], "scrape_and_index"
-            )
+            new_metadata = metadata_manager.create_url_metadata(valid_urls, [], "scrape_and_index")
             await metadata_manager.update_metadata(agent_id, new_metadata)
 
             logger.info("[%s] Metadata updated successfully", agent_id)
@@ -147,9 +139,7 @@ class ScrapeAndIndex(WebScraperBaseTool):
                 total_requested_urls=len(urls),
             )
 
-            logger.info(
-                "[%s] Scrape and index operation completed successfully", agent_id
-            )
+            logger.info("[%s] Scrape and index operation completed successfully", agent_id)
             return response
 
         except Exception as e:
@@ -175,9 +165,7 @@ class QueryIndexedContent(WebScraperBaseTool):
     """
 
     name: str = "web_scraper_query_indexed_content"
-    description: str = (
-        "Query previously indexed web content to find relevant information."
-    )
+    description: str = "Query previously indexed web content to find relevant information."
     args_schema: ArgsSchema | None = QueryIndexInput
 
     async def _arun(
@@ -194,9 +182,7 @@ class QueryIndexedContent(WebScraperBaseTool):
 
             context = self.get_context()
             if not context or not context.agent_id:
-                raise ToolException(
-                    "Agent ID is required but not found in configuration"
-                )
+                raise ToolException("Agent ID is required but not found in configuration")
 
             agent_id = context.agent_id
 
@@ -265,7 +251,5 @@ class QueryIndexedContent(WebScraperBaseTool):
             except Exception:
                 pass
 
-            logger.error(
-                f"[{agent_id}] Error in QueryIndexedContent: {e}", exc_info=True
-            )
+            logger.error(f"[{agent_id}] Error in QueryIndexedContent: {e}", exc_info=True)
             raise type(e)(f"[agent:{agent_id}]: {e}") from e

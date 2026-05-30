@@ -35,15 +35,9 @@ NAME = "uniswap_add_liquidity"
 class UniswapAddLiquidityInput(BaseModel):
     """Input for Uniswap add liquidity."""
 
-    token_a: str = Field(
-        description="First token address, or 'native' for native token"
-    )
-    token_b: str = Field(
-        description="Second token address, or 'native' for native token"
-    )
-    amount_a: str = Field(
-        description="Amount of first token in human-readable format (e.g. '1.5')"
-    )
+    token_a: str = Field(description="First token address, or 'native' for native token")
+    token_b: str = Field(description="Second token address, or 'native' for native token")
+    amount_a: str = Field(description="Amount of first token in human-readable format (e.g. '1.5')")
     amount_b: str = Field(
         description="Amount of second token in human-readable format (e.g. '1.5')"
     )
@@ -137,13 +131,9 @@ class UniswapAddLiquidity(UniswapBaseTool):
                 address=Web3.to_checksum_address(factory_address),
                 abi=FACTORY_ABI,
             )
-            pool_address = await factory.functions.getPool(
-                token0, token1, fee_tier
-            ).call()
+            pool_address = await factory.functions.getPool(token0, token1, fee_tier).call()
             if pool_address == "0x0000000000000000000000000000000000000000":
-                raise ToolException(
-                    f"No pool exists for this pair with fee tier {fee_tier}"
-                )
+                raise ToolException(f"No pool exists for this pair with fee tier {fee_tier}")
 
             # Handle native tokens: wrap by sending to WETH contract
             wrapped_addr = WRAPPED_NATIVE_ADDRESSES.get(chain_id)

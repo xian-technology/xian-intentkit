@@ -17,13 +17,9 @@ def test_format_validation_errors_with_field_path_and_type():
 
     result = format_validation_errors(errors)
 
+    assert "Field 'user -> email' (value_error.email): value is not a valid email address" in result
     assert (
-        "Field 'user -> email' (value_error.email): value is not a valid email address"
-        in result
-    )
-    assert (
-        "Field 'items -> 0 -> price' (type_error.decimal): value is not a valid decimal"
-        in result
+        "Field 'items -> 0 -> price' (type_error.decimal): value is not a valid decimal" in result
     )
 
 

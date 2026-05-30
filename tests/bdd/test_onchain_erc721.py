@@ -41,9 +41,7 @@ async def test_erc721_balance_of(w3: AsyncWeb3):
         address=w3.to_checksum_address(NFT_CONTRACT),
         abi=ERC721_ABI,
     )
-    balance = await contract.functions.balanceOf(
-        w3.to_checksum_address(EMPTY_ADDRESS)
-    ).call()
+    balance = await contract.functions.balanceOf(w3.to_checksum_address(EMPTY_ADDRESS)).call()
     assert isinstance(balance, int)
     assert balance >= 0
 
@@ -56,9 +54,7 @@ async def test_erc721_supports_interface(w3: AsyncWeb3):
         abi=ERC721_ABI,
     )
     # ERC721 interface ID = 0x80ac58cd
-    supports = await contract.functions.supportsInterface(
-        bytes.fromhex("80ac58cd")
-    ).call()
+    supports = await contract.functions.supportsInterface(bytes.fromhex("80ac58cd")).call()
     assert supports is True
 
 
@@ -69,7 +65,5 @@ async def test_erc721_supports_interface_erc165(w3: AsyncWeb3):
         address=w3.to_checksum_address(NFT_CONTRACT),
         abi=ERC721_ABI,
     )
-    supports = await contract.functions.supportsInterface(
-        bytes.fromhex("01ffc9a7")
-    ).call()
+    supports = await contract.functions.supportsInterface(bytes.fromhex("01ffc9a7")).call()
     assert supports is True

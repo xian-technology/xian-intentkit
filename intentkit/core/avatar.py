@@ -125,7 +125,7 @@ def _extract_openrouter_image_url(response: Any) -> str | None:
     """
     try:
         message = response.choices[0].message
-    except (AttributeError, IndexError):
+    except AttributeError, IndexError:
         return None
 
     images = getattr(message, "images", None) or []
@@ -311,9 +311,7 @@ async def _generate_image_prompt(agent_id: str, agent: Any) -> str:
         image_prompt = await generate_image_prompt_from_profile(
             f"Agent Profile:\n{profile}", _AVATAR_SYSTEM_PROMPT
         )
-        logger.info(
-            "Generated avatar prompt for agent %s: %s", agent_id, image_prompt[:200]
-        )
+        logger.info("Generated avatar prompt for agent %s: %s", agent_id, image_prompt[:200])
         return image_prompt
 
     except Exception as e:
@@ -341,9 +339,7 @@ async def _render_and_store(image_prompt: str, s3_key: str) -> str | None:
         return None
 
     try:
-        relative_path = await store_image_bytes(
-            image_bytes, s3_key, content_type="image/png"
-        )
+        relative_path = await store_image_bytes(image_bytes, s3_key, content_type="image/png")
         if not relative_path:
             logger.error("store_image_bytes returned empty path")
             return None
@@ -370,9 +366,7 @@ async def generate_avatar(agent_id: str, agent: Any) -> str | None:
     return await _render_and_store(image_prompt, f"avatars/{agent_id}/{XID()}.png")
 
 
-async def generate_avatar_from_description(
-    description: str, s3_prefix: str
-) -> str | None:
+async def generate_avatar_from_description(description: str, s3_prefix: str) -> str | None:
     """Generate an avatar from a free-text user description and upload to S3.
 
     Args:

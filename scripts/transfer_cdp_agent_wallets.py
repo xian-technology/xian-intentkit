@@ -12,9 +12,7 @@ from web3 import Web3
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 USDC_DECIMALS = 6
@@ -89,16 +87,12 @@ async def transfer_usdc(
         address=Web3.to_checksum_address(token_address),
         abi=ERC20_ABI,
     )
-    balance = await contract.functions.balanceOf(
-        Web3.to_checksum_address(wallet_address)
-    ).call()
+    balance = await contract.functions.balanceOf(Web3.to_checksum_address(wallet_address)).call()
     if not isinstance(balance, int) or balance <= 0:
         return "0", "skip:no_balance"
 
     amount_decimal = Decimal(balance) / Decimal(10**USDC_DECIMALS)
-    amount_atomic = parse_units(
-        format_token_amount(amount_decimal, USDC_DECIMALS), USDC_DECIMALS
-    )
+    amount_atomic = parse_units(format_token_amount(amount_decimal, USDC_DECIMALS), USDC_DECIMALS)
     try:
         result = await account.transfer(
             to=owner_address,
@@ -124,9 +118,7 @@ async def transfer_eth(
     from intentkit.wallets.web3 import get_async_web3_client
 
     web3_client = get_async_web3_client(network_id)
-    balance_wei = await web3_client.eth.get_balance(
-        Web3.to_checksum_address(wallet_address)
-    )
+    balance_wei = await web3_client.eth.get_balance(Web3.to_checksum_address(wallet_address))
     transferable_wei = compute_transferable_eth_wei(balance_wei, gas_reserve_wei)
     if transferable_wei <= 0:
         return "0", "skip:no_balance"

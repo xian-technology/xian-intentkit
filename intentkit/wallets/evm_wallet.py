@@ -107,9 +107,7 @@ class EvmWallet:
             The checksummed wallet address.
         """
         if self._address is None:
-            raise ValueError(
-                "Wallet address not initialized. Use create() factory method."
-            )
+            raise ValueError("Wallet address not initialized. Use create() factory method.")
         return self._address
 
     @property

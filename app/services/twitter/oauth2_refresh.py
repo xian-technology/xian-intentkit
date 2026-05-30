@@ -72,9 +72,7 @@ async def refresh_token(agent_data_record: AgentDataTable):
             f"expires at {agent_data_record.twitter_access_token_expires_at}"
         )
     except Exception as e:
-        logger.error(
-            f"Failed to refresh Twitter token for agent {agent_data_record.id}: {str(e)}"
-        )
+        logger.error(f"Failed to refresh Twitter token for agent {agent_data_record.id}: {str(e)}")
 
 
 async def refresh_expiring_tokens():

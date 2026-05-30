@@ -168,9 +168,7 @@ def count_web_searches(msg: Any, provider: LLMProvider) -> int:
 
     if provider == LLMProvider.OPENAI:
         return sum(
-            1
-            for t in additional.get("tool_outputs", [])
-            if t.get("type") == "web_search_call"
+            1 for t in additional.get("tool_outputs", []) if t.get("type") == "web_search_call"
         )
 
     if provider == LLMProvider.GOOGLE:
@@ -224,9 +222,7 @@ async def stream_agent(message: ChatMessageCreate):
     """
     agent = await get_agent(message.agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="AgentNotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="AgentNotFound", message="Agent not found")
     if _is_clear_memory_command(message.message):
         start = time.perf_counter()
         message.reply_to = message.id
@@ -486,16 +482,10 @@ async def _handle_tools_chunk(
         message="",
         skill_calls=skill_calls,
         attachments=cached_attachments,
-        input_tokens=(
-            tool_usage.get("input_tokens", 0) if have_first_call_in_cache else 0
-        ),
-        output_tokens=(
-            tool_usage.get("output_tokens", 0) if have_first_call_in_cache else 0
-        ),
+        input_tokens=(tool_usage.get("input_tokens", 0) if have_first_call_in_cache else 0),
+        output_tokens=(tool_usage.get("output_tokens", 0) if have_first_call_in_cache else 0),
         cached_input_tokens=(
-            extract_cached_input_tokens(cached_tool_step)
-            if have_first_call_in_cache
-            else 0
+            extract_cached_input_tokens(cached_tool_step) if have_first_call_in_cache else 0
         ),
         time_cost=this_time - last,
     )
@@ -759,16 +749,13 @@ async def stream_agent_raw(
             att_url = att.get("url")
             if att_type in _FORWARDABLE_TYPES and att_url:
                 type_label = (
-                    att_type.value
-                    if isinstance(att_type, ChatMessageAttachmentType)
-                    else att_type
+                    att_type.value if isinstance(att_type, ChatMessageAttachmentType) else att_type
                 )
                 url_lines.append(f"- [{type_label}] {att_url}")
         if url_lines:
             input_message += (
                 "\n\n[Attachments in this message"
-                " - use these URLs when delegating to other agents]\n"
-                + "\n".join(url_lines)
+                " - use these URLs when delegating to other agents]\n" + "\n".join(url_lines)
             )
 
     # super mode — determined by agent config
@@ -790,9 +777,7 @@ async def stream_agent_raw(
         )
         messages.extend(
             [
-                HumanMessage(
-                    content=[{"type": "image_url", "image_url": {"url": image_url}}]
-                )
+                HumanMessage(content=[{"type": "image_url", "image_url": {"url": image_url}}])
                 for image_url in image_urls
             ]
         )
@@ -907,7 +892,7 @@ async def stream_agent_raw(
             )
         )
         return
-    except (httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError):
+    except httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError:
         logger.error(
             f"Agent request timed out for {user_message.agent_id}",
             extra={"thread_id": thread_id},

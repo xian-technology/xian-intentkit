@@ -50,9 +50,7 @@ class TestUpdateMemorySkill:
         ) as mock_update:
             result = await skill._arun(content="User prefers dark mode")
 
-            mock_update.assert_called_once_with(
-                "test-agent-1", "User prefers dark mode"
-            )
+            mock_update.assert_called_once_with("test-agent-1", "User prefers dark mode")
             assert "Memory updated successfully" in result
             assert "Merged memory content" in result
 

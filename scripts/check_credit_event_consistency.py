@@ -30,9 +30,7 @@ class CreditEventConsistencyChecker:
         self.total_records = 0
         self.consistent_records = 0
         self.inconsistent_records = 0
-        self.zero_sum_inconsistent_count = (
-            0  # Cases where detail sum is 0 but total is not 0
-        )
+        self.zero_sum_inconsistent_count = 0  # Cases where detail sum is 0 but total is not 0
         self.zero_sum_inconsistent_details: list[
             dict[str, Any]
         ] = []  # Cases where detail sum is 0 but total is not 0
@@ -40,9 +38,7 @@ class CreditEventConsistencyChecker:
             dict[str, Any]
         ] = []  # Unexpected errors where details are non-zero but still unequal
 
-    def check_record_consistency(
-        self, record: CreditEventTable
-    ) -> tuple[bool, list[str], bool]:
+    def check_record_consistency(self, record: CreditEventTable) -> tuple[bool, list[str], bool]:
         """Check if a single record is consistent.
 
         Returns:
@@ -112,8 +108,7 @@ class CreditEventConsistencyChecker:
                 "0 + 0 + 0 = 0 !=",  # Pattern for zero sum details
             ]
             is_zero_sum_error = all(
-                any(pattern in error for pattern in zero_sum_patterns)
-                for error in errors
+                any(pattern in error for pattern in zero_sum_patterns) for error in errors
             )
 
         return len(errors) == 0, errors, is_zero_sum_error
@@ -151,9 +146,7 @@ class CreditEventConsistencyChecker:
                 record = record_tuple[0]  # Extract the actual record from tuple
                 self.total_records += 1
 
-                is_consistent, errors, is_zero_sum_error = (
-                    self.check_record_consistency(record)
-                )
+                is_consistent, errors, is_zero_sum_error = self.check_record_consistency(record)
 
                 if is_consistent:
                     self.consistent_records += 1

@@ -52,17 +52,13 @@ class OpenSeaCreateListing(OpenSeaOnChainBaseTool):
     ) -> str:
         try:
             if not self.is_onchain_capable():
-                raise ToolException(
-                    "This agent does not have an on-chain wallet configured"
-                )
+                raise ToolException("This agent does not have an on-chain wallet configured")
 
             chain = self._get_chain_name()
             wallet_address = await self.get_wallet_address()
             price_wei = Web3.to_wei(Decimal(price), "ether")
 
-            approval_tx = await self._ensure_nft_approval(
-                contract_address, wallet_address
-            )
+            approval_tx = await self._ensure_nft_approval(contract_address, wallet_address)
             counter = await self._get_seaport_counter(wallet_address)
 
             order_params = self._build_listing_order(

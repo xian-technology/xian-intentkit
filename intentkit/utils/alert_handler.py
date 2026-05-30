@@ -259,14 +259,10 @@ def setup_alert_handler(
     )
     handler.addFilter(ContextFilter(env=env, release=release))
     handler.setFormatter(
-        logging.Formatter(
-            "🚨 %(levelname)s | %(name)s\n📦 %(release)s | 🌍 %(env)s\n\n%(message)s"
-        )
+        logging.Formatter("🚨 %(levelname)s | %(name)s\n📦 %(release)s | 🌍 %(env)s\n\n%(message)s")
     )
 
-    target_logger = (
-        logging.getLogger(logger_name) if logger_name else logging.getLogger()
-    )
+    target_logger = logging.getLogger(logger_name) if logger_name else logging.getLogger()
     target_logger.addHandler(handler)
 
     # Log setup complete (use print to avoid recursion)

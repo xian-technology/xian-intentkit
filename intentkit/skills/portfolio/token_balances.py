@@ -105,9 +105,7 @@ class TokenBalances(PortfolioBaseTool):
             Dict containing token balances data
         """
         context = self.get_context()
-        logger.debug(
-            f"token_balances.py: Fetching token balances with context {context}"
-        )
+        logger.debug(f"token_balances.py: Fetching token balances with context {context}")
 
         # Get the API key from the agent's configuration
         api_key = self.get_api_key()
@@ -143,9 +141,7 @@ class TokenBalances(PortfolioBaseTool):
                 method="GET", endpoint=endpoint, api_key=api_key, params=params
             )
         except Exception as e:
-            logger.error(
-                f"token_balances.py: Error fetching token balances: {e}", exc_info=True
-            )
+            logger.error(f"token_balances.py: Error fetching token balances: {e}", exc_info=True)
             return {
                 "error": "An error occurred while fetching token balances. Please try again later."
             }

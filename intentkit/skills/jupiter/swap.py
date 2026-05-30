@@ -14,7 +14,9 @@ class JupiterGetQuoteInput(BaseModel):
 
 class JupiterGetQuote(JupiterBaseTool):
     name: str = "jupiter_get_quote"
-    description: str = "Get a swap quote from Jupiter. Returns best route and estimated output. Does NOT execute."
+    description: str = (
+        "Get a swap quote from Jupiter. Returns best route and estimated output. Does NOT execute."
+    )
     args_schema: ArgsSchema | None = JupiterGetQuoteInput
 
     async def _arun(

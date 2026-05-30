@@ -91,9 +91,7 @@ class GitHubSearch(GitHubBaseTool):
                 )
 
                 if response.status_code == 403:
-                    rate_limit = response.headers.get(
-                        "X-RateLimit-Remaining", "unknown"
-                    )
+                    rate_limit = response.headers.get("X-RateLimit-Remaining", "unknown")
                     reset_time = response.headers.get("X-RateLimit-Reset", "unknown")
                     logger.warning(
                         f"github_search.py: Rate limit reached. Remaining: {rate_limit}, Reset: {reset_time}"
@@ -153,9 +151,7 @@ class GitHubSearch(GitHubBaseTool):
                         formatted_results += f"URL: {url}\n\n"
 
                     elif search_type == SearchType.CODE:
-                        repo = item.get("repository", {}).get(
-                            "full_name", "No repository"
-                        )
+                        repo = item.get("repository", {}).get("full_name", "No repository")
                         path = item.get("path", "No path")
                         url = item.get("html_url", "No URL")
 
@@ -167,15 +163,9 @@ class GitHubSearch(GitHubBaseTool):
 
         except httpx.TimeoutException:
             logger.error("github_search.py: Request timed out")
-            raise ToolException(
-                "The request to GitHub timed out. Please try again later."
-            )
+            raise ToolException("The request to GitHub timed out. Please try again later.")
         except ToolException:
             raise
         except Exception as e:
-            logger.error(
-                f"github_search.py: Error searching GitHub: {e}", exc_info=True
-            )
-            raise ToolException(
-                "An error occurred while searching GitHub. Please try again later."
-            )
+            logger.error(f"github_search.py: Error searching GitHub: {e}", exc_info=True)
+            raise ToolException("An error occurred while searching GitHub. Please try again later.")

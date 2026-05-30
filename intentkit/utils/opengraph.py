@@ -76,9 +76,7 @@ async def fetch_link_meta(url: str) -> LinkMeta | None:
             timeout=5.0,
             follow_redirects=True,
             headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (compatible; IntentKit/1.0; +https://intentkit.io)"
-                ),
+                "User-Agent": ("Mozilla/5.0 (compatible; IntentKit/1.0; +https://intentkit.io)"),
             },
         ) as client:
             resp = await client.get(url)

@@ -27,9 +27,7 @@ class SupabaseFetchDataInput(BaseModel):
     order_by: str | None = Field(default=None, description="Column to order by")
     ascending: bool = Field(default=True, description="Ascending order if true")
     limit: int | None = Field(default=None, description="Max records to return")
-    offset: int | None = Field(
-        default=None, description="Records to skip for pagination"
-    )
+    offset: int | None = Field(default=None, description="Records to skip for pagination")
 
 
 class SupabaseFetchData(SupabaseBaseTool):

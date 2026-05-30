@@ -128,9 +128,7 @@ def test_chain_provider_missing_network_id():
     with pytest.raises(Exception) as exc:
         provider.get_chain_config_by_id(NetworkId.GnosisMainnet)
 
-    assert "network with id" in str(exc.value) or "chain config for network" in str(
-        exc.value
-    )
+    assert "network with id" in str(exc.value) or "chain config for network" in str(exc.value)
 
 
 def test_init_chain_configs_returns_none():

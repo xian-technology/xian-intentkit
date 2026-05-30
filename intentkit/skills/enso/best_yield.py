@@ -57,9 +57,7 @@ class EnsoGetBestYield(EnsoBaseTool):
     """
 
     name: str = "enso_get_best_yield"
-    description: str = (
-        "Find best yield options for a token across DeFi protocols, sorted by APY."
-    )
+    description: str = "Find best yield options for a token across DeFi protocols, sorted by APY."
     args_schema: ArgsSchema | None = EnsoGetBestYieldInput
 
     async def _arun(
@@ -122,10 +120,7 @@ class EnsoGetBestYield(EnsoBaseTool):
                     for underlying in token.get("underlyingTokens", []):
                         underlying_symbol = underlying.get("symbol")
                         underlying_token_symbols.append(underlying_symbol)
-                        if (
-                            underlying_symbol
-                            and underlying_symbol.upper() == token_symbol.upper()
-                        ):
+                        if underlying_symbol and underlying_symbol.upper() == token_symbol.upper():
                             has_target_token = True
 
                 # Skip if the token doesn't have the target token as underlying
@@ -148,9 +143,7 @@ class EnsoGetBestYield(EnsoBaseTool):
                 all_yield_options.append(yield_option)
 
         # Sort yield options by APY (descending)
-        sorted_options = sorted(
-            all_yield_options, key=lambda x: x.apy or 0.0, reverse=True
-        )
+        sorted_options = sorted(all_yield_options, key=lambda x: x.apy or 0.0, reverse=True)
 
         # Take the top N options
         top_options = sorted_options[:top_n]
@@ -220,13 +213,9 @@ class EnsoGetBestYield(EnsoBaseTool):
                 response.raise_for_status()
                 return response.json()
             except httpx.RequestError as req_err:
-                raise ToolException(
-                    f"Request error from Enso API: {req_err}"
-                ) from req_err
+                raise ToolException(f"Request error from Enso API: {req_err}") from req_err
             except httpx.HTTPStatusError as http_err:
-                raise ToolException(
-                    f"HTTP error from Enso API: {http_err}"
-                ) from http_err
+                raise ToolException(f"HTTP error from Enso API: {http_err}") from http_err
             except Exception as e:
                 raise ToolException(f"Error from Enso API: {e}") from e
 

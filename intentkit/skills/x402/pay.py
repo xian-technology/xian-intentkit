@@ -124,9 +124,7 @@ class X402Pay(X402BaseSkill):
                 max_value=max_value,
                 timeout=timeout,
             ) as client:
-                http_response = cast(
-                    Any, await client.request(method_upper, **request_kwargs)
-                )
+                http_response = cast(Any, await client.request(method_upper, **request_kwargs))
                 _ = http_response.raise_for_status()
 
                 # Get the address we paid to from the hooks
@@ -151,18 +149,14 @@ class X402Pay(X402BaseSkill):
             if client:
                 error_context = client.payment_hooks.last_payment_error
             if error_context:
-                raise ToolException(
-                    f"{exc} | last_payment_error={error_context}"
-                ) from exc
+                raise ToolException(f"{exc} | last_payment_error={error_context}") from exc
             raise ToolException(str(exc)) from exc
         except (httpx.TimeoutException, asyncio.TimeoutError) as exc:
             raise ToolException(
                 f"Request to {url} or related operation timed out after {timeout} seconds"
             ) from exc
         except httpx.HTTPStatusError as exc:
-            raise ToolException(
-                f"HTTP {exc.response.status_code} - {exc.response.text}"
-            ) from exc
+            raise ToolException(f"HTTP {exc.response.status_code} - {exc.response.text}") from exc
         except (httpx.RequestError, aiohttp.ClientError) as exc:
             raise ToolException(
                 f"Network error while connecting to {url} or RPC: {str(exc)}"

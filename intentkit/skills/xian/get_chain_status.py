@@ -12,9 +12,7 @@ from intentkit.skills.xian.utils import format_structured
 
 class XianGetChainStatus(XianBaseTool):
     name: str = "xian_get_chain_status"
-    description: str = (
-        "Get the live Xian node status and, when available, the BDS indexer status."
-    )
+    description: str = "Get the live Xian node status and, when available, the BDS indexer status."
     args_schema: ArgsSchema | None = NoArgsSchema
 
     @override

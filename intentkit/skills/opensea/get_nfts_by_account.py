@@ -16,8 +16,7 @@ class GetNftsByAccountInput(BaseModel):
 
     chain: str = Field(
         description=(
-            "The blockchain name "
-            "(e.g., 'ethereum', 'matic', 'base', 'arbitrum', 'optimism')"
+            "The blockchain name (e.g., 'ethereum', 'matic', 'base', 'arbitrum', 'optimism')"
         )
     )
     address: str = Field(description="The account address to query")

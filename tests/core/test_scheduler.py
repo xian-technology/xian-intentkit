@@ -7,9 +7,7 @@ from intentkit.core.scheduler import create_scheduler
 class TestScheduler(unittest.TestCase):
     @patch("intentkit.core.scheduler.AsyncIOScheduler")
     @patch("intentkit.core.scheduler.config")
-    def test_create_scheduler_jobs_without_payment(
-        self, mock_config, mock_scheduler_cls
-    ):
+    def test_create_scheduler_jobs_without_payment(self, mock_config, mock_scheduler_cls):
         """When payment is disabled, only base jobs are registered."""
         mock_config.payment_enabled = False
         mock_scheduler = MagicMock()

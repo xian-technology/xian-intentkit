@@ -11,16 +11,12 @@ from intentkit.skills.xian.utils import format_structured
 
 
 class XianGetEventsForTxInput(BaseModel):
-    tx_hash: str = Field(
-        ..., description="Transaction hash to inspect for indexed events."
-    )
+    tx_hash: str = Field(..., description="Transaction hash to inspect for indexed events.")
 
 
 class XianGetEventsForTx(XianBaseTool):
     name: str = "xian_get_events_for_tx"
-    description: str = (
-        "Fetch the indexed Xian events emitted by a specific transaction hash."
-    )
+    description: str = "Fetch the indexed Xian events emitted by a specific transaction hash."
     args_schema: ArgsSchema | None = XianGetEventsForTxInput
 
     @override
@@ -31,13 +27,8 @@ class XianGetEventsForTx(XianBaseTool):
             if not events:
                 return f"No indexed events found for transaction {tx_hash}."
             payload = [item.raw for item in events]
-            return (
-                f"Indexed events for transaction {tx_hash}:\n"
-                f"{format_structured(payload)}"
-            )
+            return f"Indexed events for transaction {tx_hash}:\n{format_structured(payload)}"
         except ToolException:
             raise
         except Exception as exc:
-            raise ToolException(
-                f"Error getting Xian events for transaction: {exc}"
-            ) from exc
+            raise ToolException(f"Error getting Xian events for transaction: {exc}") from exc

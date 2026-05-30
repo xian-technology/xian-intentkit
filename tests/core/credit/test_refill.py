@@ -106,9 +106,7 @@ async def test_refill_free_credits_for_account_adds_amount():
 
     mock_income.assert_called_once()
     # Free quota (10.0000) minus current free credits (8.0000) limits the refill to 2.0000.
-    assert mock_income.call_args[1]["amount_details"] == {
-        CreditType.FREE: Decimal("2.0000")
-    }
+    assert mock_income.call_args[1]["amount_details"] == {CreditType.FREE: Decimal("2.0000")}
     mock_deduction.assert_called_once()
     mock_session.commit.assert_called_once()
 

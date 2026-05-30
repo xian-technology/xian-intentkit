@@ -85,9 +85,7 @@ class BasenameRegister(BasenameBaseTool):
             # Get addresses
             address = Web3.to_checksum_address(wallet.address)
             l2_resolver_address = Web3.to_checksum_address(
-                L2_RESOLVER_ADDRESS_MAINNET
-                if is_mainnet
-                else L2_RESOLVER_ADDRESS_TESTNET
+                L2_RESOLVER_ADDRESS_MAINNET if is_mainnet else L2_RESOLVER_ADDRESS_TESTNET
             )
             contract_address = Web3.to_checksum_address(
                 BASENAMES_REGISTRAR_CONTROLLER_ADDRESS_MAINNET
@@ -104,12 +102,8 @@ class BasenameRegister(BasenameBaseTool):
             name_hash = ENS.namehash(basename)
 
             # Encode resolver data
-            address_data = resolver_contract.encode_abi(
-                "setAddr", args=[name_hash, address]
-            )
-            name_data = resolver_contract.encode_abi(
-                "setName", args=[name_hash, basename]
-            )
+            address_data = resolver_contract.encode_abi("setAddr", args=[name_hash, address])
+            name_data = resolver_contract.encode_abi("setName", args=[name_hash, basename])
 
             # Build register request
             register_request = {

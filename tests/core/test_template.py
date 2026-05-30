@@ -160,9 +160,7 @@ async def test_create_agent_from_template_without_team(mock_process_agent_wallet
         mock_session.execute = AsyncMock(return_value=mock_result)
 
         # 3. Call Function without team_id
-        await create_agent_from_template(
-            data=creation_data, owner="user_2", team_id=None
-        )
+        await create_agent_from_template(data=creation_data, owner="user_2", team_id=None)
 
         # 4. Verify
         assert mock_session.add.called

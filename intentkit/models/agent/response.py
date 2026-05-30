@@ -149,9 +149,7 @@ class AgentResponse(Agent):
         return f"{hashlib.md5(data.encode()).hexdigest()}"
 
     @classmethod
-    async def from_agent(
-        cls, agent: Agent, agent_data: AgentData | None = None
-    ) -> "AgentResponse":
+    async def from_agent(cls, agent: Agent, agent_data: AgentData | None = None) -> "AgentResponse":
         """Create an AgentResponse from an Agent instance.
 
         Args:
@@ -175,16 +173,12 @@ class AgentResponse(Agent):
             linked_twitter_username = agent_data.twitter_username
             linked_twitter_name = agent_data.twitter_name
             if agent_data.twitter_access_token_expires_at:
-                has_twitter_linked = (
-                    agent_data.twitter_access_token_expires_at > datetime.now(UTC)
-                )
+                has_twitter_linked = agent_data.twitter_access_token_expires_at > datetime.now(UTC)
             else:
                 has_twitter_linked = True
 
         # Process Twitter self-key status
-        has_twitter_self_key = bool(
-            agent_data and agent_data.twitter_self_key_refreshed_at
-        )
+        has_twitter_self_key = bool(agent_data and agent_data.twitter_self_key_refreshed_at)
 
         # Process Telegram self-key status
         linked_telegram_username = None
@@ -288,9 +282,7 @@ class AgentResponse(Agent):
                     filtered_autonomous.append(filtered_item)
                 else:
                     # Handle AgentAutonomous objects
-                    item_dict = (
-                        item.model_dump() if hasattr(item, "model_dump") else dict(item)
-                    )
+                    item_dict = item.model_dump() if hasattr(item, "model_dump") else dict(item)
                     # Only keep safe fields: id, name, description, enabled
                     filtered_item = {
                         key: item_dict[key]
@@ -308,9 +300,7 @@ class AgentResponse(Agent):
                     converted_examples.append(AgentExample(**example).model_dump())
                 else:
                     converted_examples.append(
-                        example.model_dump()
-                        if hasattr(example, "model_dump")
-                        else example
+                        example.model_dump() if hasattr(example, "model_dump") else example
                     )
             data["examples"] = converted_examples
 
@@ -318,10 +308,7 @@ class AgentResponse(Agent):
         if "skills" in data and data["skills"]:
             filtered_skills = {}
             for skill_name, skill_config in data["skills"].items():
-                if (
-                    isinstance(skill_config, dict)
-                    and skill_config.get("enabled") is True
-                ):
+                if isinstance(skill_config, dict) and skill_config.get("enabled") is True:
                     # Filter out disabled states from the skill configuration
                     original_states = skill_config.get("states", {})
                     filtered_states = {

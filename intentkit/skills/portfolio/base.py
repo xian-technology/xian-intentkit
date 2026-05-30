@@ -83,20 +83,12 @@ class PortfolioBaseTool(IntentKitSkill, ABC):
             ) as response:
                 if response.status >= 400:
                     error_text = await response.text()
-                    logger.error(
-                        "portfolio/base.py: API error %s for %s", response.status, url
-                    )
-                    raise ToolException(
-                        f"Moralis API error: {response.status} - {error_text}"
-                    )
+                    logger.error("portfolio/base.py: API error %s for %s", response.status, url)
+                    raise ToolException(f"Moralis API error: {response.status} - {error_text}")
 
                 try:
                     return await response.json()
                 except aiohttp.ContentTypeError as exc:
                     await response.text()
-                    logger.error(
-                        "portfolio/base.py: Failed to decode JSON response from %s", url
-                    )
-                    raise ToolException(
-                        "Moralis API returned invalid JSON payload."
-                    ) from exc
+                    logger.error("portfolio/base.py: Failed to decode JSON response from %s", url)
+                    raise ToolException("Moralis API returned invalid JSON payload.") from exc

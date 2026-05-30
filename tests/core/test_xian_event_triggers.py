@@ -101,9 +101,7 @@ def test_iter_contract_events_from_tx_event_decodes_payload():
                     "events": [
                         {
                             "type": event_name,
-                            "attributes": [
-                                {"key": contract_key, "value": contract_value}
-                            ],
+                            "attributes": [{"key": contract_key, "value": contract_value}],
                         }
                     ]
                 }
@@ -111,9 +109,7 @@ def test_iter_contract_events_from_tx_event_decodes_payload():
         }
     }
 
-    assert list(iter_contract_events_from_tx_event(tx_event)) == [
-        ("currency", "Transfer")
-    ]
+    assert list(iter_contract_events_from_tx_event(tx_event)) == [("currency", "Transfer")]
 
 
 @pytest.mark.asyncio

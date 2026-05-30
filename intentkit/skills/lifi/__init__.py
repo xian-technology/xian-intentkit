@@ -46,13 +46,9 @@ async def get_skills(
             continue
         elif state == "public" or (state == "private" and is_private):
             available_skills.append(skill_name)
-            logger.info(
-                "[LiFi_Skills] Including skill: %s (state: %s)", skill_name, state
-            )
+            logger.info("[LiFi_Skills] Including skill: %s (state: %s)", skill_name, state)
         else:
-            logger.info(
-                f"[LiFi_Skills] Skipping private skill in public session: {skill_name}"
-            )
+            logger.info(f"[LiFi_Skills] Skipping private skill in public session: {skill_name}")
 
     logger.info("[LiFi_Skills] Available skills: %s", available_skills)
 
@@ -84,15 +80,11 @@ def get_lifi_skill(
 
     # Validate configuration
     if default_slippage < 0.001 or default_slippage > 0.5:
-        logger.warning(
-            f"[LiFi_Skills] Invalid default_slippage: {default_slippage}, using 0.03"
-        )
+        logger.warning(f"[LiFi_Skills] Invalid default_slippage: {default_slippage}, using 0.03")
         default_slippage = 0.03
 
     if max_execution_time < 60 or max_execution_time > 1800:
-        logger.warning(
-            f"[LiFi_Skills] Invalid max_execution_time: {max_execution_time}, using 300"
-        )
+        logger.warning(f"[LiFi_Skills] Invalid max_execution_time: {max_execution_time}, using 300")
         max_execution_time = 300
 
     if name == "token_quote":

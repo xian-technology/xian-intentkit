@@ -62,9 +62,7 @@ class DuneRunSQL(DuneBaseTool):
         exec_resp = await self._dune_request("POST", f"/query/{query_id}/execute")
         execution_id = exec_resp.get("execution_id")
         if not execution_id:
-            raise ToolException(
-                f"Failed to execute query {query_id}: no execution_id returned."
-            )
+            raise ToolException(f"Failed to execute query {query_id}: no execution_id returned.")
 
         # Poll until complete
         await self._poll_execution(execution_id)

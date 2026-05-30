@@ -28,17 +28,13 @@ class LLMModelSummary(BaseModel):
     supports_audio_input: bool = Field(description="Whether supports audio input")
     supports_video_input: bool = Field(description="Whether supports video input")
     supports_file_input: bool = Field(description="Whether supports file input")
-    reasoning_effort: str | None = Field(
-        default=None, description="Reasoning effort level"
-    )
+    reasoning_effort: str | None = Field(default=None, description="Reasoning effort level")
 
 
 class GetAvailableLLMsOutput(BaseModel):
     """Output model for get_available_llms skill."""
 
-    models: list[LLMModelSummary] = Field(
-        description="List of available LLM models with details"
-    )
+    models: list[LLMModelSummary] = Field(description="List of available LLM models with details")
 
 
 class LeadGetAvailableLLMs(LeadSkill):

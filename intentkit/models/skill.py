@@ -126,12 +126,8 @@ class AgentSkillData(AgentSkillDataCreate):
     )
 
     size: Annotated[int, Field(description="Size of the data in bytes")]
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this data was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this data was updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this data was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this data was updated")]
 
     @field_serializer("created_at", "updated_at")
     @classmethod
@@ -206,9 +202,7 @@ class AgentSkillData(AgentSkillDataCreate):
         """
         async with get_session() as db:
             _ = await db.execute(
-                delete(AgentSkillDataTable).where(
-                    AgentSkillDataTable.agent_id == agent_id
-                )
+                delete(AgentSkillDataTable).where(AgentSkillDataTable.agent_id == agent_id)
             )
             await db.commit()
 
@@ -287,12 +281,8 @@ class ChatSkillData(ChatSkillDataCreate):
         from_attributes=True,
     )
 
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this data was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this data was updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this data was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this data was updated")]
 
     @field_serializer("created_at", "updated_at")
     @classmethod
@@ -350,8 +340,6 @@ class ChatSkillData(ChatSkillDataCreate):
                 )
             else:
                 _ = await db.execute(
-                    delete(ChatSkillDataTable).where(
-                        ChatSkillDataTable.agent_id == agent_id
-                    )
+                    delete(ChatSkillDataTable).where(ChatSkillDataTable.agent_id == agent_id)
                 )
             await db.commit()

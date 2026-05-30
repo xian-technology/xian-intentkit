@@ -26,8 +26,7 @@ class AcpCancelCheckout(AcpBaseTool):
 
     name: str = "acp_cancel_checkout"
     description: str = (
-        "Cancel an ACP checkout session. "
-        "Only works for sessions that have not yet been paid."
+        "Cancel an ACP checkout session. Only works for sessions that have not yet been paid."
     )
     args_schema: ArgsSchema | None = AcpCancelCheckoutInput
 

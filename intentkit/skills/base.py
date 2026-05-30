@@ -106,7 +106,7 @@ class IntentKitSkill(BaseTool, metaclass=ABCMeta):
         try:
             max_requests = int(limit)
             window_seconds = int(seconds)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             self.logger.info(
                 "Invalid user rate limit parameters for %s: limit=%r, seconds=%r",
                 key,
@@ -181,7 +181,7 @@ class IntentKitSkill(BaseTool, metaclass=ABCMeta):
         try:
             max_requests = int(limit)
             window_seconds = int(seconds)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             self.logger.info(
                 "Invalid global rate limit parameters for %s: limit=%r, seconds=%r",
                 key,
@@ -315,9 +315,7 @@ def build_skill_prices() -> None:
 
     skills_dir = Path(__file__).parent
     # Import all skill sub-packages to trigger class registration
-    for module_info in pkgutil.walk_packages(
-        [str(skills_dir)], prefix="intentkit.skills."
-    ):
+    for module_info in pkgutil.walk_packages([str(skills_dir)], prefix="intentkit.skills."):
         try:
             importlib.import_module(module_info.name)
         except Exception:

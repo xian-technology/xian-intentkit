@@ -21,9 +21,7 @@ class XianCallContractInput(BaseModel):
 
 class XianCallContract(XianBaseTool):
     name: str = "xian_call_contract"
-    description: str = (
-        "Call a read-only Xian contract function using the SDK simulation path."
-    )
+    description: str = "Call a read-only Xian contract function using the SDK simulation path."
     args_schema: ArgsSchema | None = XianCallContractInput
 
     @override

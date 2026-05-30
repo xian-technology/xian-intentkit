@@ -18,9 +18,7 @@ from intentkit.config.config import config
 from intentkit.config.db import get_session, init_db
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -39,9 +37,7 @@ async def count_inconsistent_transactions(session: AsyncSession) -> int:
     return result.scalar()
 
 
-async def migrate_transaction_amounts(
-    session: AsyncSession, dry_run: bool = True
-) -> None:
+async def migrate_transaction_amounts(session: AsyncSession, dry_run: bool = True) -> None:
     """
     Migrate transaction amounts based on TransactionType.
     """
@@ -221,9 +217,7 @@ async def migrate_transaction_amounts(
         total_updated += updated_count
 
     await session.commit()
-    logger.info(
-        f"Migration completed successfully. Total updated: {total_updated} records"
-    )
+    logger.info(f"Migration completed successfully. Total updated: {total_updated} records")
 
 
 async def verify_migration(session: AsyncSession) -> None:
@@ -238,9 +232,7 @@ async def verify_migration(session: AsyncSession) -> None:
         logger.warning(
             f"⚠️  Migration verification found {inconsistent_count} records still inconsistent"
         )
-        logger.warning(
-            "This may indicate data integrity issues that require manual review"
-        )
+        logger.warning("This may indicate data integrity issues that require manual review")
 
 
 async def main() -> None:

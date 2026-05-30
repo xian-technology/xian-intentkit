@@ -66,9 +66,7 @@ async def test_adjustment_positive_success():
         # Positive amount: income for team
         mock_income.assert_called_once()
         assert mock_income.call_args[1]["owner_id"] == team_id
-        assert mock_income.call_args[1]["amount_details"] == {
-            CreditType.PERMANENT: amount
-        }
+        assert mock_income.call_args[1]["amount_details"] == {CreditType.PERMANENT: amount}
 
         # Positive amount: deduction for platform
         mock_deduction.assert_called_once()
@@ -158,9 +156,7 @@ async def test_adjustment_empty_note_raises():
         "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
         new_callable=AsyncMock,
     ):
-        with pytest.raises(
-            ValueError, match="Adjustment requires a note explaining the reason"
-        ):
+        with pytest.raises(ValueError, match="Adjustment requires a note explaining the reason"):
             await adjustment(
                 AsyncMock(),
                 "team_1",
@@ -349,9 +345,7 @@ async def test_recharge_creates_correct_transactions():
 
         # Verify income called with PERMANENT credit type
         mock_income.assert_called_once()
-        assert mock_income.call_args[1]["amount_details"] == {
-            CreditType.PERMANENT: amount
-        }
+        assert mock_income.call_args[1]["amount_details"] == {CreditType.PERMANENT: amount}
 
         # Verify deduction called for platform
         mock_deduction.assert_called_once()
@@ -532,9 +526,7 @@ async def test_withdraw_success():
             "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
             new_callable=AsyncMock,
         ),
-        patch(
-            "intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock) as mock_get_agent,
         patch("intentkit.models.agent_data.AgentData.get", new_callable=AsyncMock),
         patch(
             "intentkit.models.credit.CreditAccount.get_in_session",
@@ -603,16 +595,12 @@ async def test_withdraw_agent_not_found():
             "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
             new_callable=AsyncMock,
         ),
-        patch(
-            "intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock) as mock_get_agent,
     ):
         mock_get_agent.return_value = None
 
         with pytest.raises(IntentKitAPIError) as exc_info:
-            await withdraw(
-                AsyncMock(), "nonexistent_agent", Decimal("10.0"), "tx_no_agent"
-            )
+            await withdraw(AsyncMock(), "nonexistent_agent", Decimal("10.0"), "tx_no_agent")
         assert exc_info.value.status_code == 404
 
 
@@ -628,9 +616,7 @@ async def test_withdraw_agent_no_owner():
             "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
             new_callable=AsyncMock,
         ),
-        patch(
-            "intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock) as mock_get_agent,
     ):
         mock_get_agent.return_value = mock_agent
 
@@ -660,9 +646,7 @@ async def test_withdraw_insufficient_balance():
             "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
             new_callable=AsyncMock,
         ),
-        patch(
-            "intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock) as mock_get_agent,
         patch("intentkit.models.agent_data.AgentData.get", new_callable=AsyncMock),
         patch(
             "intentkit.models.credit.CreditAccount.get_in_session",

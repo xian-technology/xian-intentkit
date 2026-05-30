@@ -48,9 +48,7 @@ class IntentKitAPIError(Exception):
         return f"IntentKitAPIError({self.key}, {self.message}, {self.status_code})"
 
 
-async def intentkit_api_error_handler(
-    request: Request, exc: IntentKitAPIError
-) -> Response:
+async def intentkit_api_error_handler(request: Request, exc: IntentKitAPIError) -> Response:
     if exc.status_code >= 500:
         logger.error("Internal Server Error for request %s: %s", request.url, exc)
     else:

@@ -165,9 +165,7 @@ class TestGetWalletSigner:
                 new_callable=AsyncMock,
                 return_value=mock_account,
             ),
-            patch(
-                "cdp.EvmLocalAccount", return_value=mock_signer
-            ) as mock_local_account,
+            patch("cdp.EvmLocalAccount", return_value=mock_signer) as mock_local_account,
         ):
             signer = await get_wallet_signer(mock_agent)
 
@@ -196,9 +194,7 @@ class TestThreadSafeEvmWalletSigner:
         mock_account = MagicMock()
         mock_account.address = "0x1234567890abcdef"
 
-        with patch(
-            "intentkit.wallets.signer.EvmLocalAccount"
-        ) as mock_local_account_class:
+        with patch("intentkit.wallets.signer.EvmLocalAccount") as mock_local_account_class:
             mock_local_account = MagicMock()
             mock_local_account.address = mock_account.address
             mock_local_account_class.return_value = mock_local_account

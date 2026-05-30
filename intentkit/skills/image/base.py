@@ -73,9 +73,7 @@ class ImageBaseTool(IntentKitSkill, metaclass=ABCMeta):
                 results.append(resp.content)
         return results
 
-    async def _generate_via_openrouter(
-        self, prompt: str, images: list[bytes] | None
-    ) -> bytes:
+    async def _generate_via_openrouter(self, prompt: str, images: list[bytes] | None) -> bytes:
         """Generate image via the OpenRouter chat completions API.
 
         Uses the ``openrouter`` Python SDK so attribution headers and retry
@@ -165,9 +163,7 @@ class ImageBaseTool(IntentKitSkill, metaclass=ABCMeta):
         ext = kind.extension if kind else "png"
         content_type = kind.mime if kind else "image/png"
         image_key = f"{context.agent_id}/image/{skill_name}/{job_id}.{ext}"
-        stored_path = await store_image_bytes(
-            image_bytes, image_key, content_type=content_type
-        )
+        stored_path = await store_image_bytes(image_bytes, image_key, content_type=content_type)
         if not stored_path:
             raise ToolException("Failed to store image: S3 storage not configured")
         url = get_cdn_url(stored_path)
@@ -194,7 +190,7 @@ async def _extract_openrouter_image_bytes(response: Any) -> bytes | None:
     """
     try:
         message = response.choices[0].message
-    except (AttributeError, IndexError):
+    except AttributeError, IndexError:
         return None
 
     for url in _iter_openrouter_image_urls(message):

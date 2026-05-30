@@ -8,9 +8,7 @@ from langchain_core.tools import ArgsSchema
 try:
     import httpx
 except ImportError:
-    raise ImportError(
-        "httpx is required for Casino skills. Install it with: pip install httpx"
-    )
+    raise ImportError("httpx is required for Casino skills. Install it with: pip install httpx")
 from pydantic import BaseModel, Field
 
 from intentkit.skills.casino.base import CasinoBaseTool
@@ -65,9 +63,7 @@ class CasinoDeckDraw(CasinoBaseTool):
             count = validate_card_count(count)
 
             # Get current deck info
-            deck_info = await self.get_agent_skill_data_raw(
-                DECK_STORAGE_KEY, CURRENT_DECK_KEY
-            )
+            deck_info = await self.get_agent_skill_data_raw(DECK_STORAGE_KEY, CURRENT_DECK_KEY)
 
             deck_id = "new"  # Default to new deck
             if deck_info and deck_info.get("deck_id"):
@@ -104,9 +100,7 @@ class CasinoDeckDraw(CasinoBaseTool):
                         )
 
                         # Format card information with images
-                        cards = [
-                            format_card_info(card) for card in data.get("cards", [])
-                        ]
+                        cards = [format_card_info(card) for card in data.get("cards", [])]
 
                         return {
                             "success": True,

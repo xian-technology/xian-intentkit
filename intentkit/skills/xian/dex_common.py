@@ -88,9 +88,7 @@ async def resolve_pair_context(
     token0, token1 = canonical_tokens(buy_token, sell_token)
     pair_id = await provider.get_state(pairs_contract, "toks_to_pair", token0, token1)
     if pair_id is None:
-        raise ToolException(
-            f"No DEX pair exists for tokens {buy_token} and {sell_token}."
-        )
+        raise ToolException(f"No DEX pair exists for tokens {buy_token} and {sell_token}.")
 
     reserve0 = decimal_from_value(
         await provider.get_state(pairs_contract, "pairs", int(pair_id), "reserve0")

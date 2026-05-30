@@ -30,15 +30,9 @@ NAME = "uniswap_swap"
 class UniswapSwapInput(BaseModel):
     """Input for Uniswap swap."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for native token"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for native token"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for native token")
+    token_out: str = Field(description="Output token address, or 'native' for native token")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
     slippage: float = Field(
         default=0.5,
         description="Slippage tolerance in percent (e.g. 0.5 for 0.5%)",
@@ -137,9 +131,7 @@ class UniswapSwap(UniswapBaseTool):
 
             # Approve ERC20 if not native
             if not is_native_in:
-                await ensure_allowance(
-                    w3, wallet, checksum_in, checksum_router, amount_raw
-                )
+                await ensure_allowance(w3, wallet, checksum_in, checksum_router, amount_raw)
 
             # Build swap calldata
             router_contract = w3.eth.contract(

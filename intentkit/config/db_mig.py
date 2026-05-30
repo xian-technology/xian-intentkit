@@ -11,9 +11,7 @@ from intentkit.config.base import Base
 logger = logging.getLogger(__name__)
 
 
-async def add_column_if_not_exists(
-    conn, dialect, table_name: str, column: Column[Any]
-) -> None:
+async def add_column_if_not_exists(conn, dialect, table_name: str, column: Column[Any]) -> None:
     """Add a column to a table if it doesn't exist.
 
     Args:

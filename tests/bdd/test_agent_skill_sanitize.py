@@ -31,9 +31,7 @@ async def test_override_agent_sanitizes_stale_skills():
 
 @pytest.mark.bdd
 async def test_patch_agent_sanitizes_stale_skills():
-    agent = AgentCreate(
-        id="test-sanitize-2", name="Sanitize Patch", model="gpt-4o-mini"
-    )
+    agent = AgentCreate(id="test-sanitize-2", name="Sanitize Patch", model="gpt-4o-mini")
     await create_agent(agent)
 
     update = AgentUpdate(

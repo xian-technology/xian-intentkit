@@ -129,9 +129,7 @@ class TestSetTeamChannel:
                 return_value=expected_channel,
             ),
         ):
-            result = await set_team_channel(
-                "team1", "telegram", {"token": "abc"}, "user1"
-            )
+            result = await set_team_channel("team1", "telegram", {"token": "abc"}, "user1")
 
         assert result.team_id == "team1"
         assert result.channel_type == "telegram"
@@ -170,9 +168,7 @@ class TestSetTeamChannel:
                 return_value=expected_channel,
             ),
         ):
-            result = await set_team_channel(
-                "team1", "telegram", {"token": "new"}, "user1"
-            )
+            result = await set_team_channel("team1", "telegram", {"token": "new"}, "user1")
 
         assert result.config == {"token": "new"}
         assert existing_row.config == {"token": "new"}

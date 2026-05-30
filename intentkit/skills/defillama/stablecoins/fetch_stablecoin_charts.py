@@ -21,9 +21,7 @@ class StablecoinDataPoint(BaseModel):
 
     date: str = Field(..., description="Unix timestamp")
     totalCirculating: CirculatingSupply = Field(..., description="Circulating supply")
-    totalCirculatingUSD: CirculatingSupply = Field(
-        ..., description="Circulating in USD"
-    )
+    totalCirculatingUSD: CirculatingSupply = Field(..., description="Circulating in USD")
 
 
 class FetchStablecoinChartsInput(BaseModel):

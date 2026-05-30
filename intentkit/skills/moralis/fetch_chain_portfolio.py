@@ -16,9 +16,7 @@ class FetchChainPortfolioInput(BaseModel):
 
     address: str = Field(..., description="Wallet address.")
     chain_id: int = Field(..., description="Chain ID.")
-    include_approvals: bool = Field(
-        default=False, description="Include token approvals."
-    )
+    include_approvals: bool = Field(default=False, description="Include token approvals.")
 
 
 class ChainTokenBalance(BaseModel):
@@ -54,9 +52,7 @@ class ChainPortfolioOutput(BaseModel):
     chain_id: int = Field(..., description="Chain ID.")
     chain_name: str = Field(..., description="Chain name.")
     native_token: ChainTokenBalance | None = Field(None, description="Native token.")
-    tokens: list[ChainTokenBalance] = Field(
-        default_factory=list, description="Token balances."
-    )
+    tokens: list[ChainTokenBalance] = Field(default_factory=list, description="Token balances.")
     total_usd_value: float = Field(0.0, description="Total USD value.")
     approvals: list[TokenApproval] | None = Field(None, description="Token approvals.")
     error: str | None = Field(None, description="Error message.")
@@ -70,9 +66,7 @@ class FetchChainPortfolio(WalletBaseTool):
     """
 
     name: str = "moralis_fetch_chain_portfolio"
-    description: str = (
-        "Fetch wallet token balances and USD values for a specific blockchain."
-    )
+    description: str = "Fetch wallet token balances and USD values for a specific blockchain."
     args_schema: ArgsSchema | None = FetchChainPortfolioInput
 
     async def _arun(
@@ -156,9 +150,7 @@ class FetchChainPortfolio(WalletBaseTool):
                             spender=approval.get("spender", ""),
                             spender_name=approval.get("spender_name"),
                             allowance=allowance,
-                            allowance_formatted=float(
-                                approval.get("allowance_formatted", 0)
-                            ),
+                            allowance_formatted=float(approval.get("allowance_formatted", 0)),
                             unlimited=is_unlimited,
                         )
 

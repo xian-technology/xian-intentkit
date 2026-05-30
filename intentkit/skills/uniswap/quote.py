@@ -23,15 +23,9 @@ NAME = "uniswap_quote"
 class UniswapQuoteInput(BaseModel):
     """Input for Uniswap quote."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for native token"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for native token"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for native token")
+    token_out: str = Field(description="Output token address, or 'native' for native token")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
 
 
 class UniswapQuote(UniswapBaseTool):

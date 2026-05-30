@@ -181,9 +181,7 @@ def get_xian_price_config(network_id: str) -> XianPriceConfig:
         raise IntentKitAPIError(
             500,
             "MissingXianSolanaMint",
-            "Set "
-            f"{env_prefix}_PRICE_SOLANA_MINT or XIAN_PRICE_SOLANA_MINT "
-            f"for {normalized}.",
+            f"Set {env_prefix}_PRICE_SOLANA_MINT or XIAN_PRICE_SOLANA_MINT for {normalized}.",
         )
 
     return XianPriceConfig(

@@ -4,9 +4,7 @@ from pathlib import Path
 
 def load_script_module():
     script_path = (
-        Path(__file__).resolve().parents[2]
-        / "scripts"
-        / "export_cdp_wallet_private_keys.py"
+        Path(__file__).resolve().parents[2] / "scripts" / "export_cdp_wallet_private_keys.py"
     )
     spec = spec_from_file_location("export_cdp_wallet_private_keys", script_path)
     if not spec or not spec.loader:

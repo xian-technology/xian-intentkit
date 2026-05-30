@@ -23,9 +23,7 @@ class EnsoRouteShortcutInput(BaseModel):
         None,
         description="Chain ID (defaults to agent network)",
     )
-    amountIn: list[int] = Field(
-        description="Amount in wei (multiply value by token decimals)"
-    )
+    amountIn: list[int] = Field(description="Amount in wei (multiply value by token decimals)")
     tokenIn: list[str] = Field(
         description="Token address to swap from (ETH: 0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee)"
     )
@@ -145,7 +143,9 @@ class EnsoRouteShortcut(EnsoBaseTool):
     """
 
     name: str = "enso_route_shortcut"
-    description: str = "Find optimal swap/deposit route across DeFi protocols. Can broadcast if requested."
+    description: str = (
+        "Find optimal swap/deposit route across DeFi protocols. Can broadcast if requested."
+    )
     args_schema: ArgsSchema | None = EnsoRouteShortcutInput
 
     async def _arun(
@@ -181,9 +181,7 @@ class EnsoRouteShortcut(EnsoBaseTool):
         async with httpx.AsyncClient() as client:
             try:
                 network_name = None
-                networks = await self.get_agent_skill_data_raw(
-                    "enso_get_networks", "networks"
-                )
+                networks = await self.get_agent_skill_data_raw("enso_get_networks", "networks")
 
                 if networks:
                     resolved_key = str(resolved_chain_id)
@@ -197,9 +195,7 @@ class EnsoRouteShortcut(EnsoBaseTool):
                             network_name = network.name
 
                 if not network_name:
-                    raise ToolException(
-                        f"network name not found for chainId: {resolved_chain_id}"
-                    )
+                    raise ToolException(f"network name not found for chainId: {resolved_chain_id}")
 
                 headers = {
                     "accept": "application/json",
@@ -246,9 +242,7 @@ class EnsoRouteShortcut(EnsoBaseTool):
                 res = EnsoRouteShortcutOutput(**json_dict)
                 res.network = network_name
                 decimals = token_decimals.get(tokenOut[0])
-                amount_out = format_amount_with_decimals(
-                    json_dict.get("amountOut"), decimals
-                )
+                amount_out = format_amount_with_decimals(json_dict.get("amountOut"), decimals)
                 if amount_out is not None:
                     res.amountOut = amount_out
 
@@ -269,17 +263,15 @@ class EnsoRouteShortcut(EnsoBaseTool):
                         res.txHash = tx_hash
                     else:
                         # For now, return a placeholder transaction hash if no tx data
-                        res.txHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        res.txHash = (
+                            "0x0000000000000000000000000000000000000000000000000000000000000000"
+                        )
 
                 return res
 
             except httpx.RequestError as req_err:
-                raise ToolException(
-                    f"request error from Enso API: {req_err}"
-                ) from req_err
+                raise ToolException(f"request error from Enso API: {req_err}") from req_err
             except httpx.HTTPStatusError as http_err:
-                raise ToolException(
-                    f"http error from Enso API: {http_err}"
-                ) from http_err
+                raise ToolException(f"http error from Enso API: {http_err}") from http_err
             except Exception as e:
                 raise ToolException(f"error from Enso API: {e}") from e

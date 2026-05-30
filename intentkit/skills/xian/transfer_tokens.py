@@ -33,8 +33,7 @@ class XianTransferTokensInput(BaseModel):
 class XianTransferTokens(XianBaseTool):
     name: str = "xian_transfer_tokens"
     description: str = (
-        "Transfer Xian native currency or another Xian token contract to a "
-        "destination address."
+        "Transfer Xian native currency or another Xian token contract to a destination address."
     )
     args_schema: ArgsSchema | None = XianTransferTokensInput
 

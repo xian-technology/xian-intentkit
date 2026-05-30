@@ -40,9 +40,7 @@ def _format_raw_payment_requirements(payload: dict[str, Any]) -> str | None:
 
     result_parts = ["Payment Required:"]
     resource = payload.get("resource")
-    resource_description = (
-        resource.get("description") if isinstance(resource, dict) else None
-    )
+    resource_description = resource.get("description") if isinstance(resource, dict) else None
     for req in accepts:
         if not isinstance(req, dict):
             continue
@@ -156,13 +154,9 @@ class X402CheckPrice(X402BaseSkill):
                     try:
                         payment_required_header = get_payment_required_header(response)
                         if payment_required_header:
-                            payment_data = decode_payment_required_header(
-                                payment_required_header
-                            )
+                            payment_data = decode_payment_required_header(payment_required_header)
                             if not payment_data:
-                                raise ToolException(
-                                    "Failed to decode payment required header."
-                                )
+                                raise ToolException("Failed to decode payment required header.")
                             default_version = 2
                         else:
                             payment_data = response.json()
@@ -182,18 +176,12 @@ class X402CheckPrice(X402BaseSkill):
                         normalized = normalize_payment_required_payload(
                             payment_data, default_version=default_version
                         )
-                        version = normalized.get("x402Version") or normalized.get(
-                            "x402_version"
-                        )
+                        version = normalized.get("x402Version") or normalized.get("x402_version")
                         try:
                             if version == 1:
-                                payment_response = PaymentRequiredV1.model_validate(
-                                    normalized
-                                )
+                                payment_response = PaymentRequiredV1.model_validate(normalized)
                             else:
-                                payment_response = PaymentRequired.model_validate(
-                                    normalized
-                                )
+                                payment_response = PaymentRequired.model_validate(normalized)
                         except Exception:
                             raw_result = _format_raw_payment_requirements(normalized)
                             if raw_result is not None:
@@ -203,9 +191,7 @@ class X402CheckPrice(X402BaseSkill):
                         # Format the payment requirements for display
                         result_parts = ["Payment Required:"]
                         resource = getattr(payment_response, "resource", None)
-                        resource_description = (
-                            resource.description if resource else None
-                        )
+                        resource_description = resource.description if resource else None
 
                         extensions = getattr(payment_response, "extensions", None)
                         if extensions and isinstance(extensions, dict):
@@ -232,23 +218,12 @@ class X402CheckPrice(X402BaseSkill):
                         for req in payment_response.accepts:
                             amount = _format_amount(req)
                             result_parts.append(f"\n  - Amount: {amount}")
-                            result_parts.append(
-                                f"    Asset: {getattr(req, 'asset', None)}"
-                            )
-                            result_parts.append(
-                                f"    Network: {getattr(req, 'network', None)}"
-                            )
-                            result_parts.append(
-                                f"    Scheme: {getattr(req, 'scheme', None)}"
-                            )
-                            pay_to = getattr(req, "pay_to", None) or getattr(
-                                req, "payTo", None
-                            )
+                            result_parts.append(f"    Asset: {getattr(req, 'asset', None)}")
+                            result_parts.append(f"    Network: {getattr(req, 'network', None)}")
+                            result_parts.append(f"    Scheme: {getattr(req, 'scheme', None)}")
+                            pay_to = getattr(req, "pay_to", None) or getattr(req, "payTo", None)
                             result_parts.append(f"    Pay To: {pay_to}")
-                            description = (
-                                getattr(req, "description", None)
-                                or resource_description
-                            )
+                            description = getattr(req, "description", None) or resource_description
                             result_parts.append(f"    Description: {description}")
                             result_parts.append(
                                 f"    Max Timeout: {getattr(req, 'max_timeout_seconds', None)}s"
@@ -257,9 +232,7 @@ class X402CheckPrice(X402BaseSkill):
                             # Extract input schema from extra field (x402 v2)
                             extra = getattr(req, "extra", None)
                             if extra and isinstance(extra, dict):
-                                input_schema = extra.get("input_schema") or extra.get(
-                                    "inputSchema"
-                                )
+                                input_schema = extra.get("input_schema") or extra.get("inputSchema")
                                 if input_schema:
                                     result_parts.append(
                                         f"\n    Input Schema: {json.dumps(input_schema, indent=6)}"
@@ -267,25 +240,19 @@ class X402CheckPrice(X402BaseSkill):
 
                             output_schema = getattr(req, "output_schema", None)
                             if output_schema:
-                                result_parts.append(
-                                    f"    Output Schema: {output_schema}"
-                                )
+                                result_parts.append(f"    Output Schema: {output_schema}")
                         return "".join(result_parts)
                     except ToolException:
                         raise
                     except Exception as exc:
-                        raise ToolException(
-                            f"Failed to parse payment requirements: {exc}"
-                        ) from exc
+                        raise ToolException(f"Failed to parse payment requirements: {exc}") from exc
                 elif response.status_code == 200:
                     return "No payment required for this resource. It is freely accessible."
                 else:
                     return f"Unexpected response: HTTP {response.status_code} - {response.text}"
 
         except httpx.TimeoutException as exc:
-            raise ToolException(
-                f"Request to {url} timed out after {timeout} seconds"
-            ) from exc
+            raise ToolException(f"Request to {url} timed out after {timeout} seconds") from exc
         except httpx.RequestError as exc:
             raise ToolException(f"Failed to connect to {url} - {str(exc)}") from exc
         except ToolException:

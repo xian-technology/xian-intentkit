@@ -132,18 +132,14 @@ class TestUpdateMemory:
 
             assert len(result.encode("utf-8")) <= MAX_MEMORY_BYTES
             saved_data = mock_patch.call_args[0][1]
-            assert (
-                len(saved_data["long_term_memory"].encode("utf-8")) <= MAX_MEMORY_BYTES
-            )
+            assert len(saved_data["long_term_memory"].encode("utf-8")) <= MAX_MEMORY_BYTES
 
     @pytest.mark.asyncio
     async def test_fallback_on_llm_failure(self, mock_agent_data):
         mock_agent_data.long_term_memory = "existing memory"
 
         mock_llm_model = AsyncMock()
-        mock_llm_model.create_instance = AsyncMock(
-            side_effect=Exception("LLM unavailable")
-        )
+        mock_llm_model.create_instance = AsyncMock(side_effect=Exception("LLM unavailable"))
 
         with (
             patch(
@@ -177,9 +173,7 @@ class TestUpdateMemory:
         mock_agent_data.long_term_memory = None
 
         mock_llm_model = AsyncMock()
-        mock_llm_model.create_instance = AsyncMock(
-            side_effect=Exception("LLM unavailable")
-        )
+        mock_llm_model.create_instance = AsyncMock(side_effect=Exception("LLM unavailable"))
 
         with (
             patch(
@@ -239,9 +233,7 @@ class TestUpdateMemory:
             assert isinstance(result, str)
 
     @pytest.mark.asyncio
-    async def test_invalidates_lead_cache_for_team_agent(
-        self, mock_agent_data, mock_llm
-    ):
+    async def test_invalidates_lead_cache_for_team_agent(self, mock_agent_data, mock_llm):
         """team-* agent IDs should trigger lead cache invalidation."""
         mock_llm_model, _ = mock_llm
 

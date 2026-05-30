@@ -64,9 +64,7 @@ class OptimizedCreditEventConsistencyFixer:
         self.start_time = time.time()
         self.executor = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
-    def check_record_consistency(
-        self, record: CreditEventTable
-    ) -> tuple[bool, list[str]]:
+    def check_record_consistency(self, record: CreditEventTable) -> tuple[bool, list[str]]:
         """Check if a single record is consistent.
 
         Returns:
@@ -128,9 +126,7 @@ class OptimizedCreditEventConsistencyFixer:
 
         return len(errors) == 0, errors
 
-    def calculate_detailed_amounts(
-        self, record: CreditEventTable
-    ) -> dict[str, Decimal]:
+    def calculate_detailed_amounts(self, record: CreditEventTable) -> dict[str, Decimal]:
         """Calculate the 12 detailed amount fields using the same logic as expense_skill.
 
         Returns:
@@ -197,9 +193,7 @@ class OptimizedCreditEventConsistencyFixer:
 
             # Calculate permanent amount as the remainder to ensure the sum equals fee_platform_amount
             fee_platform_permanent_amount = (
-                fee_platform_amount
-                - fee_platform_free_amount
-                - fee_platform_reward_amount
+                fee_platform_amount - fee_platform_free_amount - fee_platform_reward_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         # Calculate fee_agent amounts by credit type
@@ -210,9 +204,9 @@ class OptimizedCreditEventConsistencyFixer:
         if fee_agent_amount > Decimal("0") and total_amount > Decimal("0"):
             # Calculate proportions based on the formula
             if free_amount > Decimal("0"):
-                fee_agent_free_amount = (
-                    free_amount * fee_agent_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_agent_free_amount = (free_amount * fee_agent_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             if reward_amount > Decimal("0"):
                 fee_agent_reward_amount = (
@@ -232,14 +226,14 @@ class OptimizedCreditEventConsistencyFixer:
         if fee_dev_amount > Decimal("0") and total_amount > Decimal("0"):
             # Calculate proportions based on the formula
             if free_amount > Decimal("0"):
-                fee_dev_free_amount = (
-                    free_amount * fee_dev_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_dev_free_amount = (free_amount * fee_dev_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             if reward_amount > Decimal("0"):
-                fee_dev_reward_amount = (
-                    reward_amount * fee_dev_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_dev_reward_amount = (reward_amount * fee_dev_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             # Calculate permanent amount as the remainder to ensure the sum equals fee_dev_amount
             fee_dev_permanent_amount = (
@@ -279,9 +273,7 @@ class OptimizedCreditEventConsistencyFixer:
         # Process records concurrently
         tasks = []
         for record in records:
-            task = loop.run_in_executor(
-                self.executor, self._process_single_record, record
-            )
+            task = loop.run_in_executor(self.executor, self._process_single_record, record)
             tasks.append(task)
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -357,9 +349,7 @@ class OptimizedCreditEventConsistencyFixer:
 
     async def find_and_fix_inconsistent_records(self, session: AsyncSession):
         """Find all inconsistent records and fix them using optimized approach with cursor-based pagination."""
-        logger.info(
-            "Starting credit event consistency fixing with cursor-based pagination..."
-        )
+        logger.info("Starting credit event consistency fixing with cursor-based pagination...")
 
         last_id = ""
         batch_number = 1
@@ -381,9 +371,7 @@ class OptimizedCreditEventConsistencyFixer:
             self.total_records += len(records)
 
             # Process batch concurrently
-            updates, fixed_count, failed_count = await self.process_records_batch(
-                session, records
-            )
+            updates, fixed_count, failed_count = await self.process_records_batch(session, records)
 
             # Accumulate updates
             pending_updates.extend(updates)
@@ -391,14 +379,9 @@ class OptimizedCreditEventConsistencyFixer:
             self.failed_fixes += failed_count
 
             # Apply updates in batches and commit periodically
-            if (
-                len(pending_updates) >= BATCH_UPDATE_SIZE
-                or batch_number % COMMIT_INTERVAL == 0
-            ):
+            if len(pending_updates) >= BATCH_UPDATE_SIZE or batch_number % COMMIT_INTERVAL == 0:
                 if pending_updates:
-                    successful, failed = await self.batch_update_records(
-                        session, pending_updates
-                    )
+                    successful, failed = await self.batch_update_records(session, pending_updates)
                     self.fixed_records += successful
                     self.failed_fixes += failed
 
@@ -418,9 +401,7 @@ class OptimizedCreditEventConsistencyFixer:
 
         # Apply any remaining updates
         if pending_updates:
-            successful, failed = await self.batch_update_records(
-                session, pending_updates
-            )
+            successful, failed = await self.batch_update_records(session, pending_updates)
             self.fixed_records += successful
             self.failed_fixes += failed
             await session.commit()
@@ -444,9 +425,7 @@ class OptimizedCreditEventConsistencyFixer:
 
         if self.total_records > 0:
             consistency_rate = (
-                (self.total_records - self.inconsistent_records)
-                / self.total_records
-                * 100
+                (self.total_records - self.inconsistent_records) / self.total_records * 100
             )
             print(f"Original consistency rate: {consistency_rate:.2f}%")
             final_consistency_rate = (
@@ -454,9 +433,7 @@ class OptimizedCreditEventConsistencyFixer:
             )
             print(f"Final consistency rate: {final_consistency_rate:.2f}%")
 
-            records_per_second = (
-                self.total_records / elapsed_time if elapsed_time > 0 else 0
-            )
+            records_per_second = self.total_records / elapsed_time if elapsed_time > 0 else 0
             print(f"Processing rate: {records_per_second:.2f} records/second")
 
         print("=" * 60)

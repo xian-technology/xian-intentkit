@@ -25,30 +25,22 @@ class TeamSubscriptionTable(Base):
 
 class TeamActivityFeedTable(Base):
     __tablename__: str = "team_activity_feed"
-    __table_args__: Any = (
-        Index("ix_team_activity_feed_team_created", "team_id", "created_at"),
-    )
+    __table_args__: Any = (Index("ix_team_activity_feed_team_created", "team_id", "created_at"),)
 
     team_id: Mapped[str] = mapped_column(String, primary_key=True)
     activity_id: Mapped[str] = mapped_column(String, primary_key=True)
     agent_id: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class TeamPostFeedTable(Base):
     __tablename__: str = "team_post_feed"
-    __table_args__: Any = (
-        Index("ix_team_post_feed_team_created", "team_id", "created_at"),
-    )
+    __table_args__: Any = (Index("ix_team_post_feed_team_created", "team_id", "created_at"),)
 
     team_id: Mapped[str] = mapped_column(String, primary_key=True)
     post_id: Mapped[str] = mapped_column(String, primary_key=True)
     agent_id: Mapped[str] = mapped_column(String, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), nullable=False
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class TeamSubscription(BaseModel):

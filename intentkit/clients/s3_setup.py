@@ -22,9 +22,7 @@ def ensure_bucket_exists_and_public() -> None:
 
     client = get_s3_client()
     if not client or not config.aws_s3_bucket:
-        logger.warning(
-            "S3 client not initialized or bucket not configured. Skipping bucket setup."
-        )
+        logger.warning("S3 client not initialized or bucket not configured. Skipping bucket setup.")
         return
 
     bucket_name = config.aws_s3_bucket
@@ -64,9 +62,7 @@ def ensure_bucket_exists_and_public() -> None:
                 # Convert policy to JSON string
                 policy_json = json.dumps(policy)
 
-                logger.info(
-                    "Setting public read policy for bucket '%s'...", bucket_name
-                )
+                logger.info("Setting public read policy for bucket '%s'...", bucket_name)
                 try:
                     client.put_bucket_policy(Bucket=bucket_name, Policy=policy_json)
                     logger.info("Public read policy set for bucket '%s'.", bucket_name)

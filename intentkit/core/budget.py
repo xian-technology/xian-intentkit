@@ -56,9 +56,7 @@ async def check_hourly_budget_exceeded(scope: str) -> HourlyBudgetResult:
     """Check whether the current hour total exceeds the configured budget."""
     budget = config.hourly_budget
     if budget is None:
-        return HourlyBudgetResult(
-            exceeded=False, current_total=Decimal("0"), budget=None
-        )
+        return HourlyBudgetResult(exceeded=False, current_total=Decimal("0"), budget=None)
     redis = get_redis()
     key = _current_hour_key(scope)
     current_raw = await redis.get(key)

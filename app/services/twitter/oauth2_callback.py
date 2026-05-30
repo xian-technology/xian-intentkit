@@ -40,7 +40,7 @@ def is_valid_redirect_url(url: str) -> bool:
         base = urlparse(config.app_base_url)
         # Redirect URI must share the same scheme and host as APP_BASE_URL
         return result.scheme == base.scheme and result.netloc == base.netloc
-    except (ValueError, AttributeError, TypeError):
+    except ValueError, AttributeError, TypeError:
         return False
 
 
@@ -79,9 +79,7 @@ async def twitter_oauth_callback(
         redirect_uri = state_params.get("redirect_uri", [""])[0]
 
         if error:
-            raise IntentKitAPIError(
-                status_code=400, key="TwitterAuthError", message=error
-            )
+            raise IntentKitAPIError(status_code=400, key="TwitterAuthError", message=error)
 
         if not code:
             raise IntentKitAPIError(
@@ -108,12 +106,8 @@ async def twitter_oauth_callback(
         agent_data = await AgentData.get(agent_id)
 
         # Exchange code for tokens (sync HTTP call, run in thread to avoid blocking)
-        authorization_response = (
-            f"{config.twitter_oauth2_redirect_uri}?state={state}&code={code}"
-        )
-        token = await asyncio.to_thread(
-            oauth2_user_handler.get_token, authorization_response
-        )
+        authorization_response = f"{config.twitter_oauth2_redirect_uri}?state={state}&code={code}"
+        token = await asyncio.to_thread(oauth2_user_handler.get_token, authorization_response)
 
         # Store tokens in database
         agent_data.twitter_access_token = token["access_token"]
@@ -123,9 +117,7 @@ async def twitter_oauth_callback(
         )
 
         # Get user info (sync HTTP call, run in thread to avoid blocking)
-        client = tweepy.Client(
-            bearer_token=token["access_token"], return_type=cast(Any, dict)
-        )
+        client = tweepy.Client(bearer_token=token["access_token"], return_type=cast(Any, dict))
         me: dict[str, Any] | Any = await asyncio.to_thread(
             client.get_me,
             user_auth=False,

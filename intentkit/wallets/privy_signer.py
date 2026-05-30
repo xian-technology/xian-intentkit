@@ -231,9 +231,7 @@ class PrivyWalletSigner:
             hash_bytes = bytes.fromhex(str(message_hash).replace("0x", ""))
 
         # Sign via Privy using sign_hash
-        signature_hex = self._run_in_thread(
-            self.privy_client.sign_hash(self.wallet_id, hash_bytes)
-        )
+        signature_hex = self._run_in_thread(self.privy_client.sign_hash(self.wallet_id, hash_bytes))
 
         # Parse the signature
         signature_bytes = bytes.fromhex(signature_hex.replace("0x", ""))

@@ -73,9 +73,7 @@ class ShareLink(ShareLinkBase):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
-    id: Annotated[
-        str, PydanticField(description="Unique identifier for the share link")
-    ]
+    id: Annotated[str, PydanticField(description="Unique identifier for the share link")]
     view_count: Annotated[
         int,
         PydanticField(
@@ -103,12 +101,8 @@ class SharedChatInfo(BaseModel):
     id: Annotated[str, PydanticField(description="Chat ID")]
     agent_id: Annotated[str, PydanticField(description="Agent ID")]
     summary: Annotated[str, PydanticField(description="Chat summary / title")]
-    created_at: Annotated[
-        datetime, PydanticField(description="Chat creation timestamp")
-    ]
-    updated_at: Annotated[
-        datetime, PydanticField(description="Chat last-update timestamp")
-    ]
+    created_at: Annotated[datetime, PydanticField(description="Chat creation timestamp")]
+    updated_at: Annotated[datetime, PydanticField(description="Chat last-update timestamp")]
 
 
 class SharedChatView(BaseModel):

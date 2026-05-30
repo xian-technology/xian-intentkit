@@ -21,9 +21,7 @@ class SupplyCollateralInput(BaseModel):
     """Input for Morpho Blue supply collateral."""
 
     market_id: str = Field(description="Morpho Blue market ID (bytes32 hex string)")
-    amount: str = Field(
-        description="Amount of collateral in whole units (e.g. '1' for 1 WETH)"
-    )
+    amount: str = Field(description="Amount of collateral in whole units (e.g. '1' for 1 WETH)")
 
 
 class MorphoSupplyCollateral(MorphoBaseTool):
@@ -73,17 +71,11 @@ class MorphoSupplyCollateral(MorphoBaseTool):
                 raise ToolException("Error: Amount must be greater than 0")
             atomic_amount = int(amount_decimal * (10**decimals))
 
-            approve_data = token_contract.encode_abi(
-                "approve", [checksum_morpho, atomic_amount]
-            )
-            approve_tx = await wallet.send_transaction(
-                to=collateral_token, data=approve_data
-            )
+            approve_data = token_contract.encode_abi("approve", [checksum_morpho, atomic_amount])
+            approve_tx = await wallet.send_transaction(to=collateral_token, data=approve_data)
             receipt = await wallet.wait_for_receipt(approve_tx)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Error: Approval transaction failed. Hash: {approve_tx}"
-                )
+                raise ToolException(f"Error: Approval transaction failed. Hash: {approve_tx}")
 
             market_params = (loan_token, collateral_token, oracle, irm, lltv)
 
@@ -96,9 +88,7 @@ class MorphoSupplyCollateral(MorphoBaseTool):
             tx_hash = await wallet.send_transaction(to=checksum_morpho, data=call_data)
             receipt = await wallet.wait_for_receipt(tx_hash)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Supply collateral transaction failed. Hash: {tx_hash}"
-                )
+                raise ToolException(f"Supply collateral transaction failed. Hash: {tx_hash}")
 
             return (
                 f"**Morpho Blue Supply Collateral**\n"

@@ -110,9 +110,7 @@ async def create_chat_thread(
     )
     _ = await chat.save()
     if request and should_summarize_first_message(request.first_message):
-        await update_chat_summary_from_first_message(
-            aid, chat.id, request.first_message or ""
-        )
+        await update_chat_summary_from_first_message(aid, chat.id, request.first_message or "")
     full_chat = await Chat.get(chat.id)
     return full_chat
 
@@ -190,9 +188,7 @@ async def list_messages(
     db: AsyncSession = Depends(get_db),
     auth: tuple[str, str] = Depends(verify_team_member),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get message history for a team agent chat thread."""
     _user_id, team_id = auth
@@ -217,9 +213,7 @@ async def list_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
         has_more=has_more,
@@ -251,9 +245,7 @@ async def send_message(
     if not await check_permission(team_id, chat.user_id, TeamRole.MEMBER):
         raise _chat_not_found()
 
-    should_schedule_summary = await should_schedule_chat_summary(
-        aid, chat_id, AuthorType.WEB
-    )
+    should_schedule_summary = await should_schedule_chat_summary(aid, chat_id, AuthorType.WEB)
 
     if not chat.summary:
         summary = textwrap.shorten(request.message, width=20, placeholder="...")
@@ -371,9 +363,7 @@ async def retry_message(
     )
 
     if not last:
-        raise IntentKitAPIError(
-            status_code=404, key="NoMessagesFound", message="No messages found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NoMessagesFound", message="No messages found")
 
     last_message = ChatMessage.model_validate(last)
 
@@ -494,6 +484,4 @@ async def get_skill_history(
 
 
 def _chat_not_found():
-    return IntentKitAPIError(
-        status_code=404, key="ChatNotFound", message="Chat not found"
-    )
+    return IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")

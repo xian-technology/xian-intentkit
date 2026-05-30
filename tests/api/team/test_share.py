@@ -35,9 +35,7 @@ class TestCreateTeamShareLink:
     @patch("app.team.share.create_share_link", new_callable=AsyncMock)
     @patch("app.team.share.get_accessible_agent", new_callable=AsyncMock)
     @patch("app.team.share.get_agent_post", new_callable=AsyncMock)
-    async def test_creates_post_share(
-        self, mock_get_post, mock_accessible, mock_create
-    ):
+    async def test_creates_post_share(self, mock_get_post, mock_accessible, mock_create):
         from unittest.mock import MagicMock
 
         post = MagicMock()
@@ -46,9 +44,7 @@ class TestCreateTeamShareLink:
         mock_accessible.return_value = MagicMock()
         mock_create.return_value = _make_share_link("sl-abc")
 
-        payload = ShareLinkRequest(
-            target_type=ShareLinkTargetType.POST, target_id="post-1"
-        )
+        payload = ShareLinkRequest(target_type=ShareLinkTargetType.POST, target_id="post-1")
         resp = await create_team_share_link(payload, auth=("user-1", "team-1"))
 
         assert isinstance(resp, ShareLinkResponse)
@@ -65,9 +61,7 @@ class TestCreateTeamShareLink:
     @patch("app.team.share.get_agent_post", new_callable=AsyncMock)
     async def test_404_when_post_missing(self, mock_get_post):
         mock_get_post.return_value = None
-        payload = ShareLinkRequest(
-            target_type=ShareLinkTargetType.POST, target_id="missing"
-        )
+        payload = ShareLinkRequest(target_type=ShareLinkTargetType.POST, target_id="missing")
         with pytest.raises(IntentKitAPIError) as exc:
             await create_team_share_link(payload, auth=("user-1", "team-1"))
         assert exc.value.status_code == 404
@@ -90,9 +84,7 @@ class TestCreateTeamShareLink:
         mock_check.return_value = True
         mock_create.return_value = _make_share_link("sl-chat")
 
-        payload = ShareLinkRequest(
-            target_type=ShareLinkTargetType.CHAT, target_id="chat-1"
-        )
+        payload = ShareLinkRequest(target_type=ShareLinkTargetType.CHAT, target_id="chat-1")
         resp = await create_team_share_link(payload, auth=("user-1", "team-1"))
 
         assert resp.id == "sl-chat"
@@ -114,9 +106,7 @@ class TestCreateTeamShareLink:
         mock_accessible.return_value = MagicMock()
         mock_check.return_value = False
 
-        payload = ShareLinkRequest(
-            target_type=ShareLinkTargetType.CHAT, target_id="chat-1"
-        )
+        payload = ShareLinkRequest(target_type=ShareLinkTargetType.CHAT, target_id="chat-1")
         with pytest.raises(IntentKitAPIError) as exc:
             await create_team_share_link(payload, auth=("user-1", "team-1"))
         assert exc.value.status_code == 404

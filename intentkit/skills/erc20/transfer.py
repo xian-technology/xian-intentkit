@@ -89,9 +89,7 @@ class ERC20Transfer(ERC20BaseTool):
 
             # Check if destination is also an ERC20 token contract
             # This helps prevent accidental transfers to token contracts
-            destination_token_details = await get_token_details(
-                wallet, destination_address
-            )
+            destination_token_details = await get_token_details(wallet, destination_address)
             if destination_token_details:
                 raise ToolException(
                     "Error: Transfer destination is an ERC20 token contract. "
@@ -100,9 +98,7 @@ class ERC20Transfer(ERC20BaseTool):
 
             # Encode transfer function
             contract = w3.eth.contract(address=checksum_contract, abi=ERC20_ABI)
-            data = contract.encode_abi(
-                "transfer", [checksum_destination, amount_in_atomic_units]
-            )
+            data = contract.encode_abi("transfer", [checksum_destination, amount_in_atomic_units])
 
             # Send transaction
             tx_hash = await wallet.send_transaction(

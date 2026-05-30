@@ -111,9 +111,7 @@ class TestSetPushChannelIfEmpty:
     @pytest.mark.asyncio
     async def test_already_set_returns_false(self):
         ctx, mock_db = _make_mock_session()
-        mock_team = _make_team(
-            default_channel="telegram", default_channel_chat_id="existing"
-        )
+        mock_team = _make_team(default_channel="telegram", default_channel_chat_id="existing")
         mock_db.get = AsyncMock(return_value=mock_team)
 
         with patch(f"{MODULE_CHANNEL}.get_session", return_value=ctx):
@@ -180,9 +178,7 @@ class TestGetPushChannel:
     @pytest.mark.asyncio
     async def test_returns_push_channel(self):
         ctx, mock_db = _make_mock_session()
-        mock_team = _make_team(
-            default_channel="telegram", default_channel_chat_id="123"
-        )
+        mock_team = _make_team(default_channel="telegram", default_channel_chat_id="123")
         mock_db.get = AsyncMock(return_value=mock_team)
 
         with patch(f"{MODULE_CHANNEL}.get_session", return_value=ctx):
@@ -258,9 +254,7 @@ class TestFormatActivityPush:
                 created_at=datetime.now(),
             )
 
-        monkeypatch.setattr(
-            agent_activity_module, "create_share_link", fake_create_share_link
-        )
+        monkeypatch.setattr(agent_activity_module, "create_share_link", fake_create_share_link)
 
         activity = MagicMock()
         activity.agent_name = "TestBot"

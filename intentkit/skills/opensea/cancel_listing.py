@@ -16,13 +16,9 @@ class CancelListingInput(BaseModel):
     """Input for canceling an OpenSea listing."""
 
     order_hash: str = Field(description="The order hash of the listing to cancel")
-    protocol_address: str = Field(
-        description="The protocol contract address (from get_listings)"
-    )
+    protocol_address: str = Field(description="The protocol contract address (from get_listings)")
     chain: str = Field(
-        description=(
-            "The blockchain name (e.g., 'ethereum', 'matic', 'base', 'arbitrum')"
-        )
+        description=("The blockchain name (e.g., 'ethereum', 'matic', 'base', 'arbitrum')")
     )
 
 
@@ -55,11 +51,7 @@ class OpenSeaCancelListing(OpenSeaBaseTool):
             if error:
                 return json.dumps(error)
 
-            return (
-                f"**Listing Cancelled on OpenSea**\n"
-                f"Order Hash: {order_hash}\n"
-                f"Chain: {chain}"
-            )
+            return f"**Listing Cancelled on OpenSea**\nOrder Hash: {order_hash}\nChain: {chain}"
 
         except ToolException:
             raise

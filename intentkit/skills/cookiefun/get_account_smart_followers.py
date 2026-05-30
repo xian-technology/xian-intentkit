@@ -21,9 +21,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
     """Tool to get smart followers for a Twitter account."""
 
     name: str = "cookiefun_get_account_smart_followers"
-    description: str = (
-        "Get top smart followers for a Twitter account with detailed metrics."
-    )
+    description: str = "Get top smart followers for a Twitter account with detailed metrics."
     price: Decimal = Decimal("70")
     args_schema: ArgsSchema | None = GetAccountSmartFollowersInput
 
@@ -43,9 +41,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
         Returns:
             List of top smart followers with their metrics.
         """
-        logger.info(
-            "Getting smart followers for username=%s, userId=%s", username, userId
-        )
+        logger.info("Getting smart followers for username=%s, userId=%s", username, userId)
 
         # Validate input parameters
         if not username and not userId:
@@ -74,9 +70,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
                 response = await client.post(
                     ENDPOINTS["smart_followers"], headers=headers, json=payload
                 )
-                logger.debug(
-                    "Received response with status code: %d", response.status_code
-                )
+                logger.debug("Received response with status code: %d", response.status_code)
 
                 response.raise_for_status()
                 data = response.json()
@@ -91,9 +85,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
                     return followers
                 elif data.get("success") and "ok" in data and "accounts" in data["ok"]:
                     followers = data["ok"]["accounts"]
-                    logger.info(
-                        "Successfully retrieved %d smart followers", len(followers)
-                    )
+                    logger.info("Successfully retrieved %d smart followers", len(followers))
                     return followers
                 elif data.get("success") and "ok" in data and "followers" in data["ok"]:
                     followers = data["ok"]["followers"]
@@ -102,11 +94,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
                         len(followers),
                     )
                     return followers
-                elif (
-                    data.get("success")
-                    and "ok" in data
-                    and isinstance(data["ok"], list)
-                ):
+                elif data.get("success") and "ok" in data and isinstance(data["ok"], list):
                     followers = data["ok"]
                     logger.info(
                         "Successfully retrieved %d smart followers from ok list",
@@ -161,9 +149,7 @@ class GetAccountSmartFollowers(CookieFunBaseTool):
                         "Could not find smart followers in response structure. Full response: %s",
                         data,
                     )
-                    error_msg = data.get(
-                        "error", "Unknown error - check API response format"
-                    )
+                    error_msg = data.get("error", "Unknown error - check API response format")
                     logger.error("Error in API response: %s", error_msg)
                     raise ToolException(f"Error fetching smart followers: {error_msg}")
         except ToolException:

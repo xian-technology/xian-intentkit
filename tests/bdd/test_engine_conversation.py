@@ -50,9 +50,7 @@ async def require_available_llm_model() -> None:
         await LLMModelInfo.get(MODEL)
     except IntentKitAPIError as exc:
         if exc.key == "ModelNotFound":
-            pytest.skip(
-                f"No configured LLM model available for live BDD engine tests: {MODEL}"
-            )
+            pytest.skip(f"No configured LLM model available for live BDD engine tests: {MODEL}")
         raise
 
 
@@ -217,15 +215,11 @@ async def test_skill_call_current_time() -> None:
 
         if uses_server_datetime:
             # Server tools are transparent — any agent reply is fine
-            agent_replies = [
-                r for r in last_responses if r.author_type == AuthorType.AGENT
-            ]
+            agent_replies = [r for r in last_responses if r.author_type == AuthorType.AGENT]
             if agent_replies:
                 break
         else:
-            skill_msgs = [
-                r for r in last_responses if r.author_type == AuthorType.SKILL
-            ]
+            skill_msgs = [r for r in last_responses if r.author_type == AuthorType.SKILL]
             if skill_msgs:
                 break  # Model used a tool — proceed with assertions
 
@@ -332,9 +326,7 @@ async def test_multi_turn_conversation() -> None:
     agent_replies2 = [r for r in responses2 if r.author_type == AuthorType.AGENT]
     assert len(agent_replies2) >= 1
     combined_text = " ".join(r.message for r in agent_replies2)
-    assert "TestUser" in combined_text, (
-        f"Expected 'TestUser' in agent reply, got: {combined_text}"
-    )
+    assert "TestUser" in combined_text, f"Expected 'TestUser' in agent reply, got: {combined_text}"
 
     # Then — check all messages persisted
     db_messages = await query_chat_messages("engine-multi-1", "chat-multi-1")

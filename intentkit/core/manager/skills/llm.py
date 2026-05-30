@@ -18,9 +18,7 @@ class GetAvailableLLMs(ManagerSkill):
     """Skill to retrieve list of available LLM models."""
 
     name: str = "get_available_llms"
-    description: str = (
-        "Retrieve a list of available LLM model IDs that can be used for agents."
-    )
+    description: str = "Retrieve a list of available LLM model IDs that can be used for agents."
     args_schema: ArgsSchema | None = NoArgsSchema
 
     @override

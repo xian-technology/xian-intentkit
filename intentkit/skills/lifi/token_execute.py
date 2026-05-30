@@ -31,21 +31,13 @@ from intentkit.skills.lifi.utils import (
 class TokenExecuteInput(BaseModel):
     """Input for the TokenExecute skill."""
 
-    from_chain: str = Field(
-        description="Source chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key."
-    )
+    from_chain: str = Field(description="Source chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key.")
     to_chain: str = Field(
         description="Destination chain (e.g. 'ETH', 'POL', 'ARB'). Chain ID or key."
     )
-    from_token: str = Field(
-        description="Token to send (e.g. 'USDC', 'ETH'). Address or symbol."
-    )
-    to_token: str = Field(
-        description="Token to receive (e.g. 'USDC', 'ETH'). Address or symbol."
-    )
-    from_amount: str = Field(
-        description="Amount in smallest unit (e.g. '1000000' for 1 USDC)."
-    )
+    from_token: str = Field(description="Token to send (e.g. 'USDC', 'ETH'). Address or symbol.")
+    to_token: str = Field(description="Token to receive (e.g. 'USDC', 'ETH'). Address or symbol.")
+    from_amount: str = Field(description="Amount in smallest unit (e.g. '1000000' for 1 USDC).")
     slippage: float = Field(
         default=0.03,
         description="Max slippage as decimal (e.g. 0.03 for 3%).",
@@ -265,9 +257,7 @@ class TokenExecute(LiFiBaseTool):
             self.logger.error("LiFi_API_Error: %s", str(e))
             raise ToolException(f"Error making API request: {e!s}")
         # Handle response
-        data, error = handle_api_response(
-            response, from_token, from_chain, to_token, to_chain
-        )
+        data, error = handle_api_response(response, from_token, from_chain, to_token, to_chain)
         if error or data is None:
             self.logger.error("LiFi_API_Error: %s", error)
             raise ToolException(error or "No data returned from LiFi API")
@@ -328,9 +318,7 @@ class TokenExecute(LiFiBaseTool):
         transaction_request: dict[str, Any] = quote_data.get("transactionRequest", {})
 
         try:
-            tx_params = prepare_transaction_params(
-                transaction_request, wallet_address=from_address
-            )
+            tx_params = prepare_transaction_params(transaction_request, wallet_address=from_address)
             tx_request = self._build_transaction_request(tx_params)
             self.logger.info(
                 f"Sending transaction to {tx_params['to']} with value {tx_params.get('value', 0)}"
@@ -350,9 +338,7 @@ class TokenExecute(LiFiBaseTool):
             self.logger.error("LiFi_Execution_Error: %s", str(e))
             raise ToolException(f"Failed to execute transaction: {str(e)}")
 
-    def _build_transaction_request(
-        self, tx_params: dict[str, Any]
-    ) -> TransactionRequestEIP1559:
+    def _build_transaction_request(self, tx_params: dict[str, Any]) -> TransactionRequestEIP1559:
         """Convert prepared transaction parameters to an EIP-1559 request."""
         request_kwargs: dict[str, Any] = {
             "to": AsyncWeb3.to_checksum_address(tx_params["to"]),
@@ -370,18 +356,14 @@ class TokenExecute(LiFiBaseTool):
 
         return TransactionRequestEIP1559(**request_kwargs)
 
-    async def _wait_for_receipt(
-        self, web3: AsyncWeb3, tx_hash: str
-    ) -> dict[str, Any] | None:
+    async def _wait_for_receipt(self, web3: AsyncWeb3, tx_hash: str) -> dict[str, Any] | None:
         """Wait for a transaction receipt."""
 
         try:
             receipt = await web3.eth.wait_for_transaction_receipt(HexBytes(tx_hash))
         except TimeExhausted as exc:
             self.logger.error("LiFi_Execution_Error: %s", str(exc))
-            raise ToolException(
-                f"Transaction not confirmed before timeout: {tx_hash}"
-            ) from exc
+            raise ToolException(f"Transaction not confirmed before timeout: {tx_hash}") from exc
         except Exception as exc:
             self.logger.error("LiFi_Execution_Error: %s", str(exc))
             raise
@@ -418,9 +400,7 @@ class TokenExecute(LiFiBaseTool):
         }
 
         # Format transaction result with explorer URL
-        transaction_result = format_transaction_result(
-            tx_hash, from_chain_id, token_info
-        )
+        transaction_result = format_transaction_result(tx_hash, from_chain_id, token_info)
 
         # Format quote details
         formatted_quote = self.format_quote_result(quote_data)
@@ -474,9 +454,7 @@ class TokenExecute(LiFiBaseTool):
                     if status == "DONE":
                         receiving_tx = status_data.get("receiving", {}).get("txHash")
                         if receiving_tx:
-                            return (
-                                f"**Status:** Complete (destination tx: {receiving_tx})"
-                            )
+                            return f"**Status:** Complete (destination tx: {receiving_tx})"
                         else:
                             return "**Status:** Complete"
                     elif status == "FAILED":
@@ -488,9 +466,7 @@ class TokenExecute(LiFiBaseTool):
                         return f"**Status:** {status}"
 
             except Exception as e:
-                self.logger.warning(
-                    f"Status check failed (attempt {attempt + 1}): {str(e)}"
-                )
+                self.logger.warning(f"Status check failed (attempt {attempt + 1}): {str(e)}")
 
             attempt += 1
             if attempt < max_attempts:
@@ -526,9 +502,7 @@ class TokenExecute(LiFiBaseTool):
                 required_amount = int(amount)
 
                 if current_allowance >= required_amount:
-                    self.logger.info(
-                        f"Sufficient allowance already exists: {current_allowance}"
-                    )
+                    self.logger.info(f"Sufficient allowance already exists: {current_allowance}")
                     return None  # No approval needed
 
             except Exception as e:
@@ -536,9 +510,7 @@ class TokenExecute(LiFiBaseTool):
                 # Continue with approval anyway
 
             # Set approval for the required amount
-            self.logger.info(
-                f"Setting token approval for {amount} tokens to {approval_address}"
-            )
+            self.logger.info(f"Setting token approval for {amount} tokens to {approval_address}")
 
             # Create approval transaction
             approve_data = create_erc20_approve_data(approval_address, amount)

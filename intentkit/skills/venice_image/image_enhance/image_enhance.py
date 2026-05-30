@@ -47,9 +47,7 @@ class ImageEnhance(VeniceImageEnhanceBaseTool):
             if not image_base64:
                 error_msg = f"Failed to fetch or validate image from URL: {image_url}"
                 logger.error(error_msg)
-                raise ToolException(
-                    str({"success": False, "error": error_msg, "result": None})
-                )
+                raise ToolException(str({"success": False, "error": error_msg, "result": None}))
 
             payload = {
                 "image": image_base64,

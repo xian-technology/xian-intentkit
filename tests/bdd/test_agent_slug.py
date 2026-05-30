@@ -127,9 +127,7 @@ async def test_patch_agent_slug_immutable():
     )
     await create_agent(agent_data)
 
-    update = AgentUpdate(
-        name="Immutable Slug Agent", model="gpt-4o-mini", slug="different-slug"
-    )
+    update = AgentUpdate(name="Immutable Slug Agent", model="gpt-4o-mini", slug="different-slug")
     with pytest.raises(IntentKitAPIError) as exc_info:
         await patch_agent("slug-immutable-test", update)
 
@@ -176,9 +174,7 @@ async def test_override_agent_slug_immutable():
     )
     await create_agent(agent_data)
 
-    update = AgentUpdate(
-        name="Override Slug Agent", model="gpt-4o-mini", slug="changed-slug"
-    )
+    update = AgentUpdate(name="Override Slug Agent", model="gpt-4o-mini", slug="changed-slug")
     with pytest.raises(IntentKitAPIError) as exc_info:
         await override_agent("slug-override-test", update)
 

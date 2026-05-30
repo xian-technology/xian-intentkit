@@ -31,15 +31,9 @@ NAME = "aerodrome_swap"
 class AerodromeSwapInput(BaseModel):
     """Input for Aerodrome swap."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for ETH on Base"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for ETH on Base"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for ETH on Base")
+    token_out: str = Field(description="Output token address, or 'native' for ETH on Base")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
     slippage: float = Field(
         default=0.5,
         description="Slippage tolerance in percent (e.g. 0.5 for 0.5%)",
@@ -74,8 +68,7 @@ class AerodromeSwap(AerodromeBaseTool):
             chain_id = NETWORK_TO_CHAIN_ID.get(network_id)
             if not chain_id:
                 raise ToolException(
-                    f"Aerodrome is only supported on Base. "
-                    f"Current network: {network_id}"
+                    f"Aerodrome is only supported on Base. Current network: {network_id}"
                 )
 
             wallet = await self.get_unified_wallet()
@@ -130,9 +123,7 @@ class AerodromeSwap(AerodromeBaseTool):
 
             # Approve ERC20 if not native
             if not is_native_in:
-                await ensure_allowance(
-                    w3, wallet, checksum_in, checksum_router, amount_raw
-                )
+                await ensure_allowance(w3, wallet, checksum_in, checksum_router, amount_raw)
 
             # Build swap calldata
             router_contract = w3.eth.contract(

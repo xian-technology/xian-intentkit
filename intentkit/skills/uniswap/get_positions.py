@@ -60,9 +60,7 @@ class UniswapGetPositions(UniswapBaseTool):
 
             count = min(balance, MAX_POSITIONS)
             for i in range(count):
-                token_id = await pm.functions.tokenOfOwnerByIndex(
-                    wallet_address, i
-                ).call()
+                token_id = await pm.functions.tokenOfOwnerByIndex(wallet_address, i).call()
                 pos_info = await pm.functions.positions(token_id).call()
                 entry = await _format_position(w3, chain_id, token_id, pos_info)
                 if entry:

@@ -162,9 +162,7 @@ async def analyze_platform_fee_account():
             LIMIT 20
             """)
 
-            recent_tx_result = await session.execute(
-                recent_tx_query, {"account_id": account.id}
-            )
+            recent_tx_result = await session.execute(recent_tx_query, {"account_id": account.id})
             recent_transactions = recent_tx_result.fetchall()
 
             print("Last 20 transactions:")
@@ -201,9 +199,7 @@ async def analyze_platform_fee_account():
                     )
 
             if precision_issues:
-                print(
-                    f"Found {len(precision_issues)} transactions with precision issues:"
-                )
+                print(f"Found {len(precision_issues)} transactions with precision issues:")
                 for issue in precision_issues:
                     print(
                         f"  TX {issue['transaction_id']}: change_amount={issue['change_amount']}, "
@@ -222,13 +218,9 @@ async def analyze_platform_fee_account():
         print("Account Statistics:")
         print(f"  Total Income: {account.total_income}")
         print(f"  Total Expense: {account.total_expense}")
-        print(
-            f"  Net Balance (Income - Expense): {account.total_income - account.total_expense}"
-        )
+        print(f"  Net Balance (Income - Expense): {account.total_income - account.total_expense}")
         print(f"  Current Balance: {total_balance}")
-        print(
-            f"  Difference: {total_balance - (account.total_income - account.total_expense)}"
-        )
+        print(f"  Difference: {total_balance - (account.total_income - account.total_expense)}")
 
 
 async def main():

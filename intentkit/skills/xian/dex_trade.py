@@ -115,9 +115,7 @@ class XianDexTrade(XianBaseTool):
                 pairs_contract=pairs_contract,
             )
 
-            allowance_required = (
-                quote.max_input if side == "buy" else quote.estimated_input
-            )
+            allowance_required = quote.max_input if side == "buy" else quote.estimated_input
             allowance_current = decimal_from_value(
                 await provider.get_allowance(
                     token=sell_token,

@@ -19,9 +19,7 @@ class FetchPricePercentageInput(BaseModel):
 class FetchPricePercentageResponse(BaseModel):
     """Response schema for token price percentage changes."""
 
-    coins: dict[str, float] = Field(
-        default_factory=dict, description="24h % changes by token ID"
-    )
+    coins: dict[str, float] = Field(default_factory=dict, description="24h % changes by token ID")
     error: str | None = Field(default=None, description="Error message")
 
 

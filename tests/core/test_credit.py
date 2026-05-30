@@ -64,9 +64,7 @@ async def test_recharge_success():
         # Check income called for team
         mock_income.assert_called_once()
         assert mock_income.call_args[1]["owner_id"] == team_id
-        assert mock_income.call_args[1]["amount_details"] == {
-            CreditType.PERMANENT: amount
-        }
+        assert mock_income.call_args[1]["amount_details"] == {CreditType.PERMANENT: amount}
 
         # Check deduction called for platform
         mock_deduction.assert_called_once()
@@ -124,9 +122,7 @@ async def test_withdraw_success():
             "intentkit.models.credit.CreditEvent.check_upstream_tx_id_exists",
             new_callable=AsyncMock,
         ),
-        patch(
-            "intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.credit.withdraw.get_agent", new_callable=AsyncMock) as mock_get_agent,
         patch("intentkit.models.agent_data.AgentData.get", new_callable=AsyncMock),
         patch(
             "intentkit.models.credit.CreditAccount.get_in_session",

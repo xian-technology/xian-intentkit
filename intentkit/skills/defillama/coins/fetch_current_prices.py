@@ -7,7 +7,9 @@ from pydantic import BaseModel, Field
 from intentkit.skills.defillama.api import fetch_current_prices
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_PRICES_PROMPT = """Fetch current token prices via DefiLlama. Token format: 'chain:address' or 'coingecko:id'."""
+FETCH_PRICES_PROMPT = (
+    """Fetch current token prices via DefiLlama. Token format: 'chain:address' or 'coingecko:id'."""
+)
 
 
 class TokenPrice(BaseModel):
@@ -31,9 +33,7 @@ class FetchCurrentPricesInput(BaseModel):
 class FetchCurrentPricesResponse(BaseModel):
     """Response schema for current token prices."""
 
-    coins: dict[str, TokenPrice] = Field(
-        default_factory=dict, description="Prices by token ID"
-    )
+    coins: dict[str, TokenPrice] = Field(default_factory=dict, description="Prices by token ID")
     error: str | None = Field(default=None, description="Error message")
 
 

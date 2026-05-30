@@ -290,9 +290,7 @@ async def _maybe_upgrade_first_team(user_id: str) -> None:
 
     async with get_session() as db:
         await db.execute(
-            update(TeamTable)
-            .where(TeamTable.id == first_team_id)
-            .values(plan=TeamPlan.FREE.value)
+            update(TeamTable).where(TeamTable.id == first_team_id).values(plan=TeamPlan.FREE.value)
         )
         await db.commit()
     logger.info(

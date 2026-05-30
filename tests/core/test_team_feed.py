@@ -86,9 +86,7 @@ class TestFanOutActivity:
         # _resolve_target_teams also calls session.get for agent visibility;
         # return None so no public-team fan-out occurs
         mock_session.get = AsyncMock(return_value=None)
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         await fan_out_activity("act-1", "agent-1", datetime.now())
 
@@ -107,9 +105,7 @@ class TestFanOutActivity:
                 MagicMock(),  # insert result
             ]
         )
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         await fan_out_activity("act-1", "agent-1", datetime(2026, 3, 26))
 
@@ -130,9 +126,7 @@ class TestFanOutPost:
         # _resolve_target_teams also calls session.get for agent visibility;
         # return None so no public-team fan-out occurs
         mock_session.get = AsyncMock(return_value=None)
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         await fan_out_post("post-1", "agent-1", datetime.now())
 
@@ -150,9 +144,7 @@ class TestFanOutPost:
                 MagicMock(),
             ]
         )
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         await fan_out_post("post-1", "agent-1", datetime(2026, 3, 26))
 
@@ -170,9 +162,7 @@ class TestQueryActivityFeed:
     async def test_empty_feed(self, monkeypatch):
         mock_session = AsyncMock()
         mock_session.execute = AsyncMock(return_value=_scalars_result([]))
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         items, next_cursor = await query_activity_feed("team-1", limit=20)
 
@@ -209,9 +199,7 @@ class TestQueryActivityFeed:
                 _scalars_result([activity_row_1]),
             ]
         )
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         # Patch AgentActivity.model_validate to avoid full Pydantic validation
         mock_activity = MagicMock()
@@ -240,9 +228,7 @@ class TestQueryPostFeed:
     async def test_empty_feed(self, monkeypatch):
         mock_session = AsyncMock()
         mock_session.execute = AsyncMock(return_value=_scalars_result([]))
-        monkeypatch.setattr(
-            feed_module, "get_session", lambda: _mock_session_context(mock_session)
-        )
+        monkeypatch.setattr(feed_module, "get_session", lambda: _mock_session_context(mock_session))
 
         items, next_cursor = await query_post_feed("team-1", limit=20)
 

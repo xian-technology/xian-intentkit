@@ -25,7 +25,6 @@ class AaveV3BaseTool(IntentKitOnChainSkill):
         if not chain_id:
             supported = ", ".join(NETWORK_TO_CHAIN_ID.keys())
             raise ToolException(
-                f"Aave V3 is not supported on {network_id}. "
-                f"Supported networks: {supported}"
+                f"Aave V3 is not supported on {network_id}. Supported networks: {supported}"
             )
         return chain_id

@@ -18,9 +18,7 @@ class BuyNftInput(BaseModel):
     order_hash: str = Field(
         description="The order hash of the listing to fulfill (from get_listings)"
     )
-    protocol_address: str = Field(
-        description="The protocol contract address (from get_listings)"
-    )
+    protocol_address: str = Field(description="The protocol contract address (from get_listings)")
 
 
 class OpenSeaBuyNft(OpenSeaOnChainBaseTool):
@@ -44,9 +42,7 @@ class OpenSeaBuyNft(OpenSeaOnChainBaseTool):
     ) -> str:
         try:
             if not self.is_onchain_capable():
-                raise ToolException(
-                    "This agent does not have an on-chain wallet configured"
-                )
+                raise ToolException("This agent does not have an on-chain wallet configured")
 
             chain = self._get_chain_name()
             wallet = await self.get_unified_wallet()
@@ -83,9 +79,7 @@ class OpenSeaBuyNft(OpenSeaOnChainBaseTool):
                 value = int(raw_value)
 
             if not to_address or not tx_data:
-                raise ToolException(
-                    "Incomplete transaction data from OpenSea fulfillment"
-                )
+                raise ToolException("Incomplete transaction data from OpenSea fulfillment")
 
             tx_hash = await wallet.send_transaction(
                 to=to_address,

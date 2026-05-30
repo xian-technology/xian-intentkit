@@ -30,9 +30,7 @@ async def create_agent_activity(activity_create: AgentActivityCreate) -> AgentAc
     try:
         from intentkit.core.team.feed import fan_out_activity
 
-        team_ids = await fan_out_activity(
-            activity.id, activity.agent_id, activity.created_at
-        )
+        team_ids = await fan_out_activity(activity.id, activity.agent_id, activity.created_at)
     except Exception:
         logger.exception("Failed to fan out activity %s", activity.id)
 

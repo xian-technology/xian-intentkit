@@ -7,7 +7,9 @@ from pydantic import BaseModel, Field
 from intentkit.skills.defillama.api import fetch_protocol_current_tvl
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_TVL_PROMPT = """Fetch current TVL for a DeFi protocol via DefiLlama. Provide protocol slug (e.g. 'aave')."""
+FETCH_TVL_PROMPT = (
+    """Fetch current TVL for a DeFi protocol via DefiLlama. Provide protocol slug (e.g. 'aave')."""
+)
 
 
 class FetchProtocolCurrentTVLInput(BaseModel):
@@ -65,6 +67,4 @@ class DefiLlamaFetchProtocolCurrentTvl(DefiLlamaBaseTool):
         # Fetch TVL from API
         result = await fetch_protocol_current_tvl(normalized_protocol)
 
-        return FetchProtocolCurrentTVLResponse(
-            protocol=normalized_protocol, tvl=float(result)
-        )
+        return FetchProtocolCurrentTVLResponse(protocol=normalized_protocol, tvl=float(result))

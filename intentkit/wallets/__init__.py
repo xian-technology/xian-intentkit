@@ -76,9 +76,7 @@ async def _get_agent_wallet_data(agent: "Agent", wallet_type: str) -> dict[str, 
             f"Unsupported wallet data type '{wallet_type}'.",
         )
 
-    data_field_name, not_initialized_error, corrupted_error, data_label = data_fields[
-        wallet_type
-    ]
+    data_field_name, not_initialized_error, corrupted_error, data_label = data_fields[wallet_type]
     data_field = getattr(agent_data, data_field_name, None)
 
     if not data_field:

@@ -66,7 +66,9 @@ class WebsiteIndexer(WebScraperBaseTool):
     """
 
     name: str = "web_scraper_website_indexer"
-    description: str = "Index a website by discovering sitemaps, extracting URLs, and indexing content."
+    description: str = (
+        "Index a website by discovering sitemaps, extracting URLs, and indexing content."
+    )
     price: Decimal = Decimal("200")
     args_schema: ArgsSchema | None = WebsiteIndexerInput
 
@@ -90,9 +92,7 @@ class WebsiteIndexer(WebScraperBaseTool):
                 if response.status_code == 200:
                     return response.text
             except Exception as e:
-                logger.warning(
-                    f"Primary headers failed for robots.txt from {robots_url}: {e}"
-                )
+                logger.warning(f"Primary headers failed for robots.txt from {robots_url}: {e}")
 
         # Try with fallback headers
         async with httpx.AsyncClient(timeout=30, headers=FALLBACK_HEADERS) as client:
@@ -104,9 +104,7 @@ class WebsiteIndexer(WebScraperBaseTool):
                 logger.warning("Could not fetch robots.txt from %s: %s", robots_url, e)
         return ""
 
-    def _extract_sitemaps_from_robots(
-        self, robots_content: str, base_url: str
-    ) -> list[str]:
+    def _extract_sitemaps_from_robots(self, robots_content: str, base_url: str) -> list[str]:
         """Extract sitemap URLs from robots.txt content."""
         sitemaps = []
 
@@ -143,9 +141,7 @@ class WebsiteIndexer(WebScraperBaseTool):
                 if response.status_code == 200:
                     return response.text
             except Exception as e:
-                logger.warning(
-                    "Primary headers failed for sitemap from %s: %s", sitemap_url, e
-                )
+                logger.warning("Primary headers failed for sitemap from %s: %s", sitemap_url, e)
 
         # Try with fallback headers
         async with httpx.AsyncClient(timeout=30, headers=FALLBACK_HEADERS) as client:
@@ -205,9 +201,13 @@ class WebsiteIndexer(WebScraperBaseTool):
         """Create a prompt for AI to extract URLs from sitemap XML."""
         filter_instructions = ""
         if include_patterns:
-            filter_instructions += f"\n- INCLUDE only URLs containing these patterns: {', '.join(include_patterns)}"
+            filter_instructions += (
+                f"\n- INCLUDE only URLs containing these patterns: {', '.join(include_patterns)}"
+            )
         if exclude_patterns:
-            filter_instructions += f"\n- EXCLUDE URLs containing these patterns: {', '.join(exclude_patterns)}"
+            filter_instructions += (
+                f"\n- EXCLUDE URLs containing these patterns: {', '.join(exclude_patterns)}"
+            )
 
         return f"""Analyze this sitemap XML and extract all valid webpage URLs.
 
@@ -301,9 +301,7 @@ Extract the URLs now:"""
                 )
             context = self.get_context()
             if not context or not context.agent_id:
-                raise ToolException(
-                    "Agent ID is required but not found in configuration"
-                )
+                raise ToolException("Agent ID is required but not found in configuration")
 
             agent_id = context.agent_id
 
@@ -313,9 +311,7 @@ Extract the URLs now:"""
             sitemap_xml, found_sitemaps = await self._get_all_sitemap_content(base_url)
 
             if not sitemap_xml:
-                logger.error(
-                    "[%s] No accessible sitemaps found for %s", agent_id, base_url
-                )
+                logger.error("[%s] No accessible sitemaps found for %s", agent_id, base_url)
                 raise ToolException(
                     f"Error: No accessible sitemaps found for {base_url}. The website might not have sitemaps or they might be inaccessible."
                 )
@@ -331,14 +327,10 @@ Extract the URLs now:"""
                 ai_response = await self._call_ai_model(prompt, context)
                 all_urls = self._parse_ai_response(ai_response)
 
-                logger.info(
-                    f"[{agent_id}] AI extracted {len(all_urls)} URLs from sitemap"
-                )
+                logger.info(f"[{agent_id}] AI extracted {len(all_urls)} URLs from sitemap")
 
             except Exception as e:
-                logger.error(
-                    f"[{agent_id}] AI extraction failed: {e}, falling back to regex"
-                )
+                logger.error(f"[{agent_id}] AI extraction failed: {e}, falling back to regex")
                 # Fallback to simple regex if AI fails
                 import re
 
@@ -353,9 +345,7 @@ Extract the URLs now:"""
                         continue
 
                     # Apply exclude patterns
-                    if exclude_patterns and any(
-                        pattern in url for pattern in exclude_patterns
-                    ):
+                    if exclude_patterns and any(pattern in url for pattern in exclude_patterns):
                         continue
 
                     # Apply include patterns
@@ -374,9 +364,7 @@ Extract the URLs now:"""
             unique_urls = list(set(all_urls))[:max_urls]
 
             if not unique_urls:
-                logger.error(
-                    f"[{agent_id}] No valid URLs found in sitemaps after filtering"
-                )
+                logger.error(f"[{agent_id}] No valid URLs found in sitemaps after filtering")
                 raise ToolException(
                     f"Error: No valid URLs found in sitemaps after filtering. Found sitemaps: {', '.join(found_sitemaps)}"
                 )
@@ -393,9 +381,7 @@ Extract the URLs now:"""
             )
 
             if total_chunks == 0:
-                logger.error(
-                    f"[{agent_id}] No content could be extracted from discovered URLs"
-                )
+                logger.error(f"[{agent_id}] No content could be extracted from discovered URLs")
                 raise ToolException(
                     f"Error: No content could be extracted from the discovered URLs. Found sitemaps: {', '.join(found_sitemaps)}"
                 )
@@ -405,9 +391,7 @@ Extract the URLs now:"""
 
             # Update metadata
             metadata_manager = MetadataManager(vector_manager)
-            new_metadata = metadata_manager.create_url_metadata(
-                valid_urls, [], "website_indexer"
-            )
+            new_metadata = metadata_manager.create_url_metadata(valid_urls, [], "website_indexer")
             await metadata_manager.update_metadata(agent_id, new_metadata)
 
             logger.info("[%s] Website indexing completed successfully", agent_id)

@@ -136,9 +136,7 @@ MEMBERSHIP_MODULE = "intentkit.core.team.membership"
 @pytest.mark.asyncio
 async def test_get_team_with_members_team_not_found():
     with (
-        patch(
-            f"{MEMBERSHIP_MODULE}.get_team", new_callable=AsyncMock, return_value=None
-        ),
+        patch(f"{MEMBERSHIP_MODULE}.get_team", new_callable=AsyncMock, return_value=None),
         patch(f"{MEMBERSHIP_MODULE}.get_members", new_callable=AsyncMock),
     ):
         from intentkit.core.lead.service import get_team_with_members

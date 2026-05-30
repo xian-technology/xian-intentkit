@@ -89,9 +89,7 @@ class TwitterPostTweet(TwitterBaseTool):
             response = await twitter.create_tweet(text=text, media_ids=media_ids)
             if "data" in response and "id" in response["data"]:
                 # Return response with warning if image was ignored
-                result = (
-                    f"{image_warning}Tweet posted successfully. Response: {response}"
-                )
+                result = f"{image_warning}Tweet posted successfully. Response: {response}"
                 return result
             else:
                 logger.error("Error posting tweet: %s", response)
@@ -101,9 +99,7 @@ class TwitterPostTweet(TwitterBaseTool):
             logger.error("Error posting tweet: %s", e)
             if isinstance(e, httpx.HTTPStatusError):
                 status_code = e.response.status_code if e.response is not None else "?"
-                response_text = (
-                    e.response.text if e.response is not None else "<no response body>"
-                )
+                response_text = e.response.text if e.response is not None else "<no response body>"
                 raise ToolException(
                     f"[agent:{context.agent_id}]: "
                     f"Twitter API returned HTTP {status_code}: {response_text}"

@@ -18,9 +18,7 @@ class SetCollateralInput(BaseModel):
     """Input for Aave V3 set collateral."""
 
     token_address: str = Field(description="ERC20 token contract address")
-    use_as_collateral: bool = Field(
-        description="True to enable as collateral, False to disable"
-    )
+    use_as_collateral: bool = Field(description="True to enable as collateral, False to disable")
 
 
 class AaveV3SetCollateral(AaveV3BaseTool):
@@ -65,9 +63,7 @@ class AaveV3SetCollateral(AaveV3BaseTool):
 
             receipt = await wallet.wait_for_receipt(tx_hash)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Set collateral transaction failed. Hash: {tx_hash}"
-                )
+                raise ToolException(f"Set collateral transaction failed. Hash: {tx_hash}")
 
             action = "Enabled" if use_as_collateral else "Disabled"
 

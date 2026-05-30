@@ -46,18 +46,14 @@ async def agent_action_cost(agent_id: str) -> dict[str, Decimal]:
 
     agent = await get_agent(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            400, "AgentNotFound", f"Agent with ID {agent_id} does not exist."
-        )
+        raise IntentKitAPIError(400, "AgentNotFound", f"Agent with ID {agent_id} does not exist.")
 
     async with get_session() as session:
         # Calculate the date 3 days ago from now
         three_days_ago = datetime.now(UTC) - timedelta(days=3)
 
         # First, count the number of distinct start_message_ids to determine if we have enough data
-        count_query = select(
-            func.count(func.distinct(CreditEventTable.start_message_id))
-        ).where(
+        count_query = select(func.count(func.distinct(CreditEventTable.start_message_id))).where(
             CreditEventTable.agent_id == agent_id,
             CreditEventTable.created_at >= three_days_ago,
             CreditEventTable.user_id != agent.owner,
@@ -249,9 +245,7 @@ async def update_agent_action_cost(batch_size: int = 100) -> None:
 
                 total_updated += 1
             except Exception as e:  # pragma: no cover - log path only
-                logger.error(
-                    "Error updating action costs for agent %s: %s", agent_id, str(e)
-                )
+                logger.error("Error updating action costs for agent %s: %s", agent_id, str(e))
 
         batch_time = time.time() - batch_start_time
         logger.info("Completed batch in %.3fs", batch_time)
@@ -355,9 +349,7 @@ async def update_agents_assets(batch_size: int = 100) -> None:
 
                 total_updated += 1
             except Exception as exc:  # pragma: no cover - log path only
-                logger.error(
-                    "Error updating asset cache for agent %s: %s", agent_id, exc
-                )
+                logger.error("Error updating asset cache for agent %s: %s", agent_id, exc)
 
         batch_time = time.time() - batch_start_time
         logger.info("Completed asset batch in %.3fs", batch_time)
@@ -400,9 +392,7 @@ async def update_agents_statistics(
             try:
                 statistics = await get_agent_statistics(agent_id, end_time=end_time)
             except Exception as exc:  # pragma: no cover - log path only
-                logger.error(
-                    "Error computing statistics for agent %s: %s", agent_id, exc
-                )
+                logger.error("Error computing statistics for agent %s: %s", agent_id, exc)
                 continue
 
             try:

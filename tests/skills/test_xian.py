@@ -288,10 +288,7 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
     approve_amount = provider.approve.await_args.kwargs["amount"]
     assert approve_amount > 110
     trade_kwargs = provider.send_contract_transaction.await_args.kwargs["kwargs"]
-    assert (
-        provider.send_contract_transaction.await_args.kwargs["contract"]
-        == "con_dex_helper"
-    )
+    assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex_helper"
     assert provider.send_contract_transaction.await_args.kwargs["function"] == "buy"
     assert trade_kwargs["buy_token"] == "con_token"
     assert trade_kwargs["sell_token"] == "currency"
@@ -330,9 +327,7 @@ async def test_xian_dex_trade_requires_allowance_when_auto_approve_disabled(
             new=AsyncMock(return_value=provider),
         ),
     ):
-        with pytest.raises(
-            Exception, match="Allowance to the DEX helper is insufficient"
-        ):
+        with pytest.raises(Exception, match="Allowance to the DEX helper is insufficient"):
             await skill._arun(
                 side="sell",
                 buy_token="con_token",

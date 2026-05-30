@@ -27,9 +27,7 @@ class TestNativeWalletProviderBasics:
         mock_w3 = MagicMock()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -37,9 +35,7 @@ class TestNativeWalletProviderBasics:
         assert isinstance(provider, NativeWalletProvider)
         from web3 import Web3
 
-        assert provider.get_address() == Web3.to_checksum_address(
-            native_data["address"]
-        )
+        assert provider.get_address() == Web3.to_checksum_address(native_data["address"])
 
     @pytest.mark.asyncio
     async def test_get_address_async(self):
@@ -52,9 +48,7 @@ class TestNativeWalletProviderBasics:
         mock_w3 = MagicMock()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -76,9 +70,7 @@ class TestNativeWalletProviderBasics:
         mock_w3.eth.get_balance = AsyncMock(return_value=12345)
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -117,9 +109,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3.eth.send_raw_transaction = AsyncMock(return_value=HexBytes("0xabc"))
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=mock_account),
         ):
             provider = get_wallet_provider(native_data)
@@ -167,9 +157,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3.eth.send_raw_transaction = AsyncMock(return_value=HexBytes("0xdef"))
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=mock_account),
         ):
             provider = get_wallet_provider(native_data)
@@ -210,9 +198,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3.eth.contract.return_value = _Contract()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -264,9 +250,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3.eth.contract.return_value = _Contract()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -287,9 +271,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3 = MagicMock()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -321,9 +303,7 @@ class TestNativeWalletProviderTransactions:
         mock_w3 = MagicMock()
 
         with (
-            patch(
-                "intentkit.wallets.native.get_async_web3_client", return_value=mock_w3
-            ),
+            patch("intentkit.wallets.native.get_async_web3_client", return_value=mock_w3),
             patch("eth_account.Account.from_key", return_value=MagicMock()),
         ):
             provider = get_wallet_provider(native_data)
@@ -331,9 +311,7 @@ class TestNativeWalletProviderTransactions:
         async def _fail(*args, **kwargs):
             return TransactionResult(success=False, error="x")
 
-        with patch.object(
-            provider, "execute_transaction", new=AsyncMock(side_effect=_fail)
-        ):
+        with patch.object(provider, "execute_transaction", new=AsyncMock(side_effect=_fail)):
             with pytest.raises(IntentKitAPIError):
                 await provider.native_transfer(
                     to="0x0000000000000000000000000000000000000001",
@@ -390,9 +368,7 @@ class TestNativeWalletSigner:
                 address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fE21",
                 private_key="0x0123",
             )
-            res = signer.sign_typed_data(
-                full_message={"types": {}, "domain": {}, "message": {}}
-            )
+            res = signer.sign_typed_data(full_message={"types": {}, "domain": {}, "message": {}})
         assert res == mock_account.sign_message.return_value
         assert mock_account.sign_message.called
 
@@ -406,9 +382,7 @@ class TestNativeWalletSigner:
                 address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fE21",
                 private_key="0x0123",
             )
-            res = signer.sign_typed_data(
-                domain_data={}, message_types={}, message_data={}
-            )
+            res = signer.sign_typed_data(domain_data={}, message_types={}, message_data={})
         assert res == mock_account.sign_message.return_value
         assert mock_account.sign_message.called
 

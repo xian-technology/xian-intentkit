@@ -110,12 +110,8 @@ class CreditPrice(BaseModel):
             return Decimal(str(v)).quantize(Decimal("0.0001"), rounding=ROUND_HALF_UP)
         return v
 
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this price was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this price was last updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this price was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this price was last updated")]
 
     @field_serializer("created_at", "updated_at")
     @classmethod
@@ -192,12 +188,8 @@ class CreditPriceLog(BaseModel):
         return v
 
     note: Annotated[str | None, Field(None, description="Note about the modification")]
-    modified_by: Annotated[
-        str, Field(description="ID of the user who made the modification")
-    ]
-    modified_at: Annotated[
-        datetime, Field(description="Timestamp when the modification was made")
-    ]
+    modified_by: Annotated[str, Field(description="ID of the user who made the modification")]
+    modified_at: Annotated[datetime, Field(description="Timestamp when the modification was made")]
 
     @field_serializer("modified_at")
     @classmethod

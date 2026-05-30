@@ -14,9 +14,7 @@ NAME = "opensea_get_collection"
 class GetCollectionInput(BaseModel):
     """Input for getting an OpenSea collection."""
 
-    slug: str = Field(
-        description="The collection slug (e.g., 'boredapeyachtclub', 'cryptopunks')"
-    )
+    slug: str = Field(description="The collection slug (e.g., 'boredapeyachtclub', 'cryptopunks')")
 
 
 class OpenSeaGetCollection(OpenSeaBaseTool):

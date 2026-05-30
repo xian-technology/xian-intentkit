@@ -63,14 +63,10 @@ async def check_transaction_consistency():
         consistent_count = row.consistent_count
         inconsistent_count = row.inconsistent_count
 
-        logger.info(
-            f"Checking {total_count} credit transaction records using SQL aggregation..."
-        )
+        logger.info(f"Checking {total_count} credit transaction records using SQL aggregation...")
 
         # Calculate inconsistency rate
-        inconsistency_rate = (
-            (inconsistent_count / total_count * 100) if total_count > 0 else 0
-        )
+        inconsistency_rate = (inconsistent_count / total_count * 100) if total_count > 0 else 0
 
         # Summary
         logger.info("\n" + "=" * 60)

@@ -46,9 +46,7 @@ async def reward(
         Updated team credit account
     """
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.API, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.API, upstream_tx_id)
 
     if amount <= Decimal("0"):
         raise ValueError("Reward amount must be positive")
@@ -94,9 +92,7 @@ async def reward(
         base_original_amount=amount,
         base_free_amount=Decimal("0"),  # No free credits involved in base amount
         base_reward_amount=amount,  # All base amount is reward for reward events
-        base_permanent_amount=Decimal(
-            "0"
-        ),  # No permanent credits involved in base amount
+        base_permanent_amount=Decimal("0"),  # No permanent credits involved in base amount
         reward_amount=amount,  # Set reward_amount since this is a reward credit
         free_amount=Decimal("0"),  # No free credits involved
         permanent_amount=Decimal("0"),  # No permanent credits involved

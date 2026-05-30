@@ -116,9 +116,7 @@ class EnsoGetTokens(EnsoBaseTool):
     """
 
     name: str = "enso_get_tokens"
-    description: str = (
-        "Get token info including APY, symbol, address, and underlying tokens."
-    )
+    description: str = "Get token info including APY, symbol, address, and underlying tokens."
     args_schema: ArgsSchema | None = EnsoGetTokensInput
 
     async def _arun(
@@ -176,9 +174,7 @@ class EnsoGetTokens(EnsoBaseTool):
                         token_response = TokenResponseCompact(**item)
                         res.res.append(token_response)
                         if token_response.address:
-                            token_decimals[token_response.address] = (
-                                token_response.decimals
-                            )
+                            token_decimals[token_response.address] = token_response.decimals
                         if token_response.underlyingTokens:
                             for u_token in token_response.underlyingTokens:
                                 if u_token.address:
@@ -188,12 +184,8 @@ class EnsoGetTokens(EnsoBaseTool):
 
                 return res
             except httpx.RequestError as req_err:
-                raise ToolException(
-                    f"request error from Enso API: {req_err}"
-                ) from req_err
+                raise ToolException(f"request error from Enso API: {req_err}") from req_err
             except httpx.HTTPStatusError as http_err:
-                raise ToolException(
-                    f"http error from Enso API: {http_err}"
-                ) from http_err
+                raise ToolException(f"http error from Enso API: {http_err}") from http_err
             except Exception as e:
                 raise ToolException(f"error from Enso API: {e}") from e

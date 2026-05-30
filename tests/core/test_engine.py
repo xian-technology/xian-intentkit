@@ -93,9 +93,7 @@ async def test_agent_executor_caching(mock_agent):
     agents_updated.clear()
 
     with (
-        patch(
-            "intentkit.core.executor.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
+        patch("intentkit.core.executor.get_agent", new_callable=AsyncMock) as mock_get_agent,
         patch(
             "intentkit.core.executor.build_and_cache_executor", new_callable=AsyncMock
         ) as mock_build_and_cache,
@@ -186,15 +184,9 @@ async def test_stream_agent_flow(mock_agent):
     mock_executor_instance.astream = mock_astream
 
     with (
-        patch(
-            "intentkit.core.engine.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
-        patch(
-            "intentkit.core.engine.agent_executor", new_callable=AsyncMock
-        ) as mock_executor_func,
-        patch(
-            "intentkit.models.chat.ChatMessageCreate.save", new_callable=AsyncMock
-        ) as mock_save,
+        patch("intentkit.core.engine.get_agent", new_callable=AsyncMock) as mock_get_agent,
+        patch("intentkit.core.engine.agent_executor", new_callable=AsyncMock) as mock_executor_func,
+        patch("intentkit.models.chat.ChatMessageCreate.save", new_callable=AsyncMock) as mock_save,
         patch("intentkit.models.llm.LLMModelInfo.get", new_callable=AsyncMock),
         patch("intentkit.config.db.engine", new=MagicMock()),
         patch("intentkit.config.db.AsyncSession", new=MagicMock()) as mock_session_cls,
@@ -273,9 +265,7 @@ async def test_stream_agent_rejects_unsupported_image_input(mock_agent):
     mock_executor_instance = MagicMock()
 
     async def mock_astream(*args, **kwargs):
-        raise AssertionError(
-            "LLM execution should not start for unsupported image input"
-        )
+        raise AssertionError("LLM execution should not start for unsupported image input")
 
     mock_executor_instance.astream = mock_astream
 
@@ -301,20 +291,14 @@ async def test_stream_agent_rejects_unsupported_image_input(mock_agent):
     budget_status.exceeded = False
 
     with (
-        patch(
-            "intentkit.core.engine.get_agent", new_callable=AsyncMock
-        ) as mock_get_agent,
-        patch(
-            "intentkit.core.engine.agent_executor", new_callable=AsyncMock
-        ) as mock_executor_func,
+        patch("intentkit.core.engine.get_agent", new_callable=AsyncMock) as mock_get_agent,
+        patch("intentkit.core.engine.agent_executor", new_callable=AsyncMock) as mock_executor_func,
         patch(
             "intentkit.models.chat.ChatMessageCreate.save",
             new_callable=AsyncMock,
             side_effect=[mock_saved_msg, system_response],
         ),
-        patch(
-            "intentkit.models.llm.LLMModelInfo.get", new_callable=AsyncMock
-        ) as mock_get_model,
+        patch("intentkit.models.llm.LLMModelInfo.get", new_callable=AsyncMock) as mock_get_model,
         patch(
             "intentkit.core.engine.check_hourly_budget_exceeded",
             new_callable=AsyncMock,

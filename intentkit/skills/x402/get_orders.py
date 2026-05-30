@@ -66,7 +66,9 @@ class X402GetOrders(X402BaseSkill):
     """Skill that retrieves recent successful x402 payment orders for the current agent."""
 
     name: str = "x402_get_orders"
-    description: str = "Retrieve recent x402 payment orders for this agent, including URL, amount, and tx hash."
+    description: str = (
+        "Retrieve recent x402 payment orders for this agent, including URL, amount, and tx hash."
+    )
     args_schema: ArgsSchema | None = X402GetOrdersInput
 
     @override

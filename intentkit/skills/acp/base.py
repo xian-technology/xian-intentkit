@@ -29,9 +29,7 @@ async def acp_request(
     except httpx.TimeoutException as exc:
         raise ToolException(f"Request timed out after {timeout}s") from exc
     except httpx.HTTPStatusError as exc:
-        raise ToolException(
-            f"HTTP {exc.response.status_code}: {exc.response.text}"
-        ) from exc
+        raise ToolException(f"HTTP {exc.response.status_code}: {exc.response.text}") from exc
     except httpx.RequestError as exc:
         raise ToolException(f"Network error: {str(exc)}") from exc
 

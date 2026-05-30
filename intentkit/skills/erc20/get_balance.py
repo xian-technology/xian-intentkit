@@ -57,9 +57,7 @@ class ERC20GetBalance(ERC20BaseTool):
             checksum_address = Web3.to_checksum_address(check_address)
 
             # Get token details (includes balance)
-            token_details = await get_token_details(
-                wallet, contract_address, checksum_address
-            )
+            token_details = await get_token_details(wallet, contract_address, checksum_address)
 
             if not token_details:
                 raise ToolException(

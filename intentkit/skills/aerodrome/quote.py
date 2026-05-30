@@ -23,15 +23,9 @@ NAME = "aerodrome_quote"
 class AerodromeQuoteInput(BaseModel):
     """Input for Aerodrome quote."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for ETH on Base"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for ETH on Base"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for ETH on Base")
+    token_out: str = Field(description="Output token address, or 'native' for ETH on Base")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
 
 
 class AerodromeQuote(AerodromeBaseTool):
@@ -60,8 +54,7 @@ class AerodromeQuote(AerodromeBaseTool):
             chain_id = NETWORK_TO_CHAIN_ID.get(network_id)
             if not chain_id:
                 raise ToolException(
-                    f"Aerodrome is only supported on Base. "
-                    f"Current network: {network_id}"
+                    f"Aerodrome is only supported on Base. Current network: {network_id}"
                 )
 
             w3 = self.web3_client()

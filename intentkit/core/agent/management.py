@@ -39,18 +39,14 @@ def _apply_xian_agent_logo_default(agent_data: dict) -> None:
         agent_data["picture"] = config.xian_agent_logo_url
 
 
-async def _validate_slug_unique(
-    slug: str, exclude_agent_id: str | None, db: AsyncSession
-) -> None:
+async def _validate_slug_unique(slug: str, exclude_agent_id: str | None, db: AsyncSession) -> None:
     """Check that a slug is not already in use by another agent."""
     query = select(AgentTable.id).where(AgentTable.slug == slug)
     if exclude_agent_id:
         query = query.where(AgentTable.id != exclude_agent_id)
     existing = await db.scalar(query)
     if existing:
-        raise IntentKitAPIError(
-            400, "SlugAlreadyExists", f"Slug '{slug}' is already in use"
-        )
+        raise IntentKitAPIError(400, "SlugAlreadyExists", f"Slug '{slug}' is already in use")
 
 
 async def _validate_sub_agents(sub_agents: list[str]) -> None:
@@ -112,11 +108,7 @@ async def override_agent(
         await _validate_sub_agents(agent.sub_agents)
 
     # Slug immutability check
-    if (
-        existing_agent.slug
-        and agent.slug is not None
-        and agent.slug != existing_agent.slug
-    ):
+    if existing_agent.slug and agent.slug is not None and agent.slug != existing_agent.slug:
         raise IntentKitAPIError(400, "SlugImmutable", "Slug cannot be changed once set")
 
     async with get_session() as db:
@@ -237,9 +229,7 @@ async def patch_agent(
             update_data["skills"] = sanitize_skills(update_data["skills"])
         if "picture" not in update_data and not db_agent.picture:
             candidate_data = {
-                "wallet_provider": update_data.get(
-                    "wallet_provider", db_agent.wallet_provider
-                ),
+                "wallet_provider": update_data.get("wallet_provider", db_agent.wallet_provider),
                 "skills": update_data.get("skills", db_agent.skills),
                 "picture": None,
             }

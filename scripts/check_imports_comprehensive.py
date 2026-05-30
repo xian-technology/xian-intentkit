@@ -117,9 +117,7 @@ def find_python_files(directory: Path) -> list[Path]:
     for root, dirs, files in os.walk(directory):
         # Skip virtual environment and cache directories
         dirs[:] = [
-            d
-            for d in dirs
-            if not d.startswith(".") and d not in ["__pycache__", ".venv", "venv"]
+            d for d in dirs if not d.startswith(".") and d not in ["__pycache__", ".venv", "venv"]
         ]
 
         for file in files:

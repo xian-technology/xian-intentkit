@@ -72,9 +72,7 @@ def main():
     """Main function to fix release titles."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Fix GitHub release titles to match version tags"
-    )
+    parser = argparse.ArgumentParser(description="Fix GitHub release titles to match version tags")
     parser.add_argument(
         "--limit",
         type=int,

@@ -19,17 +19,9 @@ def pick_summarize_model() -> str:
         ("deepseek-chat", LLMProvider.DEEPSEEK),
         ("MiniMax-M2.7", LLMProvider.MINIMAX),
     ]
-    if (
-        LLMProvider.OPENAI_COMPATIBLE.is_configured
-        and config.openai_compatible_model_lite
-    ):
-        order.insert(
-            0, (config.openai_compatible_model_lite, LLMProvider.OPENAI_COMPATIBLE)
-        )
-    if (
-        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
-        and config.anthropic_compatible_model_lite
-    ):
+    if LLMProvider.OPENAI_COMPATIBLE.is_configured and config.openai_compatible_model_lite:
+        order.insert(0, (config.openai_compatible_model_lite, LLMProvider.OPENAI_COMPATIBLE))
+    if LLMProvider.ANTHROPIC_COMPATIBLE.is_configured and config.anthropic_compatible_model_lite:
         order.insert(
             0,
             (config.anthropic_compatible_model_lite, LLMProvider.ANTHROPIC_COMPATIBLE),
@@ -58,13 +50,8 @@ def pick_default_model() -> str:
     ]
     if LLMProvider.OPENAI_COMPATIBLE.is_configured and config.openai_compatible_model:
         order.insert(1, (config.openai_compatible_model, LLMProvider.OPENAI_COMPATIBLE))
-    if (
-        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
-        and config.anthropic_compatible_model
-    ):
-        order.insert(
-            1, (config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE)
-        )
+    if LLMProvider.ANTHROPIC_COMPATIBLE.is_configured and config.anthropic_compatible_model:
+        order.insert(1, (config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE))
 
     for model_id, provider in order:
         if provider.is_configured:
@@ -116,13 +103,8 @@ def pick_long_context_model() -> str:
     ]
     if LLMProvider.OPENAI_COMPATIBLE.is_configured and config.openai_compatible_model:
         order.append((config.openai_compatible_model, LLMProvider.OPENAI_COMPATIBLE))
-    if (
-        LLMProvider.ANTHROPIC_COMPATIBLE.is_configured
-        and config.anthropic_compatible_model
-    ):
-        order.append(
-            (config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE)
-        )
+    if LLMProvider.ANTHROPIC_COMPATIBLE.is_configured and config.anthropic_compatible_model:
+        order.append((config.anthropic_compatible_model, LLMProvider.ANTHROPIC_COMPATIBLE))
 
     for model_id, provider in order:
         if provider.is_configured:

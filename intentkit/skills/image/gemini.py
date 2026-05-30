@@ -46,9 +46,7 @@ class GeminiImageBase(ImageBaseTool):
             response = client.models.generate_content(
                 model=self.native_model,
                 contents=contents,
-                config=types.GenerateContentConfig(
-                    response_modalities=["TEXT", "IMAGE"]
-                ),
+                config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
             )
 
             # Extract image from response parts
@@ -56,10 +54,7 @@ class GeminiImageBase(ImageBaseTool):
                 for candidate in response.candidates:
                     if candidate.content and candidate.content.parts:
                         for part in candidate.content.parts:
-                            if (
-                                part.inline_data is not None
-                                and part.inline_data.data is not None
-                            ):
+                            if part.inline_data is not None and part.inline_data.data is not None:
                                 return part.inline_data.data
 
             raise ToolException("No image found in Gemini response")
@@ -83,9 +78,7 @@ class GeminiImageFlash(GeminiImageBase):
     """Generate images using Gemini 3.1 Flash."""
 
     name: str = "image_gemini_flash"
-    description: str = (
-        "Generate images from text prompts using Gemini 3.1 Flash (faster, cheaper)."
-    )
+    description: str = "Generate images from text prompts using Gemini 3.1 Flash (faster, cheaper)."
     price: Decimal = Decimal("70")
     native_model: str = "gemini-3.1-flash-image-preview"
     openrouter_model: str = "google/gemini-3.1-flash-image-preview"

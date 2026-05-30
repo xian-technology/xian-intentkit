@@ -34,9 +34,7 @@ def test_infura_provider():
 
         expected_url = f"https://{subdomain}.infura.io/v3/{api_key}"
         if config.rpc_url != expected_url:
-            logger.error(
-                f"Incorrect RPC URL for {net}: {config.rpc_url} != {expected_url}"
-            )
+            logger.error(f"Incorrect RPC URL for {net}: {config.rpc_url} != {expected_url}")
         else:
             logger.info(f"Verified {net}: {config.rpc_url}")
 

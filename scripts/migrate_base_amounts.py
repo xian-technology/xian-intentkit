@@ -20,9 +20,7 @@ from intentkit.core.credit import FOURPLACES
 from intentkit.models.credit import CreditEventTable
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -58,17 +56,11 @@ def calculate_base_amounts(
 
     # Calculate base amounts by subtracting all fees from respective credit type amounts
     base_free_amount = (
-        free_amount
-        - fee_platform_free_amount
-        - fee_agent_free_amount
-        - fee_dev_free_amount
+        free_amount - fee_platform_free_amount - fee_agent_free_amount - fee_dev_free_amount
     ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
     base_reward_amount = (
-        reward_amount
-        - fee_platform_reward_amount
-        - fee_agent_reward_amount
-        - fee_dev_reward_amount
+        reward_amount - fee_platform_reward_amount - fee_agent_reward_amount - fee_dev_reward_amount
     ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
     base_permanent_amount = (

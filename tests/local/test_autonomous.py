@@ -88,9 +88,7 @@ async def test_add_autonomous(client, mock_task, monkeypatch):
         # Simulate adding the task and returning the created task
         return mock_task
 
-    monkeypatch.setattr(
-        autonomous_module, "add_autonomous_task", mock_add_autonomous_task
-    )
+    monkeypatch.setattr(autonomous_module, "add_autonomous_task", mock_add_autonomous_task)
 
     payload = {
         "name": "New Task",
@@ -134,9 +132,7 @@ async def test_add_xian_event_autonomous(client, monkeypatch):
         assert task_request.xian_event is not None
         return created_task
 
-    monkeypatch.setattr(
-        autonomous_module, "add_autonomous_task", mock_add_autonomous_task
-    )
+    monkeypatch.setattr(autonomous_module, "add_autonomous_task", mock_add_autonomous_task)
 
     payload = {
         "name": "Watch Transfers",
@@ -178,9 +174,7 @@ async def test_update_autonomous(client, monkeypatch):
     async def mock_update_autonomous_task(agent_id, task_id, task_update):
         return updated_task
 
-    monkeypatch.setattr(
-        autonomous_module, "update_autonomous_task", mock_update_autonomous_task
-    )
+    monkeypatch.setattr(autonomous_module, "update_autonomous_task", mock_update_autonomous_task)
 
     payload = {"name": "Updated Task", "enabled": False}
 
@@ -200,9 +194,7 @@ async def test_delete_autonomous(client, monkeypatch):
         # Simulate successful deletion
         pass
 
-    monkeypatch.setattr(
-        autonomous_module, "delete_autonomous_task", mock_delete_autonomous_task
-    )
+    monkeypatch.setattr(autonomous_module, "delete_autonomous_task", mock_delete_autonomous_task)
 
     response = client.delete("/agents/test-agent/autonomous/task-1")
     assert response.status_code == 204
@@ -214,9 +206,7 @@ async def testupdate_autonomous_status_uses_core_update(monkeypatch):
 
     called = {"value": False}
 
-    async def mock_update_autonomous_task_status(
-        agent_id, task_id, status, next_run_time
-    ):
+    async def mock_update_autonomous_task_status(agent_id, task_id, status, next_run_time):
         called["value"] = True
 
     async def mock_get_agent(agent_id):
@@ -249,9 +239,7 @@ async def testupdate_autonomous_status_uses_core_update(monkeypatch):
         raising=False,
     )
     monkeypatch.setattr(autonomous_module, "get_agent", mock_get_agent)
-    monkeypatch.setattr(
-        autonomous_module.scheduler, "get_job", lambda _job_id: MockJob()
-    )
+    monkeypatch.setattr(autonomous_module.scheduler, "get_job", lambda _job_id: MockJob())
 
     try:
         await autonomous_module.update_autonomous_status(

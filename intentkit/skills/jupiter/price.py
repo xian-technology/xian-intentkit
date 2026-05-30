@@ -11,9 +11,7 @@ class JupiterGetPriceInput(BaseModel):
 
 class JupiterGetPrice(JupiterBaseTool):
     name: str = "jupiter_get_price"
-    description: str = (
-        "Get the current price of Solana tokens in USD using Jupiter Price API."
-    )
+    description: str = "Get the current price of Solana tokens in USD using Jupiter Price API."
     args_schema: ArgsSchema | None = JupiterGetPriceInput
 
     async def _arun(

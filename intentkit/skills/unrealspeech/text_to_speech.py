@@ -48,8 +48,7 @@ class TextToSpeech(UnrealSpeechBaseTool):
 
     name: str = "text_to_speech"
     description: str = (
-        "Convert text to speech using UnrealSpeech. "
-        "Returns audio URL and optional timestamps."
+        "Convert text to speech using UnrealSpeech. Returns audio URL and optional timestamps."
     )
     args_schema: ArgsSchema | None = TextToSpeechInput
 
@@ -73,9 +72,7 @@ class TextToSpeech(UnrealSpeechBaseTool):
         # Get the API key from context config if available
         context = self.get_context()
         skill_config = context.agent.skill_config(self.category) if config else None
-        api_key = (
-            skill_config.get("api_key", None) if context and skill_config else None
-        )
+        api_key = skill_config.get("api_key", None) if context and skill_config else None
 
         # Clean up and validate input
         if not text:
@@ -138,14 +135,11 @@ class TextToSpeech(UnrealSpeechBaseTool):
                     "success": True,
                     "task_id": result.get("TaskId"),
                     "audio_url": result.get("OutputUri"),
-                    "timestamps_url": result.get("TimestampsUri")
-                    if timestamp_type
-                    else None,
+                    "timestamps_url": result.get("TimestampsUri") if timestamp_type else None,
                     "status": result.get("TaskStatus"),
                     "voice_id": result.get("VoiceId"),
                     "character_count": result.get("RequestCharacters"),
-                    "word_count": result.get("RequestCharacters", 0)
-                    // 5,  # Rough estimate
+                    "word_count": result.get("RequestCharacters", 0) // 5,  # Rough estimate
                     "duration_seconds": result.get("RequestCharacters", 0)
                     // 15,  # Rough estimate (15 chars/sec)
                     "created_at": result.get("CreationTime"),

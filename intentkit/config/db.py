@@ -81,9 +81,7 @@ async def init_db(
     auto_migrate: Annotated[
         bool, Field(default=True, description="Whether to run migrations automatically")
     ],
-    pool_size: Annotated[
-        int, Field(default=3, description="Database connection pool size")
-    ] = 3,
+    pool_size: Annotated[int, Field(default=3, description="Database connection pool size")] = 3,
 ) -> None:
     """Initialize the database and handle schema updates.
 
@@ -104,9 +102,7 @@ async def init_db(
             username_str = username or ""
             password_str = quote_plus(password) if password else ""
             if username_str or password_str:
-                conn_string = (
-                    f"postgresql://{username_str}:{password_str}@{host}:{port}/{dbname}"
-                )
+                conn_string = f"postgresql://{username_str}:{password_str}@{host}:{port}/{dbname}"
             else:
                 conn_string = f"postgresql://{host}:{port}/{dbname}"
             pool = AsyncConnectionPool(
@@ -139,7 +135,9 @@ async def init_db(
             username_str = username or ""
             password_str = quote_plus(password) if password else ""
             if username_str or password_str:
-                db_url = f"postgresql+asyncpg://{username_str}:{password_str}@{host}:{port}/{dbname}"
+                db_url = (
+                    f"postgresql+asyncpg://{username_str}:{password_str}@{host}:{port}/{dbname}"
+                )
             else:
                 db_url = f"postgresql+asyncpg://{host}:{port}/{dbname}"
             engine = create_async_engine(

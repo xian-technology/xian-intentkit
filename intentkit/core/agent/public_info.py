@@ -17,9 +17,7 @@ async def update_public_info(*, agent_id: str, public_info: AgentPublicInfo) -> 
     from intentkit.models.agent import Agent
 
     async with get_session() as session:
-        result = await session.execute(
-            select(AgentTable).where(AgentTable.id == agent_id)
-        )
+        result = await session.execute(select(AgentTable).where(AgentTable.id == agent_id))
         db_agent = result.scalar_one_or_none()
 
         if not db_agent:
@@ -44,9 +42,7 @@ async def override_public_info(*, agent_id: str, public_info: AgentPublicInfo) -
     from intentkit.models.agent import Agent
 
     async with get_session() as session:
-        result = await session.execute(
-            select(AgentTable).where(AgentTable.id == agent_id)
-        )
+        result = await session.execute(select(AgentTable).where(AgentTable.id == agent_id))
         db_agent = result.scalar_one_or_none()
 
         if not db_agent:

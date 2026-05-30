@@ -211,9 +211,7 @@ class AgentUpdate(AgentUserInput):
             return
 
         for autonomous_config in self.autonomous:
-            trigger_type = (
-                autonomous_config.trigger_type or AgentAutonomousTriggerType.SCHEDULE
-            )
+            trigger_type = autonomous_config.trigger_type or AgentAutonomousTriggerType.SCHEDULE
 
             if trigger_type == AgentAutonomousTriggerType.XIAN_EVENT:
                 continue
@@ -300,9 +298,7 @@ class AgentUpdate(AgentUserInput):
         normalized: list[dict[str, Any]] = []
         for task in tasks:
             model = (
-                task
-                if isinstance(task, AgentAutonomous)
-                else AgentAutonomous.model_validate(task)
+                task if isinstance(task, AgentAutonomous) else AgentAutonomous.model_validate(task)
             )
             normalized.append(model.normalize_status_defaults().model_dump())
         return normalized

@@ -12,9 +12,7 @@ from intentkit.core.system_skills.base import SystemSkill
 class UpdateMemoryInput(BaseModel):
     """Input schema for updating long-term memory."""
 
-    content: str = Field(
-        ..., description="New memory content to merge into long-term memory"
-    )
+    content: str = Field(..., description="New memory content to merge into long-term memory")
 
 
 class UpdateMemorySkill(SystemSkill):

@@ -43,9 +43,7 @@ class GetMarket(PolymarketBaseTool):
     async def _fetch_midpoint(self, token_id: str) -> tuple[str, str]:
         """Fetch midpoint price for a single token, returning (token_id, price)."""
         try:
-            price_data = await self._clob_get(
-                "/midpoint", params={"token_id": token_id}
-            )
+            price_data = await self._clob_get("/midpoint", params={"token_id": token_id})
             return (token_id, price_data.get("mid", "N/A"))
         except Exception:
             return (token_id, "N/A")
@@ -86,9 +84,7 @@ class GetMarket(PolymarketBaseTool):
                 tokens = []
 
         # Fetch midpoint prices concurrently
-        price_results = await asyncio.gather(
-            *(self._fetch_midpoint(tid) for tid in tokens)
-        )
+        price_results = await asyncio.gather(*(self._fetch_midpoint(tid) for tid in tokens))
         token_prices = dict(price_results)
 
         outcomes = market.get("outcomes", "")
@@ -105,8 +101,7 @@ class GetMarket(PolymarketBaseTool):
             "outcomes": outcomes,
             "outcome_prices": market.get("outcomePrices", ""),
             "tokens": [
-                {"token_id": tid, "midpoint_price": token_prices.get(tid, "N/A")}
-                for tid in tokens
+                {"token_id": tid, "midpoint_price": token_prices.get(tid, "N/A")} for tid in tokens
             ],
             "volume_24h": market.get("volume24hr", 0),
             "total_volume": market.get("volumeNum", 0),

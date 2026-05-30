@@ -61,9 +61,7 @@ class FetchTopVolumeInput(BaseModel):
 
 
 # API Functions
-async def fetch_price(
-    api_key: str, from_symbol: str, to_symbols: list[str]
-) -> dict[str, Any]:
+async def fetch_price(api_key: str, from_symbol: str, to_symbols: list[str]) -> dict[str, Any]:
     """
     Fetch current price for a cryptocurrency in multiple currencies.
     """
@@ -91,9 +89,7 @@ async def fetch_trading_signals(api_key: str, from_symbol: str) -> dict[str, Any
     return response.json()
 
 
-async def fetch_top_market_cap(
-    api_key: str, limit: int, to_symbol: str = "USD"
-) -> dict[str, Any]:
+async def fetch_top_market_cap(api_key: str, limit: int, to_symbol: str = "USD") -> dict[str, Any]:
     """
     Fetch top cryptocurrencies by market cap.
     """
@@ -123,9 +119,7 @@ async def fetch_top_exchanges(
     return response.json()
 
 
-async def fetch_top_volume(
-    api_key: str, limit: int, to_symbol: str = "USD"
-) -> dict[str, Any]:
+async def fetch_top_volume(api_key: str, limit: int, to_symbol: str = "USD") -> dict[str, Any]:
     """
     Fetch top cryptocurrencies by total volume.
     """
@@ -139,9 +133,7 @@ async def fetch_top_volume(
     return response.json()
 
 
-async def fetch_news(
-    api_key: str, token: str, timestamp: int | None = None
-) -> dict[str, Any]:
+async def fetch_news(api_key: str, token: str, timestamp: int | None = None) -> dict[str, Any]:
     """
     Fetch news for a specific token and timestamp.
     """

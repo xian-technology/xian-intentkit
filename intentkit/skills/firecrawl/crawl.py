@@ -44,9 +44,7 @@ class FirecrawlCrawlInput(BaseModel):
     allow_external_links: bool = Field(
         description="Allow crawling external domains.", default=False
     )
-    allow_subdomains: bool = Field(
-        description="Allow crawling subdomains.", default=False
-    )
+    allow_subdomains: bool = Field(description="Allow crawling subdomains.", default=False)
     only_main_content: bool = Field(
         description="Extract only main content, excluding nav/footer.",
         default=True,
@@ -129,9 +127,7 @@ class FirecrawlCrawl(FirecrawlBaseTool):
         skill_config = context.agent.skill_config(self.category)
         logger.debug("firecrawl_crawl: Running crawl with context %s", context)
 
-        if skill_config.get("rate_limit_number") and skill_config.get(
-            "rate_limit_minutes"
-        ):
+        if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
             await self.user_rate_limit_by_category(
                 skill_config["rate_limit_number"],
                 skill_config["rate_limit_minutes"] * 60,
@@ -140,9 +136,7 @@ class FirecrawlCrawl(FirecrawlBaseTool):
         # Get the API key from the agent's configuration
         api_key = self.get_api_key()
         if not api_key:
-            raise ToolException(
-                "Error: No Firecrawl API key provided in the configuration."
-            )
+            raise ToolException("Error: No Firecrawl API key provided in the configuration.")
         # Validate and set defaults
         if formats is None:
             formats = ["markdown"]
@@ -200,9 +194,7 @@ class FirecrawlCrawl(FirecrawlBaseTool):
                     raise ToolException(f"Error starting crawl: {error_msg}")
                 crawl_id = crawl_data.get("id")
                 if not crawl_id:
-                    raise ToolException(
-                        "Error: No crawl ID returned from Firecrawl API"
-                    )
+                    raise ToolException("Error: No crawl ID returned from Firecrawl API")
                 # Poll for crawl completion
                 max_polls = 60  # Maximum 5 minutes of polling (60 * 5 seconds)
                 poll_count = 0
@@ -242,15 +234,11 @@ class FirecrawlCrawl(FirecrawlBaseTool):
                         for i, page_data in enumerate(
                             pages_data[:10], 1
                         ):  # Limit to first 10 pages for output
-                            page_url = page_data.get("metadata", {}).get(
-                                "sourceURL", "Unknown URL"
-                            )
+                            page_url = page_data.get("metadata", {}).get("sourceURL", "Unknown URL")
                             formatted_result += f"## Page {i}: {page_url}\n"
 
                             if "markdown" in formats and page_data.get("markdown"):
-                                content = page_data["markdown"][
-                                    :500
-                                ]  # Limit content length
+                                content = page_data["markdown"][:500]  # Limit content length
                                 formatted_result += f"{content}"
                                 if len(page_data["markdown"]) > 500:
                                     formatted_result += "... (content truncated)"
@@ -261,15 +249,11 @@ class FirecrawlCrawl(FirecrawlBaseTool):
                             if metadata.get("title"):
                                 formatted_result += f"Title: {metadata['title']}\n"
                             if metadata.get("description"):
-                                formatted_result += (
-                                    f"Description: {metadata['description']}\n"
-                                )
+                                formatted_result += f"Description: {metadata['description']}\n"
                             formatted_result += "\n"
 
                         if len(pages_data) > 10:
-                            formatted_result += (
-                                f"... and {len(pages_data) - 10} more pages\n"
-                            )
+                            formatted_result += f"... and {len(pages_data) - 10} more pages\n"
 
                         # Index content if requested
                         if index_content and pages_data:
@@ -289,16 +273,10 @@ class FirecrawlCrawl(FirecrawlBaseTool):
                                         document = Document(
                                             page_content=page_data["markdown"],
                                             metadata={
-                                                "source": metadata.get(
-                                                    "sourceURL", "Unknown URL"
-                                                ),
+                                                "source": metadata.get("sourceURL", "Unknown URL"),
                                                 "title": metadata.get("title", ""),
-                                                "description": metadata.get(
-                                                    "description", ""
-                                                ),
-                                                "language": metadata.get(
-                                                    "language", ""
-                                                ),
+                                                "description": metadata.get("description", ""),
+                                                "language": metadata.get("language", ""),
                                                 "source_type": "firecrawl_crawl",
                                                 "indexed_at": str(context.agent_id),
                                             },
@@ -321,27 +299,21 @@ class FirecrawlCrawl(FirecrawlBaseTool):
 
                                     # Update metadata
                                     urls = [doc.metadata["source"] for doc in documents]
-                                    new_metadata = (
-                                        FirecrawlMetadataManager.create_url_metadata(
-                                            urls, documents, "firecrawl_crawl"
-                                        )
+                                    new_metadata = FirecrawlMetadataManager.create_url_metadata(
+                                        urls, documents, "firecrawl_crawl"
                                     )
                                     await FirecrawlMetadataManager.update_metadata(
                                         agent_id, new_metadata
                                     )
 
                                     formatted_result += "\n## Content Indexing\n"
-                                    formatted_result += "Successfully indexed crawled content into vector store:\n"
                                     formatted_result += (
-                                        f"- Pages indexed: {len(documents)}\n"
+                                        "Successfully indexed crawled content into vector store:\n"
                                     )
-                                    formatted_result += (
-                                        f"- Total chunks created: {total_chunks}\n"
-                                    )
+                                    formatted_result += f"- Pages indexed: {len(documents)}\n"
+                                    formatted_result += f"- Total chunks created: {total_chunks}\n"
                                     formatted_result += f"- Chunk size: {chunk_size}\n"
-                                    formatted_result += (
-                                        f"- Chunk overlap: {chunk_overlap}\n"
-                                    )
+                                    formatted_result += f"- Chunk overlap: {chunk_overlap}\n"
                                     formatted_result += f"- Content merged with existing: {'Yes' if was_merged else 'No'}\n"
                                     formatted_result += "Use the 'firecrawl_query_indexed_content' skill to search this content.\n"
 
@@ -379,9 +351,7 @@ class FirecrawlCrawl(FirecrawlBaseTool):
 
                     else:
                         # Unknown status
-                        logger.warning(
-                            f"firecrawl_crawl: Unknown crawl status: {status}"
-                        )
+                        logger.warning(f"firecrawl_crawl: Unknown crawl status: {status}")
                         await asyncio.sleep(5)
                         poll_count += 1
 

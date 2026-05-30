@@ -103,18 +103,14 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         protocol = "testprotocol"
         dummy = DummyResponse(200, {"protocol": protocol})
         expected_url = f"https://api.llama.fi/protocol/{protocol}"
-        result = await self._run_with_dummy(
-            fetch_protocol, expected_url, dummy, protocol
-        )
+        result = await self._run_with_dummy(fetch_protocol, expected_url, dummy, protocol)
         self.assertEqual(result, {"protocol": protocol})
 
     async def test_fetch_protocol_error(self):
         protocol = "testprotocol"
         dummy = DummyResponse(500, None)
         expected_url = f"https://api.llama.fi/protocol/{protocol}"
-        result = await self._run_with_dummy(
-            fetch_protocol, expected_url, dummy, protocol
-        )
+        result = await self._run_with_dummy(fetch_protocol, expected_url, dummy, protocol)
         self.assertEqual(result, {"error": "API returned status code 500"})
 
     # --- Tests for fetch_historical_tvl ---
@@ -143,18 +139,14 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         chain = "ethereum"
         dummy = DummyResponse(200, {"chain": chain})
         expected_url = f"https://api.llama.fi/v2/historicalChainTvl/{chain}"
-        result = await self._run_with_dummy(
-            fetch_chain_historical_tvl, expected_url, dummy, chain
-        )
+        result = await self._run_with_dummy(fetch_chain_historical_tvl, expected_url, dummy, chain)
         self.assertEqual(result, {"chain": chain})
 
     async def test_fetch_chain_historical_tvl_error(self):
         chain = "ethereum"
         dummy = DummyResponse(503, None)
         expected_url = f"https://api.llama.fi/v2/historicalChainTvl/{chain}"
-        result = await self._run_with_dummy(
-            fetch_chain_historical_tvl, expected_url, dummy, chain
-        )
+        result = await self._run_with_dummy(fetch_chain_historical_tvl, expected_url, dummy, chain)
         self.assertEqual(result, {"error": "API returned status code 503"})
 
     # --- Tests for fetch_protocol_current_tvl ---
@@ -203,9 +195,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins_str = ",".join(coins)
         dummy = DummyResponse(200, {"prices": "data"})
         expected_url = f"https://api.llama.fi/prices/current/{coins_str}?searchWidth=4h"
-        result = await self._run_with_dummy(
-            fetch_current_prices, expected_url, dummy, coins
-        )
+        result = await self._run_with_dummy(fetch_current_prices, expected_url, dummy, coins)
         self.assertEqual(result, {"prices": "data"})
 
     async def test_fetch_current_prices_error(self):
@@ -213,9 +203,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins_str = ",".join(coins)
         dummy = DummyResponse(500, None)
         expected_url = f"https://api.llama.fi/prices/current/{coins_str}?searchWidth=4h"
-        result = await self._run_with_dummy(
-            fetch_current_prices, expected_url, dummy, coins
-        )
+        result = await self._run_with_dummy(fetch_current_prices, expected_url, dummy, coins)
         self.assertEqual(result, {"error": "API returned status code 500"})
 
     # --- Tests for fetch_historical_prices ---
@@ -224,7 +212,9 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins = ["coin1", "coin2"]
         coins_str = ",".join(coins)
         dummy = DummyResponse(200, {"historical_prices": "data"})
-        expected_url = f"https://api.llama.fi/prices/historical/{timestamp}/{coins_str}?searchWidth=4h"
+        expected_url = (
+            f"https://api.llama.fi/prices/historical/{timestamp}/{coins_str}?searchWidth=4h"
+        )
         result = await self._run_with_dummy(
             fetch_historical_prices, expected_url, dummy, timestamp, coins
         )
@@ -235,7 +225,9 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins = ["coin1", "coin2"]
         coins_str = ",".join(coins)
         dummy = DummyResponse(400, None)
-        expected_url = f"https://api.llama.fi/prices/historical/{timestamp}/{coins_str}?searchWidth=4h"
+        expected_url = (
+            f"https://api.llama.fi/prices/historical/{timestamp}/{coins_str}?searchWidth=4h"
+        )
         result = await self._run_with_dummy(
             fetch_historical_prices, expected_url, dummy, timestamp, coins
         )
@@ -253,9 +245,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_batch_historical_prices(coins_timestamps)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"batch": "data"})
 
     async def test_fetch_batch_historical_prices_error(self):
@@ -268,9 +258,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_batch_historical_prices(coins_timestamps)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"error": "API returned status code 503"})
 
     async def test_fetch_price_chart_success(self):
@@ -293,9 +281,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_price_chart(coins)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"chart": "data"})
 
     async def test_fetch_price_chart_error(self):
@@ -318,9 +304,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_price_chart(coins)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"error": "API returned status code 500"})
 
     # --- Tests for fetch_price_percentage ---
@@ -344,9 +328,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
                 client_instance.get.return_value = dummy
                 MockClient.return_value.__aenter__.return_value = client_instance
                 result = await fetch_price_percentage(coins)
-                client_instance.get.assert_called_once_with(
-                    expected_url, params=expected_params
-                )
+                client_instance.get.assert_called_once_with(expected_url, params=expected_params)
                 self.assertEqual(result, {"percentage": "data"})
 
     async def test_fetch_price_percentage_error(self):
@@ -366,9 +348,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_price_percentage(coins)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"error": "API returned status code 404"})
 
     async def test_fetch_price_percentage_error2(self):
@@ -390,9 +370,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
                 client_instance.get.return_value = dummy
                 MockClient.return_value.__aenter__.return_value = client_instance
                 result = await fetch_price_percentage(coins)
-                client_instance.get.assert_called_once_with(
-                    expected_url, params=expected_params
-                )
+                client_instance.get.assert_called_once_with(expected_url, params=expected_params)
                 self.assertEqual(result, {"error": "API returned status code 404"})
 
     # --- Tests for fetch_first_price ---
@@ -401,9 +379,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins_str = ",".join(coins)
         dummy = DummyResponse(200, {"first_prices": "data"})
         expected_url = f"https://api.llama.fi/prices/first/{coins_str}"
-        result = await self._run_with_dummy(
-            fetch_first_price, expected_url, dummy, coins
-        )
+        result = await self._run_with_dummy(fetch_first_price, expected_url, dummy, coins)
         self.assertEqual(result, {"first_prices": "data"})
 
     async def test_fetch_first_price_error(self):
@@ -411,9 +387,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         coins_str = ",".join(coins)
         dummy = DummyResponse(500, None)
         expected_url = f"https://api.llama.fi/prices/first/{coins_str}"
-        result = await self._run_with_dummy(
-            fetch_first_price, expected_url, dummy, coins
-        )
+        result = await self._run_with_dummy(fetch_first_price, expected_url, dummy, coins)
         self.assertEqual(result, {"error": "API returned status code 500"})
 
     # --- Tests for fetch_block ---
@@ -450,18 +424,14 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_stablecoins()
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"stablecoins": "data"})
 
     async def test_fetch_stablecoin_charts_success(self):
         stablecoin_id = "USDT"
         chain = "ethereum"
         dummy = DummyResponse(200, {"charts": "data"})
-        expected_url = (
-            f"https://api.llama.fi/stablecoincharts/{chain}?stablecoin={stablecoin_id}"
-        )
+        expected_url = f"https://api.llama.fi/stablecoincharts/{chain}?stablecoin={stablecoin_id}"
         result = await self._run_with_dummy(
             fetch_stablecoin_charts, expected_url, dummy, stablecoin_id, chain
         )
@@ -470,17 +440,13 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
     async def test_fetch_stablecoin_chains_success(self):
         dummy = DummyResponse(200, {"chains": "data"})
         expected_url = "https://api.llama.fi/stablecoinchains"
-        result = await self._run_with_dummy(
-            fetch_stablecoin_chains, expected_url, dummy
-        )
+        result = await self._run_with_dummy(fetch_stablecoin_chains, expected_url, dummy)
         self.assertEqual(result, {"chains": "data"})
 
     async def test_fetch_stablecoin_prices_success(self):
         dummy = DummyResponse(200, {"prices": "data"})
         expected_url = "https://api.llama.fi/stablecoinprices"
-        result = await self._run_with_dummy(
-            fetch_stablecoin_prices, expected_url, dummy
-        )
+        result = await self._run_with_dummy(fetch_stablecoin_prices, expected_url, dummy)
         self.assertEqual(result, {"prices": "data"})
 
     # --- Tests for Yields API ---
@@ -494,9 +460,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
         pool_id = "compound-usdc"
         dummy = DummyResponse(200, {"chart": "data"})
         expected_url = f"https://api.llama.fi/chart/{pool_id}"
-        result = await self._run_with_dummy(
-            fetch_pool_chart, expected_url, dummy, pool_id
-        )
+        result = await self._run_with_dummy(fetch_pool_chart, expected_url, dummy, pool_id)
         self.assertEqual(result, {"chart": "data"})
 
     # --- Tests for Volumes API ---
@@ -514,9 +478,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_dex_overview()
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"overview": "data"})
 
     async def test_fetch_dex_summary_success(self):
@@ -534,9 +496,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_dex_summary(protocol)
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"summary": "data"})
 
     async def test_fetch_options_overview_success(self):
@@ -553,9 +513,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_options_overview()
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"options": "data"})
 
     # --- Tests for Fees API ---
@@ -573,9 +531,7 @@ class TestDefiLlamaAPI(unittest.IsolatedAsyncioTestCase):  # pyright: ignore[rep
             client_instance.get.return_value = dummy
             MockClient.return_value.__aenter__.return_value = client_instance
             result = await fetch_fees_overview()
-            client_instance.get.assert_called_once_with(
-                expected_url, params=expected_params
-            )
+            client_instance.get.assert_called_once_with(expected_url, params=expected_params)
             self.assertEqual(result, {"fees": "data"})
 
 

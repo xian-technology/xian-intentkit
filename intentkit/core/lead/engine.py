@@ -97,9 +97,7 @@ async def _build_lead_agent(team_id: str) -> Agent:
         Team.get_lead_agent_config(team_id),
     )
     if not owner:
-        raise IntentKitAPIError(
-            500, "TeamOwnerNotFound", f"Team '{team_id}' has no owner"
-        )
+        raise IntentKitAPIError(500, "TeamOwnerNotFound", f"Team '{team_id}' has no owner")
     lead_config = lead_config or {}
 
     agent_data = {

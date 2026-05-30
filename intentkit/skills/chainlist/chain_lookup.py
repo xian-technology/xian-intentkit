@@ -103,9 +103,7 @@ class ChainLookup(ChainlistBaseTool):
                     if isinstance(rpc, dict) and rpc.get("tracking") == "none"
                 ]
 
-                if chain_copy[
-                    "rpc"
-                ]:  # Only include if it has RPC endpoints after filtering
+                if chain_copy["rpc"]:  # Only include if it has RPC endpoints after filtering
                     filtered_result.append(chain_copy)
 
             filtered_chains = filtered_result
@@ -162,9 +160,7 @@ class ChainLookup(ChainlistBaseTool):
     ) -> dict[str, Any]:
         """Lookup blockchain RPC endpoints from Chainlist."""
         if not search_term and not chain_id:
-            return {
-                "error": "Please provide either a search term or a chain ID to lookup."
-            }
+            return {"error": "Please provide either a search term or a chain ID to lookup."}
 
         try:
             # Fetch data

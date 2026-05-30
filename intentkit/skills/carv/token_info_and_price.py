@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 class TokenInfoAndPriceInput(BaseModel):
     ticker: str = Field(description="Token ticker symbol (e.g., 'eth', 'btc')")
     token_name: str = Field(description="Token name (e.g., 'ethereum', 'bitcoin')")
-    amount: float | None = Field(
-        description="Token amount for value calculation (optional)"
-    )
+    amount: float | None = Field(description="Token amount for value calculation (optional)")
 
 
 class TokenInfoAndPriceTool(CarvBaseTool):
@@ -43,9 +41,7 @@ class TokenInfoAndPriceTool(CarvBaseTool):
         **kwargs: Any,
     ) -> dict[str, Any]:
         if not ticker:
-            raise ToolException(
-                "ticker is null. Please provide the specific ticker symbol."
-            )
+            raise ToolException("ticker is null. Please provide the specific ticker symbol.")
 
         context = self.get_context()
         params = {"ticker": ticker}
@@ -62,9 +58,7 @@ class TokenInfoAndPriceTool(CarvBaseTool):
         # retry with token_name if price is 0 or missing
         if "price" not in result or result["price"] == 0:
             fallback_ticker = re.sub(r"\s+", "-", token_name.strip().lower())
-            logger.info(
-                "Fallback triggered. Trying with fallback ticker: %s", fallback_ticker
-            )
+            logger.info("Fallback triggered. Trying with fallback ticker: %s", fallback_ticker)
 
             fallback_params = {"ticker": fallback_ticker}
             try:
@@ -75,9 +69,7 @@ class TokenInfoAndPriceTool(CarvBaseTool):
                     method=method,
                 )
                 if result.get("price") == 0:
-                    raise ToolException(
-                        "Failed to fetch token price from CARV API with fallback."
-                    )
+                    raise ToolException("Failed to fetch token price from CARV API with fallback.")
             except ToolException:
                 raise
 

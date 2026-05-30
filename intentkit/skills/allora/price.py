@@ -44,9 +44,7 @@ class AlloraGetPrice(AlloraBaseTool):
     """Fetch ETH/BTC price predictions from Allora API."""
 
     name: str = "allora_get_price_prediction"
-    description: str = (
-        "Get ETH or BTC price prediction from Allora (5-minute or 8-hour)."
-    )
+    description: str = "Get ETH or BTC price prediction from Allora (5-minute or 8-hour)."
     price: Decimal = Decimal("230")
     args_schema: ArgsSchema | None = AlloraGetPriceInput
 
@@ -61,9 +59,7 @@ class AlloraGetPrice(AlloraBaseTool):
         """
         raise NotImplementedError("Use _arun instead")
 
-    async def _arun(
-        self, token: str, time_frame: str, **kwargs
-    ) -> AlloraGetPriceOutput:
+    async def _arun(self, token: str, time_frame: str, **kwargs) -> AlloraGetPriceOutput:
         """Run the tool to get the token price prediction from Allora API.
         Args:
             token (str): Token to get price prediction for.
@@ -96,12 +92,8 @@ class AlloraGetPrice(AlloraBaseTool):
 
                 return res
             except httpx.RequestError as req_err:
-                raise ToolException(
-                    f"Request error from Allora API: {req_err}"
-                ) from req_err
+                raise ToolException(f"Request error from Allora API: {req_err}") from req_err
             except httpx.HTTPStatusError as http_err:
-                raise ToolException(
-                    f"HTTP error from Allora API: {http_err}"
-                ) from http_err
+                raise ToolException(f"HTTP error from Allora API: {http_err}") from http_err
             except Exception as e:
                 raise ToolException(f"Error from Allora API: {e}") from e

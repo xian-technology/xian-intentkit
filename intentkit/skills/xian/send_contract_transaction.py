@@ -72,6 +72,4 @@ class XianSendContractTransaction(XianBaseTool):
         except ToolException:
             raise
         except Exception as exc:
-            raise ToolException(
-                f"Error sending Xian contract transaction: {exc}"
-            ) from exc
+            raise ToolException(f"Error sending Xian contract transaction: {exc}") from exc

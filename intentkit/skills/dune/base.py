@@ -65,9 +65,7 @@ class DuneBaseTool(IntentKitSkill):
                     params=params,
                 )
                 if response.status_code != 200:
-                    raise ToolException(
-                        f"Dune API error: {response.status_code} - {response.text}"
-                    )
+                    raise ToolException(f"Dune API error: {response.status_code} - {response.text}")
                 return response.json()
         except ToolException:
             raise
@@ -75,9 +73,7 @@ class DuneBaseTool(IntentKitSkill):
             logger.error("Dune API request failed: %s", e, exc_info=True)
             raise ToolException(f"Dune API request failed: {e}")
 
-    async def _poll_execution(
-        self, execution_id: str, max_wait: int = 120
-    ) -> dict[str, Any]:
+    async def _poll_execution(self, execution_id: str, max_wait: int = 120) -> dict[str, Any]:
         """Poll a Dune execution until completion.
 
         Uses linear backoff: 2s, 4s, 6s, ... capped at 10s.
@@ -93,9 +89,7 @@ class DuneBaseTool(IntentKitSkill):
         interval = 2
 
         while time.monotonic() < deadline:
-            status = await self._dune_request(
-                "GET", f"/execution/{execution_id}/status"
-            )
+            status = await self._dune_request("GET", f"/execution/{execution_id}/status")
             state = status.get("state")
 
             if state == "QUERY_STATE_COMPLETED":
@@ -110,9 +104,7 @@ class DuneBaseTool(IntentKitSkill):
             await asyncio.sleep(interval)
             interval = min(interval + 2, 10)
 
-        raise ToolException(
-            f"Dune query timed out after {max_wait}s (execution: {execution_id})"
-        )
+        raise ToolException(f"Dune query timed out after {max_wait}s (execution: {execution_id})")
 
     async def _get_results(self, execution_id: str, limit: int) -> dict[str, Any]:
         """Fetch results for a completed execution."""
@@ -139,9 +131,7 @@ class DuneBaseTool(IntentKitSkill):
         executed_at = metadata.get("executed_at", "N/A")
         row_count = metadata.get("total_row_count", len(rows))
 
-        header = (
-            f"Query {query_id} results ({row_count} rows, executed at {executed_at})"
-        )
+        header = f"Query {query_id} results ({row_count} rows, executed at {executed_at})"
 
         if not rows:
             return f"{header}\n\nNo rows returned."

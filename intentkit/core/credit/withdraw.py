@@ -49,9 +49,7 @@ async def withdraw(
         Updated agent credit account
     """
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.API, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.API, upstream_tx_id)
 
     if amount <= Decimal("0"):
         raise ValueError("Withdraw amount must be positive")
@@ -59,14 +57,10 @@ async def withdraw(
     # Get agent to retrieve user_id from agent.owner
     agent = await get_agent(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="AgentNotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="AgentNotFound", message="Agent not found")
 
     if not agent.owner:
-        raise IntentKitAPIError(
-            status_code=400, key="AgentNoOwner", message="Agent has no owner"
-        )
+        raise IntentKitAPIError(status_code=400, key="AgentNoOwner", message="Agent has no owner")
 
     # Get agent wallet address
     agent_data = await AgentData.get(agent.id)

@@ -69,9 +69,7 @@ class DappLookerTokenData(DappLookerBaseTool):
             str: Formatted token data with market metrics and analytics.
         """
         context = self.get_context()
-        logger.debug(
-            f"dapplooker_token_data.py: Fetching token data with context {context}"
-        )
+        logger.debug(f"dapplooker_token_data.py: Fetching token data with context {context}")
 
         # Get the API key from the agent's configuration or environment variable
         api_key = self.get_api_key()
@@ -81,9 +79,7 @@ class DappLookerTokenData(DappLookerBaseTool):
             )
         # Validate input
         if not token_tickers and not token_addresses:
-            raise ToolException(
-                "Error: Either token_tickers or token_addresses must be provided."
-            )
+            raise ToolException("Error: Either token_tickers or token_addresses must be provided.")
         # Check for common non-AI agent tokens that won't be in the database
         # Only check if using token_tickers, not relevant for token_addresses
         if (
@@ -144,21 +140,15 @@ class DappLookerTokenData(DappLookerBaseTool):
                     )
                 # Parse the API response
                 response_json = response.json()
-                logger.debug(
-                    f"dapplooker_token_data.py: Response type: {type(response_json)}"
-                )
+                logger.debug(f"dapplooker_token_data.py: Response type: {type(response_json)}")
 
                 # Check if response is a string and try to parse it
                 if isinstance(response_json, str):
                     try:
                         response_json = json.loads(response_json)
-                        logger.debug(
-                            "dapplooker_token_data.py: Parsed string response as JSON"
-                        )
+                        logger.debug("dapplooker_token_data.py: Parsed string response as JSON")
                     except json.JSONDecodeError as e:
-                        logger.error(
-                            f"dapplooker_token_data.py: Error parsing JSON: {e}"
-                        )
+                        logger.error(f"dapplooker_token_data.py: Error parsing JSON: {e}")
                         raise ToolException(f"Error processing token data: {e}")
                 # Extract the data array from the response
                 # The API returns {"success": true, "data": [...]}
@@ -169,20 +159,12 @@ class DappLookerTokenData(DappLookerBaseTool):
                     )
                 else:
                     data = response_json  # Fallback for backward compatibility
-                    logger.debug(
-                        "dapplooker_token_data.py: Using response as data (fallback)"
-                    )
+                    logger.debug("dapplooker_token_data.py: Using response as data (fallback)")
 
-                logger.debug(
-                    f"dapplooker_token_data.py: Received data type: {type(data)}"
-                )
+                logger.debug(f"dapplooker_token_data.py: Received data type: {type(data)}")
 
                 if not data or data == []:
-                    query_type = (
-                        "tickers"
-                        if token_tickers and not token_addresses
-                        else "addresses"
-                    )
+                    query_type = "tickers" if token_tickers and not token_addresses else "addresses"
                     query_value = token_tickers if token_tickers else token_addresses
                     return (
                         f"No results found for {query_type}: '{query_value}' on chain '{chain}'. "
@@ -201,9 +183,7 @@ class DappLookerTokenData(DappLookerBaseTool):
                 f"dapplooker_token_data.py: Error retrieving token data: {e}",
                 exc_info=True,
             )
-            return (
-                "An error occurred while retrieving token data. Please try again later."
-            )
+            return "An error occurred while retrieving token data. Please try again later."
 
     def _format_token_data(self, data: list[dict[str, Any]]) -> str:
         """Format the token data for display.
@@ -231,9 +211,7 @@ class DappLookerTokenData(DappLookerBaseTool):
         for token in data:
             # Ensure token is a dict
             if not isinstance(token, dict):
-                logger.error(
-                    f"dapplooker_token_data.py: Token is not a dictionary: {token}"
-                )
+                logger.error(f"dapplooker_token_data.py: Token is not a dictionary: {token}")
                 continue
 
             token_info = token.get("token_info", {})
@@ -278,18 +256,10 @@ class DappLookerTokenData(DappLookerBaseTool):
                 formatted_results += f"Total Liquidity: ${total_liquidity}\n"
 
                 # Price changes
-                price_change_1h = token_metrics.get(
-                    "price_change_percentage_1h", "Unknown"
-                )
-                price_change_24h = token_metrics.get(
-                    "price_change_percentage_24h", "Unknown"
-                )
-                price_change_7d = token_metrics.get(
-                    "price_change_percentage_7d", "Unknown"
-                )
-                price_change_30d = token_metrics.get(
-                    "price_change_percentage_30d", "Unknown"
-                )
+                price_change_1h = token_metrics.get("price_change_percentage_1h", "Unknown")
+                price_change_24h = token_metrics.get("price_change_percentage_24h", "Unknown")
+                price_change_7d = token_metrics.get("price_change_percentage_7d", "Unknown")
+                price_change_30d = token_metrics.get("price_change_percentage_30d", "Unknown")
 
                 formatted_results += f"Price Change 1h: {price_change_1h}%\n"
                 formatted_results += f"Price Change 24h: {price_change_24h}%\n"
@@ -297,18 +267,10 @@ class DappLookerTokenData(DappLookerBaseTool):
                 formatted_results += f"Price Change 30d: {price_change_30d}%\n"
 
                 # Volume and Market Cap changes
-                volume_change_7d = token_metrics.get(
-                    "volume_change_percentage_7d", "Unknown"
-                )
-                volume_change_30d = token_metrics.get(
-                    "volume_change_percentage_30d", "Unknown"
-                )
-                mcap_change_7d = token_metrics.get(
-                    "mcap_change_percentage_7d", "Unknown"
-                )
-                mcap_change_30d = token_metrics.get(
-                    "mcap_change_percentage_30d", "Unknown"
-                )
+                volume_change_7d = token_metrics.get("volume_change_percentage_7d", "Unknown")
+                volume_change_30d = token_metrics.get("volume_change_percentage_30d", "Unknown")
+                mcap_change_7d = token_metrics.get("mcap_change_percentage_7d", "Unknown")
+                mcap_change_30d = token_metrics.get("mcap_change_percentage_30d", "Unknown")
 
                 formatted_results += f"Volume Change 7d: {volume_change_7d}%\n"
                 formatted_results += f"Volume Change 30d: {volume_change_30d}%\n"
@@ -338,9 +300,7 @@ class DappLookerTokenData(DappLookerBaseTool):
             # Token Holder Insights
             if token_holder_insights:
                 formatted_results += "### Token Holder Insights\n"
-                total_holders = token_holder_insights.get(
-                    "total_holder_count", "Unknown"
-                )
+                total_holders = token_holder_insights.get("total_holder_count", "Unknown")
                 holder_change_24h = token_holder_insights.get(
                     "holder_count_change_percentage_24h", "Unknown"
                 )
@@ -363,53 +323,35 @@ class DappLookerTokenData(DappLookerBaseTool):
                 )
 
                 # Top holders concentration
-                top_10_balance = token_holder_insights.get(
-                    "top_10_holder_balance", "Unknown"
-                )
-                top_10_pct = token_holder_insights.get(
-                    "top_10_holder_percentage", "Unknown"
-                )
-                top_50_balance = token_holder_insights.get(
-                    "top_50_holder_balance", "Unknown"
-                )
-                top_50_pct = token_holder_insights.get(
-                    "top_50_holder_percentage", "Unknown"
-                )
-                top_100_balance = token_holder_insights.get(
-                    "top_100_holder_balance", "Unknown"
-                )
-                top_100_pct = token_holder_insights.get(
-                    "top_100_holder_percentage", "Unknown"
-                )
+                top_10_balance = token_holder_insights.get("top_10_holder_balance", "Unknown")
+                top_10_pct = token_holder_insights.get("top_10_holder_percentage", "Unknown")
+                top_50_balance = token_holder_insights.get("top_50_holder_balance", "Unknown")
+                top_50_pct = token_holder_insights.get("top_50_holder_percentage", "Unknown")
+                top_100_balance = token_holder_insights.get("top_100_holder_balance", "Unknown")
+                top_100_pct = token_holder_insights.get("top_100_holder_percentage", "Unknown")
 
                 if total_holders != "Unknown":
                     formatted_results += f"Total Holders: {total_holders}\n"
                 formatted_results += f"Holder Change 24h: {holder_change_24h}%\n"
                 if fifty_percent_wallets != "Unknown":
-                    formatted_results += (
-                        f"Wallets Holding 50%: {fifty_percent_wallets}\n"
-                    )
-
-                formatted_results += f"First 100 Buyers Initial: {first_100_initial} ({first_100_initial_pct}%)\n"
-                formatted_results += f"First 100 Buyers Current: {first_100_current} ({first_100_current_pct}%)\n"
+                    formatted_results += f"Wallets Holding 50%: {fifty_percent_wallets}\n"
 
                 formatted_results += (
-                    f"Top 10 Holders: {top_10_balance} ({top_10_pct}%)\n"
+                    f"First 100 Buyers Initial: {first_100_initial} ({first_100_initial_pct}%)\n"
                 )
                 formatted_results += (
-                    f"Top 50 Holders: {top_50_balance} ({top_50_pct}%)\n"
+                    f"First 100 Buyers Current: {first_100_current} ({first_100_current_pct}%)\n"
                 )
-                formatted_results += (
-                    f"Top 100 Holders: {top_100_balance} ({top_100_pct}%)\n\n"
-                )
+
+                formatted_results += f"Top 10 Holders: {top_10_balance} ({top_10_pct}%)\n"
+                formatted_results += f"Top 50 Holders: {top_50_balance} ({top_50_pct}%)\n"
+                formatted_results += f"Top 100 Holders: {top_100_balance} ({top_100_pct}%)\n\n"
 
             # Smart money insights
             if smart_money_insights:
                 formatted_results += "### Smart Money Insights\n"
                 top_buys = smart_money_insights.get("top_25_holder_buy_24h", "Unknown")
-                top_sells = smart_money_insights.get(
-                    "top_25_holder_sold_24h", "Unknown"
-                )
+                top_sells = smart_money_insights.get("top_25_holder_sold_24h", "Unknown")
 
                 formatted_results += f"Top 25 Holders Buy 24h: {top_buys}\n"
                 formatted_results += f"Top 25 Holders Sell 24h: {top_sells}\n\n"
@@ -422,20 +364,12 @@ class DappLookerTokenData(DappLookerBaseTool):
                 wallet_percentage = dev_wallet_insights.get(
                     "dev_wallet_total_holding_percentage", "Unknown"
                 )
-                outflow_txs = dev_wallet_insights.get(
-                    "dev_wallet_outflow_txs_count_24h", "Unknown"
-                )
-                outflow_amount = dev_wallet_insights.get(
-                    "dev_wallet_outflow_amount_24h", "Unknown"
-                )
+                outflow_txs = dev_wallet_insights.get("dev_wallet_outflow_txs_count_24h", "Unknown")
+                outflow_amount = dev_wallet_insights.get("dev_wallet_outflow_amount_24h", "Unknown")
                 fresh_wallet = dev_wallet_insights.get("fresh_wallet", False)
                 dev_sold = dev_wallet_insights.get("dev_sold", False)
-                dev_sold_percentage = dev_wallet_insights.get(
-                    "dev_sold_percentage", "Unknown"
-                )
-                bundle_wallet_count = dev_wallet_insights.get(
-                    "bundle_wallet_count", "Unknown"
-                )
+                dev_sold_percentage = dev_wallet_insights.get("dev_sold_percentage", "Unknown")
+                bundle_wallet_count = dev_wallet_insights.get("bundle_wallet_count", "Unknown")
                 bundle_wallet_supply = dev_wallet_insights.get(
                     "bundle_wallet_supply_percentage", "Unknown"
                 )

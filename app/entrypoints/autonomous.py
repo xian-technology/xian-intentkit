@@ -74,14 +74,10 @@ async def run_autonomous_task(
         if not has_memory:
             try:
                 _ = await clear_thread_memory(agent_id, chat_id)
-                logger.debug(
-                    f"Cleared thread memory for task {task_id} (has_memory=False)"
-                )
+                logger.debug(f"Cleared thread memory for task {task_id} (has_memory=False)")
             except Exception as e:
                 # Log the error but continue with execution
-                logger.warning(
-                    "Failed to clear thread memory for task %s: %s", task_id, e
-                )
+                logger.warning("Failed to clear thread memory for task %s: %s", task_id, e)
 
         message = ChatMessageCreate(
             id=str(XID()),

@@ -62,9 +62,7 @@ class XmtpTransfer(XmtpBaseTool):
             raise ToolException("Agent network_id is not configured")
 
         # Validate network and get chain ID
-        chain_id_hex = self.validate_network_and_get_chain_id(
-            agent.network_id, "transfer"
-        )
+        chain_id_hex = self.validate_network_and_get_chain_id(agent.network_id, "transfer")
 
         # Validate token contract and get decimals
         if token_contract_address:

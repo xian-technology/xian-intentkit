@@ -63,9 +63,7 @@ class AIXBTProjects(AIXBTBaseTool):
         logger.debug("aixbt_projects.py: Running search with context %s", context)
 
         # Check for rate limiting if configured
-        if skill_config.get("rate_limit_number") and skill_config.get(
-            "rate_limit_minutes"
-        ):
+        if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
             await self.user_rate_limit_by_category(
                 skill_config["rate_limit_number"],
                 skill_config["rate_limit_minutes"] * 60,

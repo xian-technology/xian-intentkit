@@ -85,9 +85,7 @@ class MasterWalletNonceManager:
                 to_checksum_address(self.address), "pending"
             )
             # Set only if not exists (another worker might have set it)
-            await redis.set(
-                self._nonce_key, str(blockchain_nonce), nx=True, ex=NONCE_KEY_TTL
-            )
+            await redis.set(self._nonce_key, str(blockchain_nonce), nx=True, ex=NONCE_KEY_TTL)
             cached = await redis.get(self._nonce_key)
 
         current_nonce = int(str(cached))
@@ -118,9 +116,7 @@ def get_nonce_manager() -> MasterWalletNonceManager:
     global _nonce_manager
     if _nonce_manager is None:
         if not config.master_wallet_private_key:
-            raise IntentKitAPIError(
-                500, "ConfigError", "MASTER_WALLET_PRIVATE_KEY not configured"
-            )
+            raise IntentKitAPIError(500, "ConfigError", "MASTER_WALLET_PRIVATE_KEY not configured")
         master_account = Account.from_key(config.master_wallet_private_key)
         _nonce_manager = MasterWalletNonceManager(str(master_account.address))
     return _nonce_manager

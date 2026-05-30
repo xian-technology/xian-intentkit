@@ -31,9 +31,7 @@ class AgentDataTable(Base):
 
     __tablename__: str = "agent_data"
 
-    id: Mapped[str] = mapped_column(
-        String, primary_key=True, comment="Same as Agent.id"
-    )
+    id: Mapped[str] = mapped_column(String, primary_key=True, comment="Same as Agent.id")
     evm_wallet_address: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="EVM wallet address"
     )
@@ -55,9 +53,7 @@ class AgentDataTable(Base):
     xian_wallet_data: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Xian wallet data"
     )
-    twitter_id: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Twitter user ID"
-    )
+    twitter_id: Mapped[str | None] = mapped_column(String, nullable=True, comment="Twitter user ID")
     twitter_username: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Twitter username"
     )
@@ -95,9 +91,7 @@ class AgentDataTable(Base):
     telegram_name: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Telegram display name"
     )
-    discord_id: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Discord user ID"
-    )
+    discord_id: Mapped[str | None] = mapped_column(String, nullable=True, comment="Discord user ID")
     discord_username: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="Discord username"
     )
@@ -435,15 +429,9 @@ class AgentQuota(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(from_attributes=True)
 
-    id: Annotated[
-        str, PydanticField(description="ID of the agent this quota belongs to")
-    ]
-    plan: Annotated[
-        str, PydanticField(default="self-hosted", description="Agent plan name")
-    ]
-    message_count_total: Annotated[
-        int, PydanticField(default=0, description="Total message count")
-    ]
+    id: Annotated[str, PydanticField(description="ID of the agent this quota belongs to")]
+    plan: Annotated[str, PydanticField(default="self-hosted", description="Agent plan name")]
+    message_count_total: Annotated[int, PydanticField(default=0, description="Total message count")]
     message_limit_total: Annotated[
         int, PydanticField(default=99999999, description="Total message limit")
     ]
@@ -453,9 +441,7 @@ class AgentQuota(BaseModel):
     message_limit_monthly: Annotated[
         int, PydanticField(default=99999999, description="Monthly message limit")
     ]
-    message_count_daily: Annotated[
-        int, PydanticField(default=0, description="Daily message count")
-    ]
+    message_count_daily: Annotated[int, PydanticField(default=0, description="Daily message count")]
     message_limit_daily: Annotated[
         int, PydanticField(default=99999999, description="Daily message limit")
     ]
@@ -468,27 +454,21 @@ class AgentQuota(BaseModel):
     ]
     autonomous_limit_total: Annotated[
         int,
-        PydanticField(
-            default=99999999, description="Total autonomous operations limit"
-        ),
+        PydanticField(default=99999999, description="Total autonomous operations limit"),
     ]
     autonomous_count_monthly: Annotated[
         int, PydanticField(default=0, description="Monthly autonomous operations count")
     ]
     autonomous_limit_monthly: Annotated[
         int,
-        PydanticField(
-            default=99999999, description="Monthly autonomous operations limit"
-        ),
+        PydanticField(default=99999999, description="Monthly autonomous operations limit"),
     ]
     autonomous_count_daily: Annotated[
         int, PydanticField(default=0, description="Daily autonomous operations count")
     ]
     autonomous_limit_daily: Annotated[
         int,
-        PydanticField(
-            default=99999999, description="Daily autonomous operations limit"
-        ),
+        PydanticField(default=99999999, description="Daily autonomous operations limit"),
     ]
     last_autonomous_time: Annotated[
         datetime | None,
@@ -634,9 +614,7 @@ class AgentQuota(BaseModel):
         return True
 
     @staticmethod
-    async def add_free_income_in_session(
-        session: AsyncSession, id: str, amount: Decimal
-    ) -> None:
+    async def add_free_income_in_session(session: AsyncSession, id: str, amount: Decimal) -> None:
         """Add free income to an agent's quota directly in the database.
 
         Args:
@@ -659,10 +637,7 @@ class AgentQuota(BaseModel):
                 # Use update statement with func to directly add the amount
                 stmt = update(AgentQuotaTable).where(AgentQuotaTable.id == id)
                 stmt = stmt.values(
-                    free_income_daily=func.coalesce(
-                        AgentQuotaTable.free_income_daily, 0
-                    )
-                    + amount
+                    free_income_daily=func.coalesce(AgentQuotaTable.free_income_daily, 0) + amount
                 )
                 _ = await session.execute(stmt)
         except Exception as e:
@@ -708,8 +683,7 @@ class AgentQuota(BaseModel):
                 .where(AgentQuotaTable.id == self.id)
                 .values(
                     autonomous_count_total=AgentQuotaTable.autonomous_count_total + 1,
-                    autonomous_count_monthly=AgentQuotaTable.autonomous_count_monthly
-                    + 1,
+                    autonomous_count_monthly=AgentQuotaTable.autonomous_count_monthly + 1,
                     last_autonomous_time=func.now(),
                 )
             )

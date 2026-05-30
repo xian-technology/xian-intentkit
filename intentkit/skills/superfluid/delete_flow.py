@@ -30,9 +30,7 @@ class SuperfluidDeleteFlow(SuperfluidBaseTool):
     """
 
     name: str = "superfluid_delete_flow"
-    description: str = (
-        "Delete an existing Superfluid money stream. The stream stops immediately."
-    )
+    description: str = "Delete an existing Superfluid money stream. The stream stops immediately."
     args_schema: ArgsSchema | None = DeleteFlowInput
 
     async def _arun(

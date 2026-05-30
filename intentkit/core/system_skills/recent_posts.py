@@ -17,7 +17,9 @@ class RecentPostsSkill(SystemSkill):
     """
 
     name: str = "recent_posts"
-    description: str = "Retrieve your 10 most recent posts (titles and excerpts only, no full content)."
+    description: str = (
+        "Retrieve your 10 most recent posts (titles and excerpts only, no full content)."
+    )
     args_schema: ArgsSchema | None = NoArgsSchema
 
     @override

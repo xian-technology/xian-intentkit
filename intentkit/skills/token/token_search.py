@@ -38,9 +38,7 @@ class TokenSearch(TokenBaseTool):
     """
 
     name: str = "token_search"
-    description: str = (
-        "Search tokens by address, name, or symbol. Requires Moralis Business plan."
-    )
+    description: str = "Search tokens by address, name, or symbol. Requires Moralis Business plan."
     args_schema: ArgsSchema | None = TokenSearchInput
 
     async def _arun(
@@ -67,9 +65,7 @@ class TokenSearch(TokenBaseTool):
         context = self.get_context()
         if context is None:
             logger.error("Context is None, cannot retrieve API key")
-            return {
-                "error": "Cannot retrieve API key. Please check agent configuration."
-            }
+            return {"error": "Cannot retrieve API key. Please check agent configuration."}
 
         # Get the API key
         api_key = self.get_api_key()

@@ -43,9 +43,7 @@ async def test_update_public_info_partial():
         description="A helpful trading bot",
         ticker="TRADE",
     )
-    updated_agent = await update_public_info(
-        agent_id="pub-agent-1", public_info=public_info
-    )
+    updated_agent = await update_public_info(agent_id="pub-agent-1", public_info=public_info)
 
     # Then
     assert updated_agent.description == "A helpful trading bot"
@@ -139,9 +137,7 @@ async def test_update_public_info_with_examples():
         example_intro="Try these examples to get started:",
         examples=examples,
     )
-    updated_agent = await update_public_info(
-        agent_id="pub-agent-3", public_info=public_info
-    )
+    updated_agent = await update_public_info(agent_id="pub-agent-3", public_info=public_info)
 
     # Then
     assert updated_agent.example_intro == "Try these examples to get started:"

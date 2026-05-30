@@ -68,6 +68,4 @@ async def connect_wechat_channel(
         "ilink_bot_id": request.ilink_bot_id,
         "user_id": request.user_id,
     }
-    return await set_team_channel(
-        LEAD_TEAM_ID, "wechat", config, created_by=LEAD_USER_ID
-    )
+    return await set_team_channel(LEAD_TEAM_ID, "wechat", config, created_by=LEAD_USER_ID)

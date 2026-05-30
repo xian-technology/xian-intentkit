@@ -111,9 +111,7 @@ async def expense_message(
     """
     # --- SHARED STEP 0: Idempotency check (see module-level comment) ---
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.EXECUTOR, message_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.EXECUTOR, message_id)
 
     # --- SHARED STEP 1: Validate & quantize base amount ---
     # Ensure base_llm_amount has 4 decimal places
@@ -204,9 +202,9 @@ async def expense_message(
     if fee_platform_amount > Decimal("0") and total_amount > Decimal("0"):
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
-            fee_platform_free_amount = (
-                free_amount * fee_platform_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_platform_free_amount = (free_amount * fee_platform_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         if reward_amount > Decimal("0"):
             fee_platform_reward_amount = (
@@ -226,14 +224,14 @@ async def expense_message(
     if fee_agent_amount > Decimal("0") and total_amount > Decimal("0"):
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
-            fee_agent_free_amount = (
-                free_amount * fee_agent_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_agent_free_amount = (free_amount * fee_agent_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         if reward_amount > Decimal("0"):
-            fee_agent_reward_amount = (
-                reward_amount * fee_agent_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_agent_reward_amount = (reward_amount * fee_agent_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         # Calculate permanent amount as the remainder to ensure the sum equals fee_agent_amount
         fee_agent_permanent_amount = (
@@ -246,9 +244,7 @@ async def expense_message(
     # Note: Independent rounding of fee components may cause base amounts to become slightly
     # negative. This is acceptable and does not corrupt financial records.
     base_free_amount = free_amount - fee_platform_free_amount - fee_agent_free_amount
-    base_reward_amount = (
-        reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
-    )
+    base_reward_amount = reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
     base_permanent_amount = (
         permanent_amount - fee_platform_permanent_amount - fee_agent_permanent_amount
     )
@@ -502,9 +498,7 @@ async def expense_skill(
     # SKILL-SPECIFIC: upstream_tx_id combines message_id + skill_call_id
     # Check for idempotency - prevent duplicate transactions
     upstream_tx_id = f"{message_id}_{skill_call_id}"
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.EXECUTOR, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.EXECUTOR, upstream_tx_id)
     logger.info("[%s] skill payment %s", agent.id, skill_name)
 
     # --- SHARED STEPS 1-2: Validate amount & compute fees ---
@@ -566,16 +560,12 @@ async def expense_skill(
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
             fee_platform_free_amount = (
-                free_amount
-                * skill_cost_info.fee_platform_amount
-                / skill_cost_info.total_amount
+                free_amount * skill_cost_info.fee_platform_amount / skill_cost_info.total_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         if reward_amount > Decimal("0"):
             fee_platform_reward_amount = (
-                reward_amount
-                * skill_cost_info.fee_platform_amount
-                / skill_cost_info.total_amount
+                reward_amount * skill_cost_info.fee_platform_amount / skill_cost_info.total_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         # Calculate permanent amount as the remainder to ensure the sum equals fee_platform_amount
@@ -590,38 +580,30 @@ async def expense_skill(
     fee_agent_reward_amount = Decimal("0")
     fee_agent_permanent_amount = Decimal("0")
 
-    if skill_cost_info.fee_agent_amount > Decimal(
+    if skill_cost_info.fee_agent_amount > Decimal("0") and skill_cost_info.total_amount > Decimal(
         "0"
-    ) and skill_cost_info.total_amount > Decimal("0"):
+    ):
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
             fee_agent_free_amount = (
-                free_amount
-                * skill_cost_info.fee_agent_amount
-                / skill_cost_info.total_amount
+                free_amount * skill_cost_info.fee_agent_amount / skill_cost_info.total_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         if reward_amount > Decimal("0"):
             fee_agent_reward_amount = (
-                reward_amount
-                * skill_cost_info.fee_agent_amount
-                / skill_cost_info.total_amount
+                reward_amount * skill_cost_info.fee_agent_amount / skill_cost_info.total_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         # Calculate permanent amount as the remainder to ensure the sum equals fee_agent_amount
         fee_agent_permanent_amount = (
-            skill_cost_info.fee_agent_amount
-            - fee_agent_free_amount
-            - fee_agent_reward_amount
+            skill_cost_info.fee_agent_amount - fee_agent_free_amount - fee_agent_reward_amount
         ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
     # --- SHARED STEP 7: Derive base amounts per credit type via subtraction ---
     # Calculate base amounts by credit type using subtraction method
     base_free_amount = free_amount - fee_platform_free_amount - fee_agent_free_amount
 
-    base_reward_amount = (
-        reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
-    )
+    base_reward_amount = reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
 
     base_permanent_amount = (
         permanent_amount - fee_platform_permanent_amount - fee_agent_permanent_amount
@@ -825,9 +807,7 @@ async def expense_summarize(
     """
     # --- SHARED STEP 0: Idempotency check ---
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.EXECUTOR, message_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.EXECUTOR, message_id)
 
     # --- SHARED STEP 1: Validate & quantize base amount ---
     # Ensure base_llm_amount has 4 decimal places
@@ -918,9 +898,9 @@ async def expense_summarize(
     if fee_platform_amount > Decimal("0") and total_amount > Decimal("0"):
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
-            fee_platform_free_amount = (
-                free_amount * fee_platform_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_platform_free_amount = (free_amount * fee_platform_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         if reward_amount > Decimal("0"):
             fee_platform_reward_amount = (
@@ -940,14 +920,14 @@ async def expense_summarize(
     if fee_agent_amount > Decimal("0") and total_amount > Decimal("0"):
         # Calculate proportions based on the formula
         if free_amount > Decimal("0"):
-            fee_agent_free_amount = (
-                free_amount * fee_agent_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_agent_free_amount = (free_amount * fee_agent_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         if reward_amount > Decimal("0"):
-            fee_agent_reward_amount = (
-                reward_amount * fee_agent_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_agent_reward_amount = (reward_amount * fee_agent_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
         # Calculate permanent amount as the remainder to ensure the sum equals fee_agent_amount
         fee_agent_permanent_amount = (
@@ -958,9 +938,7 @@ async def expense_summarize(
     # Calculate base amounts by credit type using subtraction method
     base_free_amount = free_amount - fee_platform_free_amount - fee_agent_free_amount
 
-    base_reward_amount = (
-        reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
-    )
+    base_reward_amount = reward_amount - fee_platform_reward_amount - fee_agent_reward_amount
 
     base_permanent_amount = (
         permanent_amount - fee_platform_permanent_amount - fee_agent_permanent_amount
@@ -1166,9 +1144,7 @@ async def expense_skill_internal_llm(
     from intentkit.config.db import get_session
 
     model_info = await LLMModelInfo.get(model_id)
-    llm_cost = await model_info.calculate_cost(
-        input_tokens, output_tokens, cached_input_tokens
-    )
+    llm_cost = await model_info.calculate_cost(input_tokens, output_tokens, cached_input_tokens)
 
     if llm_cost <= Decimal("0"):
         return
@@ -1212,14 +1188,10 @@ async def expense_media(
         The created CreditEvent.
     """
     # --- SHARED STEP 0: Idempotency check ---
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.API, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.API, upstream_tx_id)
 
     # --- SHARED STEPS 1-2: Validate & compute fees ---
-    base_original_amount = base_original_amount.quantize(
-        FOURPLACES, rounding=ROUND_HALF_UP
-    )
+    base_original_amount = base_original_amount.quantize(FOURPLACES, rounding=ROUND_HALF_UP)
     if base_original_amount < Decimal("0"):
         raise ValueError("base_original_amount must be non-negative")
 
@@ -1232,9 +1204,7 @@ async def expense_media(
     fee_platform_amount = (
         base_amount * payment_settings.fee_platform_percentage / Decimal("100")
     ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
-    total_amount = (base_amount + fee_platform_amount).quantize(
-        FOURPLACES, rounding=ROUND_HALF_UP
-    )
+    total_amount = (base_amount + fee_platform_amount).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
     # --- SHARED STEP 3: Deduct from team account ---
     event_id = str(XID())
@@ -1271,9 +1241,9 @@ async def expense_media(
     fee_platform_permanent_amount = Decimal("0")
     if fee_platform_amount > Decimal("0") and total_amount > Decimal("0"):
         if free_amount > Decimal("0"):
-            fee_platform_free_amount = (
-                free_amount * fee_platform_amount / total_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            fee_platform_free_amount = (free_amount * fee_platform_amount / total_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
         if reward_amount > Decimal("0"):
             fee_platform_reward_amount = (
                 reward_amount * fee_platform_amount / total_amount

@@ -48,9 +48,7 @@ class CreditEventConsistencyFixer:
         self.failed_fixes = 0
         self.inconsistent_details: list[dict[str, Any]] = []
 
-    def check_record_consistency(
-        self, record: CreditEventTable
-    ) -> tuple[bool, list[str]]:
+    def check_record_consistency(self, record: CreditEventTable) -> tuple[bool, list[str]]:
         """Check if a single record is consistent.
 
         Returns:
@@ -112,9 +110,7 @@ class CreditEventConsistencyFixer:
 
         return len(errors) == 0, errors
 
-    def calculate_detailed_amounts(
-        self, record: CreditEventTable
-    ) -> dict[str, Decimal]:
+    def calculate_detailed_amounts(self, record: CreditEventTable) -> dict[str, Decimal]:
         """Calculate the 12 detailed amount fields using the same logic as expense_skill.
 
         Returns:
@@ -150,9 +146,7 @@ class CreditEventConsistencyFixer:
 
             # Calculate permanent amount as the remainder to ensure the sum equals fee_platform_amount
             fee_platform_permanent_amount = (
-                fee_platform_amount
-                - fee_platform_free_amount
-                - fee_platform_reward_amount
+                fee_platform_amount - fee_platform_free_amount - fee_platform_reward_amount
             ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
 
         # Calculate fee_agent amounts by credit type
@@ -163,9 +157,9 @@ class CreditEventConsistencyFixer:
         if fee_agent_amount > Decimal("0") and total_amount > Decimal("0"):
             # Calculate proportions based on the formula
             if free_amount > Decimal("0"):
-                fee_agent_free_amount = (
-                    free_amount * fee_agent_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_agent_free_amount = (free_amount * fee_agent_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             if reward_amount > Decimal("0"):
                 fee_agent_reward_amount = (
@@ -185,14 +179,14 @@ class CreditEventConsistencyFixer:
         if fee_dev_amount > Decimal("0") and total_amount > Decimal("0"):
             # Calculate proportions based on the formula
             if free_amount > Decimal("0"):
-                fee_dev_free_amount = (
-                    free_amount * fee_dev_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_dev_free_amount = (free_amount * fee_dev_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             if reward_amount > Decimal("0"):
-                fee_dev_reward_amount = (
-                    reward_amount * fee_dev_amount / total_amount
-                ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                fee_dev_reward_amount = (reward_amount * fee_dev_amount / total_amount).quantize(
+                    FOURPLACES, rounding=ROUND_HALF_UP
+                )
 
             # Calculate permanent amount as the remainder to ensure the sum equals fee_dev_amount
             fee_dev_permanent_amount = (
@@ -303,9 +297,7 @@ class CreditEventConsistencyFixer:
         print(f"Records failed to fix: {self.failed_fixes}")
         if self.total_records > 0:
             consistency_rate = (
-                (self.total_records - self.inconsistent_records)
-                / self.total_records
-                * 100
+                (self.total_records - self.inconsistent_records) / self.total_records * 100
             )
             print(f"Original consistency rate: {consistency_rate:.2f}%")
             final_consistency_rate = (

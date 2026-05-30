@@ -18,17 +18,13 @@ class EditAutonomousTaskInput(AutonomousUpdateRequest):
     """Input model for edit_autonomous_task skill."""
 
     agent_id: str = Field(description="The ID of the agent owning the task")
-    task_id: str = Field(
-        description="The unique identifier of the autonomous task to edit"
-    )
+    task_id: str = Field(description="The unique identifier of the autonomous task to edit")
 
 
 class EditAutonomousTaskOutput(BaseModel):
     """Output model for edit_autonomous_task skill."""
 
-    task: AgentAutonomous = Field(
-        description="The updated autonomous task configuration"
-    )
+    task: AgentAutonomous = Field(description="The updated autonomous task configuration")
 
 
 class LeadEditAutonomousTask(LeadSkill):

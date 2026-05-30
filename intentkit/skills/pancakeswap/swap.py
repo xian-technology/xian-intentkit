@@ -29,15 +29,9 @@ NAME = "pancakeswap_swap"
 class PancakeSwapSwapInput(BaseModel):
     """Input for PancakeSwap swap."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for native token"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for native token"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for native token")
+    token_out: str = Field(description="Output token address, or 'native' for native token")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
     slippage: float = Field(
         default=0.5,
         description="Slippage tolerance in percent (e.g. 0.5 for 0.5%)",
@@ -125,9 +119,7 @@ class PancakeSwapSwap(PancakeSwapBaseTool):
                     continue
 
             if best_out == 0:
-                raise ToolException(
-                    "No liquidity found for this pair on PancakeSwap V3."
-                )
+                raise ToolException("No liquidity found for this pair on PancakeSwap V3.")
 
             # Calculate minimum output with slippage
             slippage_factor = Decimal(1) - Decimal(str(slippage)) / Decimal(100)
@@ -140,9 +132,7 @@ class PancakeSwapSwap(PancakeSwapBaseTool):
 
             # Approve ERC20 if not native
             if not is_native_in:
-                await ensure_allowance(
-                    w3, wallet, checksum_in, checksum_router, amount_raw
-                )
+                await ensure_allowance(w3, wallet, checksum_in, checksum_router, amount_raw)
 
             # Build swap calldata
             router_contract = w3.eth.contract(

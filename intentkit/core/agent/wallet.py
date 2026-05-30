@@ -68,9 +68,7 @@ async def process_agent_wallet(
                         privy_wallet_data = {}
 
                     existing_privy_wallet_id = privy_wallet_data.get("privy_wallet_id")
-                    existing_privy_wallet_address = privy_wallet_data.get(
-                        "privy_wallet_address"
-                    )
+                    existing_privy_wallet_address = privy_wallet_data.get("privy_wallet_address")
 
                     if existing_privy_wallet_id and existing_privy_wallet_address:
                         rpc_url: str | None = None
@@ -81,14 +79,10 @@ async def process_agent_wallet(
                         )
                         if config.chain_provider:
                             try:
-                                chain_config = config.chain_provider.get_chain_config(
-                                    network_id
-                                )
+                                chain_config = config.chain_provider.get_chain_config(network_id)
                                 rpc_url = chain_config.rpc_url
                             except Exception as e:
-                                logger.warning(
-                                    f"Failed to get RPC URL from chain provider: {e}"
-                                )
+                                logger.warning(f"Failed to get RPC URL from chain provider: {e}")
 
                         wallet_data = await create_privy_safe_wallet(
                             agent_id=agent.id,
@@ -103,9 +97,7 @@ async def process_agent_wallet(
                         agent_data = await AgentData.patch(
                             agent.id,
                             {
-                                "evm_wallet_address": wallet_data[
-                                    "smart_wallet_address"
-                                ],
+                                "evm_wallet_address": wallet_data["smart_wallet_address"],
                                 "privy_wallet_data": json.dumps(wallet_data),
                             },
                         )
@@ -200,9 +192,7 @@ async def process_agent_wallet(
                 agent.id,
                 {"privy_wallet_data": json.dumps(partial_wallet_data)},
             )
-            logger.info(
-                f"Created Privy wallet {existing_privy_wallet_id} for agent {agent.id}"
-            )
+            logger.info(f"Created Privy wallet {existing_privy_wallet_id} for agent {agent.id}")
 
         wallet_data = await create_privy_safe_wallet(
             agent_id=agent.id,
@@ -382,9 +372,7 @@ async def set_agent_safe_token_spending_limit(
             "Privy wallet data is missing required fields.",
         ) from e
 
-    network_id = (
-        privy_wallet_data.get("network_id") or agent.network_id or "base-mainnet"
-    )
+    network_id = privy_wallet_data.get("network_id") or agent.network_id or "base-mainnet"
     rpc_url = _resolve_safe_rpc_url(network_id, privy_wallet_data)
 
     privy_client = PrivyClient()

@@ -16,9 +16,7 @@ class SupabaseDeleteDataInput(BaseModel):
     """Input for SupabaseDeleteData tool."""
 
     table: str = Field(description="Table name")
-    filters: dict[str, Any] = Field(
-        description="Filters to match records, e.g. {'id': 123}"
-    )
+    filters: dict[str, Any] = Field(description="Filters to match records, e.g. {'id': 123}")
     returning: str = Field(
         default="*",
         description="Columns to return from deleted records",

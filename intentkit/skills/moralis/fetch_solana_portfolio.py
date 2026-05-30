@@ -78,9 +78,7 @@ class FetchSolanaPortfolio(WalletBaseTool):
     """
 
     name: str = "moralis_fetch_solana_portfolio"
-    description: str = (
-        "Fetch Solana wallet portfolio: SOL balance, SPL tokens, and optional NFTs."
-    )
+    description: str = "Fetch Solana wallet portfolio: SOL balance, SPL tokens, and optional NFTs."
     args_schema: ArgsSchema | None = SolanaPortfolioInput
 
     async def _arun(
@@ -145,9 +143,7 @@ class FetchSolanaPortfolio(WalletBaseTool):
         result = SolanaPortfolioOutput(
             address=address,
             sol_balance=float(sol_portfolio.get("nativeBalance", {}).get("solana", 0)),
-            sol_balance_lamports=int(
-                sol_portfolio.get("nativeBalance", {}).get("lamports", 0)
-            ),
+            sol_balance_lamports=int(sol_portfolio.get("nativeBalance", {}).get("lamports", 0)),
         )
 
         # Process tokens

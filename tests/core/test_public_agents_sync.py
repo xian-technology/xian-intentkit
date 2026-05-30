@@ -75,9 +75,7 @@ async def test_ensure_prerequisites_handles_error():
     from intentkit.core.public_agents import ensure_public_agent_prerequisites
 
     with patch("intentkit.core.public_agents.get_session") as mock_get_session:
-        mock_get_session.return_value.__aenter__ = AsyncMock(
-            side_effect=Exception("DB error")
-        )
+        mock_get_session.return_value.__aenter__ = AsyncMock(side_effect=Exception("DB error"))
         mock_get_session.return_value.__aexit__ = AsyncMock(return_value=False)
 
         # Should not raise

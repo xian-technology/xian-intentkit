@@ -9,7 +9,9 @@ from intentkit.clients import get_twitter_client
 from intentkit.skills.twitter.base import TwitterBaseTool
 
 NAME = "twitter_follow_user"
-PROMPT = "Follow a Twitter user by user ID. Use twitter_get_user_by_username to get the ID if needed."
+PROMPT = (
+    "Follow a Twitter user by user ID. Use twitter_get_user_by_username to get the ID if needed."
+)
 logger = logging.getLogger(__name__)
 
 
@@ -44,9 +46,7 @@ class TwitterFollowUser(TwitterBaseTool):
             # Follow the user using tweepy client
             response = cast(
                 dict[str, Any],
-                await client.follow_user(
-                    target_user_id=user_id, user_auth=twitter.use_key
-                ),
+                await client.follow_user(target_user_id=user_id, user_auth=twitter.use_key),
             )
 
             if "data" in response and response["data"].get("following"):

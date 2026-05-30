@@ -43,9 +43,7 @@ def get_skill_states_from_file(skill_dir: Path) -> set[str] | None:
                 # Look for annotations in the class
                 states = set()
                 for child in node.body:
-                    if isinstance(child, ast.AnnAssign) and isinstance(
-                        child.target, ast.Name
-                    ):
+                    if isinstance(child, ast.AnnAssign) and isinstance(child.target, ast.Name):
                         states.add(child.target.id)
                 return states
 
@@ -91,9 +89,9 @@ def find_skill_classes(skill_dir: Path) -> dict[str, tuple[str, str]]:
                                     and child.target.id == "description"
                                 ):
                                     # Check if it's a string assignment
-                                    if isinstance(
-                                        child.value, ast.Constant
-                                    ) and isinstance(child.value.value, str):
+                                    if isinstance(child.value, ast.Constant) and isinstance(
+                                        child.value.value, str
+                                    ):
                                         description = child.value.value.strip()
                                         class_name = node.name.lower()
                                         skill_classes[class_name] = (
@@ -107,9 +105,9 @@ def find_skill_classes(skill_dir: Path) -> dict[str, tuple[str, str]]:
                                             and target.id == "description"
                                         ):
                                             # Check if it's a string assignment
-                                            if isinstance(
-                                                child.value, ast.Constant
-                                            ) and isinstance(child.value.value, str):
+                                            if isinstance(child.value, ast.Constant) and isinstance(
+                                                child.value.value, str
+                                            ):
                                                 description = child.value.value.strip()
                                                 class_name = node.name.lower()
                                                 skill_classes[class_name] = (

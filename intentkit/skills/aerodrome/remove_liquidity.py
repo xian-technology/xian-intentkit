@@ -66,8 +66,7 @@ class AerodromeRemoveLiquidity(AerodromeBaseTool):
             chain_id = NETWORK_TO_CHAIN_ID.get(network_id)
             if not chain_id:
                 raise ToolException(
-                    f"Aerodrome is only supported on Base. "
-                    f"Current network: {network_id}"
+                    f"Aerodrome is only supported on Base. Current network: {network_id}"
                 )
 
             if not 1 <= percentage <= 100:
@@ -84,9 +83,7 @@ class AerodromeRemoveLiquidity(AerodromeBaseTool):
             aero_reward = 0
             was_staked = False
 
-            staked_data = await self.get_agent_skill_data_raw(
-                SKILL_DATA_NAMESPACE, STAKED_DATA_KEY
-            )
+            staked_data = await self.get_agent_skill_data_raw(SKILL_DATA_NAMESPACE, STAKED_DATA_KEY)
             if staked_data and token_id in staked_data.get("token_ids", []):
                 gauges = staked_data.get("gauges", {})
                 gauge_address = gauges.get(str(token_id))
@@ -97,9 +94,7 @@ class AerodromeRemoveLiquidity(AerodromeBaseTool):
 
                     # Get pending AERO before withdraw
                     try:
-                        aero_reward = await gauge.functions.earned(
-                            wallet_address, token_id
-                        ).call()
+                        aero_reward = await gauge.functions.earned(wallet_address, token_id).call()
                     except Exception:
                         pass
 
@@ -200,9 +195,7 @@ class AerodromeRemoveLiquidity(AerodromeBaseTool):
 
     async def _remove_staked_token_id(self, token_id: int) -> None:
         """Remove a token ID from the persisted staked list."""
-        staked_data = await self.get_agent_skill_data_raw(
-            SKILL_DATA_NAMESPACE, STAKED_DATA_KEY
-        )
+        staked_data = await self.get_agent_skill_data_raw(SKILL_DATA_NAMESPACE, STAKED_DATA_KEY)
         if staked_data and "token_ids" in staked_data:
             token_ids = [tid for tid in staked_data["token_ids"] if tid != token_id]
             gauges = staked_data.get("gauges", {})
@@ -215,6 +208,4 @@ class AerodromeRemoveLiquidity(AerodromeBaseTool):
                 )
             else:
                 context = self.get_context()
-                await AgentSkillData.delete(
-                    context.agent_id, SKILL_DATA_NAMESPACE, STAKED_DATA_KEY
-                )
+                await AgentSkillData.delete(context.agent_id, SKILL_DATA_NAMESPACE, STAKED_DATA_KEY)

@@ -67,7 +67,7 @@ class CdpWalletProvider:
         value = tx_params.get("value", Wei(0))
         try:
             value_int = int(value)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             value_int = 0
 
         request = TransactionRequestEIP1559(
@@ -207,14 +207,10 @@ def get_cdp_network(agent: Agent) -> str:
         "bnb-mainnet": "bsc",
     }
     if agent.network_id == "solana":
-        raise IntentKitAPIError(
-            400, "BadNetworkID", "Solana is not supported by CDP EVM."
-        )
+        raise IntentKitAPIError(400, "BadNetworkID", "Solana is not supported by CDP EVM.")
     cdp_network = mapping.get(agent.network_id)
     if not cdp_network:
-        raise IntentKitAPIError(
-            400, "BadNetworkID", f"Unsupported network ID: {agent.network_id}"
-        )
+        raise IntentKitAPIError(400, "BadNetworkID", f"Unsupported network ID: {agent.network_id}")
     return cdp_network
 
 

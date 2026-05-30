@@ -75,9 +75,7 @@ async def test_process_agent_wallet_creates_xian_wallet(monkeypatch):
     assert result == updated_agent_data
     _, patch_payload = patch_mock.call_args.args
     assert patch_payload["xian_wallet_address"] == "abc123"
-    assert (
-        json.loads(patch_payload["xian_wallet_data"])["chain_id"] == "xian-localnet-1"
-    )
+    assert json.loads(patch_payload["xian_wallet_data"])["chain_id"] == "xian-localnet-1"
 
 
 def test_build_wallet_section_includes_xian_wallet():

@@ -40,12 +40,8 @@ class Protocol(BaseModel):
     change_7d: float | None = Field(None, description="7d change %")
     change_1m: float | None = Field(None, description="1m change %")
     methodology: ProtocolMethodology | None = Field(None, description="Methodology")
-    breakdown24h: dict[str, dict[str, float]] | None = Field(
-        None, description="24h by chain"
-    )
-    breakdown30d: dict[str, dict[str, float]] | None = Field(
-        None, description="30d by chain"
-    )
+    breakdown24h: dict[str, dict[str, float]] | None = Field(None, description="24h by chain")
+    breakdown30d: dict[str, dict[str, float]] | None = Field(None, description="30d by chain")
 
 
 class FetchOptionsOverviewResponse(BaseModel):

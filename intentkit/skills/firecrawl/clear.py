@@ -27,7 +27,9 @@ class FirecrawlClearIndexedContent(FirecrawlBaseTool):
     """
 
     name: str = "firecrawl_clear_indexed_content"
-    description: str = "Permanently clear all indexed Firecrawl content from the vector store. Cannot be undone."
+    description: str = (
+        "Permanently clear all indexed Firecrawl content from the vector store. Cannot be undone."
+    )
     args_schema: ArgsSchema | None = FirecrawlClearInput
 
     async def _arun(
@@ -50,9 +52,7 @@ class FirecrawlClearIndexedContent(FirecrawlBaseTool):
         if not agent_id:
             raise ToolException("Error: Agent ID not available for clearing content.")
         if not confirm:
-            raise ToolException(
-                "Error: You must set confirm=true to clear all indexed content."
-            )
+            raise ToolException("Error: You must set confirm=true to clear all indexed content.")
         logger.info(
             f"firecrawl_clear: Starting clear indexed content operation for agent {agent_id}"
         )

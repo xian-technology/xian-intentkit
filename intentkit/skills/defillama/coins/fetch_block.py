@@ -7,9 +7,7 @@ from pydantic import BaseModel, Field
 from intentkit.skills.defillama.api import fetch_block
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_BLOCK_PROMPT = (
-    """Fetch current block height and timestamp for a chain via DefiLlama."""
-)
+FETCH_BLOCK_PROMPT = """Fetch current block height and timestamp for a chain via DefiLlama."""
 
 
 class BlockData(BaseModel):

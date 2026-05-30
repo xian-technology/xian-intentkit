@@ -99,9 +99,7 @@ def _resolve_autonomous_ids_from_job(job: Job | None) -> tuple[str, str] | None:
     return agent_id, autonomous_id
 
 
-async def update_autonomous_status(
-    job_id: str, status: AgentAutonomousStatus | None
-) -> None:
+async def update_autonomous_status(job_id: str, status: AgentAutonomousStatus | None) -> None:
     """Update the status and next_run_time of an autonomous task in the database.
 
     Args:
@@ -141,9 +139,7 @@ async def update_autonomous_status(
     )
 
 
-async def update_autonomous_status_safe(
-    job_id: str, status: AgentAutonomousStatus | None
-) -> None:
+async def update_autonomous_status_safe(job_id: str, status: AgentAutonomousStatus | None) -> None:
     """Wrapper around update_autonomous_status with error handling.
 
     This ensures exceptions don't get silently swallowed when called via create_task.
@@ -230,10 +226,7 @@ async def _schedule_agent_autonomous_tasks_impl() -> None:
 
             for autonomous in agent.autonomous:
                 if not autonomous.enabled:
-                    if (
-                        autonomous.status is not None
-                        or autonomous.next_run_time is not None
-                    ):
+                    if autonomous.status is not None or autonomous.next_run_time is not None:
                         _ = await update_autonomous_task_status(
                             agent.id,
                             autonomous.id,
@@ -262,14 +255,10 @@ async def _schedule_agent_autonomous_tasks_impl() -> None:
                     # Schedule new job using cron (minutes field is deprecated)
                     # Default has_memory to True if not set (backward compatibility)
                     task_has_memory = (
-                        autonomous.has_memory
-                        if autonomous.has_memory is not None
-                        else True
+                        autonomous.has_memory if autonomous.has_memory is not None else True
                     )
                     if autonomous.cron:
-                        logger.info(
-                            f"Scheduling cron task {task_id} with cron: {autonomous.cron}"
-                        )
+                        logger.info(f"Scheduling cron task {task_id} with cron: {autonomous.cron}")
                         _ = scheduler.add_job(
                             run_autonomous_task,
                             CronTrigger.from_crontab(autonomous.cron),
@@ -288,14 +277,10 @@ async def _schedule_agent_autonomous_tasks_impl() -> None:
                             f"Invalid autonomous configuration for task {task_id}: cron is required (minutes field is deprecated)"
                         )
                 except Exception as e:
-                    logger.error(
-                        f"Failed to schedule autonomous task [{agent.id}] {task_id}: {e}"
-                    )
+                    logger.error(f"Failed to schedule autonomous task [{agent.id}] {task_id}: {e}")
 
                 # Update the last updated time
-                autonomous_tasks_updated_at[task_id] = (
-                    agent.deployed_at or agent.updated_at
-                )
+                autonomous_tasks_updated_at[task_id] = agent.deployed_at or agent.updated_at
 
     # Delete jobs not in the list
     logger.debug("Current jobs: %s", planned_jobs)
@@ -344,9 +329,7 @@ if __name__ == "__main__":
         xian_event_trigger_service = XianEventTriggerService(redis_client)
         await xian_event_trigger_service.start()
         global refresh_listener_task
-        refresh_listener_task = asyncio.create_task(
-            listen_for_autonomous_refresh(redis_client)
-        )
+        refresh_listener_task = asyncio.create_task(listen_for_autonomous_refresh(redis_client))
 
         # Add job to schedule agent autonomous tasks every 5 minutes
         # Run it immediately on startup and then every 5 minutes
@@ -419,9 +402,7 @@ if __name__ == "__main__":
             )
 
             # Wait for shutdown event
-            logger.info(
-                "Autonomous process running. Press Ctrl+C or send SIGTERM to exit."
-            )
+            logger.info("Autonomous process running. Press Ctrl+C or send SIGTERM to exit.")
             _ = await shutdown_event.wait()
             logger.info("Received shutdown signal. Shutting down gracefully...")
         except Exception as e:

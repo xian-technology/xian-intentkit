@@ -157,35 +157,21 @@ class UserUpdate(BaseModel):
         from_attributes=True,
     )
 
-    nft_count: Annotated[
-        int, Field(default=0, description="Number of NFTs owned by the user")
-    ]
+    nft_count: Annotated[int, Field(default=0, description="Number of NFTs owned by the user")]
     name: Annotated[str | None, Field(None, description="User's display name")]
-    avatar: Annotated[
-        str | None, Field(None, description="User's avatar image path or URL")
-    ]
+    avatar: Annotated[str | None, Field(None, description="User's avatar image path or URL")]
     email: Annotated[str | None, Field(None, description="User's email address")]
-    x_username: Annotated[
-        str | None, Field(None, description="User's X (Twitter) username")
-    ]
-    github_username: Annotated[
-        str | None, Field(None, description="User's GitHub username")
-    ]
-    telegram_username: Annotated[
-        str | None, Field(None, description="User's Telegram username")
-    ]
-    telegram_id: Annotated[
-        str | None, Field(None, description="User's Telegram numeric ID")
-    ]
+    x_username: Annotated[str | None, Field(None, description="User's X (Twitter) username")]
+    github_username: Annotated[str | None, Field(None, description="User's GitHub username")]
+    telegram_username: Annotated[str | None, Field(None, description="User's Telegram username")]
+    telegram_id: Annotated[str | None, Field(None, description="User's Telegram numeric ID")]
     wechat_id: Annotated[
         str | None, Field(None, description="User's WeChat ID (e.g. xxxxx@im.wechat)")
     ]
     extra: Annotated[
         dict[str, object] | None, Field(None, description="Additional user information")
     ]
-    evm_wallet_address: Annotated[
-        str | None, Field(None, description="User's EVM wallet address")
-    ]
+    evm_wallet_address: Annotated[str | None, Field(None, description="User's EVM wallet address")]
     solana_wallet_address: Annotated[
         str | None, Field(None, description="User's Solana wallet address")
     ]
@@ -221,12 +207,8 @@ class UserUpdate(BaseModel):
 
         # Calculate new quota values based on nft_count
         FOURPLACES = Decimal("0.0001")
-        free_quota = Decimal(480 + 48 * new_nft_count).quantize(
-            FOURPLACES, rounding=ROUND_HALF_UP
-        )
-        refill_amount = Decimal(20 + 2 * new_nft_count).quantize(
-            FOURPLACES, rounding=ROUND_HALF_UP
-        )
+        free_quota = Decimal(480 + 48 * new_nft_count).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+        refill_amount = Decimal(20 + 2 * new_nft_count).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
         note = f"NFT count changed to {new_nft_count}"
 
         # Update daily quota
@@ -329,12 +311,8 @@ class User(UserUpdate):
         str,
         Field(description="Unique identifier for the user"),
     ]
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this user was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this user was last updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this user was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this user was last updated")]
 
     @field_serializer("created_at", "updated_at", "synced_at")
     @classmethod
@@ -422,9 +400,7 @@ class User(UserUpdate):
 
         async with get_session() as session:
             result = await session.execute(
-                select(user_table_class).where(
-                    user_table_class.telegram_id == telegram_id
-                )
+                select(user_table_class).where(user_table_class.telegram_id == telegram_id)
             )
             user = result.scalars().first()
             if user is None:

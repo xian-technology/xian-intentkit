@@ -10,7 +10,9 @@ from intentkit.skills.base import NoArgsSchema
 from intentkit.skills.defillama.api import fetch_dex_overview
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_DEX_OVERVIEW_PROMPT = """Fetch DEX volume overview from DefiLlama with totals, changes, and per-protocol data."""
+FETCH_DEX_OVERVIEW_PROMPT = (
+    """Fetch DEX volume overview from DefiLlama with totals, changes, and per-protocol data."""
+)
 
 
 class MethodologyInfo(BaseModel):
@@ -41,12 +43,8 @@ class ProtocolInfo(BaseModel):
     change_1m: float | None = Field(None, description="1m change %")
     change_7dover7d: float | None = Field(None, description="7d/7d change %")
     change_30dover30d: float | None = Field(None, description="30d/30d change %")
-    breakdown24h: dict[str, dict[str, float]] | None = Field(
-        None, description="24h by chain"
-    )
-    breakdown30d: dict[str, dict[str, float]] | None = Field(
-        None, description="30d by chain"
-    )
+    breakdown24h: dict[str, dict[str, float]] | None = Field(None, description="24h by chain")
+    breakdown30d: dict[str, dict[str, float]] | None = Field(None, description="30d by chain")
     total7DaysAgo: float | None = Field(None, description="7d ago total")
     total30DaysAgo: float | None = Field(None, description="30d ago total")
     defillamaId: str | None = Field(None, description="DefiLlama ID")
@@ -71,15 +69,9 @@ class FetchDexOverviewResponse(BaseModel):
     """Response schema for DEX overview data."""
 
     totalDataChart: list[Any] = Field(default_factory=list, description="Chart data")
-    totalDataChartBreakdown: list[Any] = Field(
-        default_factory=list, description="Chart breakdown"
-    )
-    breakdown24h: dict[str, dict[str, float]] | None = Field(
-        None, description="24h by chain"
-    )
-    breakdown30d: dict[str, dict[str, float]] | None = Field(
-        None, description="30d by chain"
-    )
+    totalDataChartBreakdown: list[Any] = Field(default_factory=list, description="Chart breakdown")
+    breakdown24h: dict[str, dict[str, float]] | None = Field(None, description="24h by chain")
+    breakdown30d: dict[str, dict[str, float]] | None = Field(None, description="30d by chain")
     chain: str | None = Field(None, description="Chain")
     allChains: list[str] = Field(..., description="All chains")
     total24h: float = Field(..., description="24h total")

@@ -25,9 +25,7 @@ logger = logging.getLogger(__name__)
 class GetTokenPairsInput(BaseModel):
     """Input schema for the DexScreener get_token_pairs tool."""
 
-    chain_id: str = Field(
-        description="Blockchain chain ID (e.g., ethereum, solana, bsc)"
-    )
+    chain_id: str = Field(description="Blockchain chain ID (e.g., ethereum, solana, bsc)")
     token_address: str = Field(description="Token contract address")
 
 
@@ -37,9 +35,7 @@ class GetTokenPairs(DexScreenerBaseTool):
     """
 
     name: str = "dexscreener_get_token_pairs"
-    description: str = (
-        "Find all trading pairs for a token by chain ID and token address."
-    )
+    description: str = "Find all trading pairs for a token by chain ID and token address."
     args_schema: ArgsSchema | None = GetTokenPairsInput
 
     async def _arun(
@@ -71,9 +67,7 @@ class GetTokenPairs(DexScreenerBaseTool):
                 return await self._handle_error_response(error_details)
 
             if not data:
-                logger.error(
-                    f"No data returned for token {token_address} on {chain_id}"
-                )
+                logger.error(f"No data returned for token {token_address} on {chain_id}")
                 return create_error_response(
                     error_type="empty_success",
                     message="API call returned empty success response.",
@@ -87,9 +81,7 @@ class GetTokenPairs(DexScreenerBaseTool):
                 # Validate response using SearchTokenResponseModel since API returns similar structure
                 result = SearchTokenResponseModel.model_validate(data)
             except ValidationError as e:
-                return handle_validation_error(
-                    e, f"{chain_id}/{token_address}", len(str(data))
-                )
+                return handle_validation_error(e, f"{chain_id}/{token_address}", len(str(data)))
 
             if not result.pairs:
                 return create_no_results_response(
@@ -128,9 +120,7 @@ class GetTokenPairs(DexScreenerBaseTool):
             )
 
         except Exception as e:
-            return await self._handle_unexpected_runtime_error(
-                e, f"{chain_id}/{token_address}"
-            )
+            return await self._handle_unexpected_runtime_error(e, f"{chain_id}/{token_address}")
 
     async def _handle_error_response(self, error_details: dict[str, Any]) -> str:
         """Formats error details (from _get) into a JSON string."""
@@ -150,9 +140,7 @@ class GetTokenPairs(DexScreenerBaseTool):
         truncated_details = truncate_large_fields(error_details)
         return format_success_response(truncated_details)
 
-    async def _handle_unexpected_runtime_error(
-        self, e: Exception, query_info: str
-    ) -> str:
+    async def _handle_unexpected_runtime_error(self, e: Exception, query_info: str) -> str:
         """Formats unexpected runtime exception details into a JSON string."""
         logger.exception(
             f"An unexpected runtime error occurred in get_token_pairs tool _arun method for {query_info}: {e}"

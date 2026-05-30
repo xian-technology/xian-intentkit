@@ -54,9 +54,7 @@ def _make_agent_update(**overrides):
     agent.model_dump = MagicMock(return_value=dict(dump))
     # exclude_unset variant
     agent.model_dump.side_effect = lambda **kw: (
-        {k: v for k, v in dump.items() if k in overrides}
-        if kw.get("exclude_unset")
-        else dict(dump)
+        {k: v for k, v in dump.items() if k in overrides} if kw.get("exclude_unset") else dict(dump)
     )
     agent.hash = MagicMock(return_value="abc123")
     agent.slug = dump.get("slug")
@@ -269,9 +267,7 @@ class TestOverrideAgent:
 
         with patch("intentkit.models.agent.Agent.model_validate") as mock_validate:
             mock_validate.return_value = _make_existing_agent()
-            result_agent, result_data = await override_agent(
-                "agent-1", agent_update, "owner-1"
-            )
+            result_agent, result_data = await override_agent("agent-1", agent_update, "owner-1")
 
         mock_session.commit.assert_awaited_once()
         mock_wallet.assert_awaited_once()
@@ -334,9 +330,7 @@ class TestPatchAgent:
 
         with patch("intentkit.models.agent.Agent.model_validate") as mock_validate:
             mock_validate.return_value = _make_existing_agent()
-            result_agent, result_data = await patch_agent(
-                "agent-1", agent_update, "owner-1"
-            )
+            result_agent, result_data = await patch_agent("agent-1", agent_update, "owner-1")
 
         mock_session.commit.assert_awaited_once()
         mock_wallet.assert_awaited_once()
@@ -373,9 +367,7 @@ class TestCreateAgent:
         session_ctx, mock_session = _make_session_mock()
         mock_get_session.return_value = session_ctx
         mock_session.scalar = AsyncMock(return_value=None)
-        mock_session.commit = AsyncMock(
-            side_effect=IntegrityError("dup", {}, Exception())
-        )
+        mock_session.commit = AsyncMock(side_effect=IntegrityError("dup", {}, Exception()))
 
         agent_create = _make_agent_create(owner="owner-1")
         agent_create.upstream_id = None
@@ -394,9 +386,7 @@ class TestCreateAgent:
     @patch(f"{MODULE}.send_agent_notification")
     @patch(f"{MODULE}.process_agent_wallet", new_callable=AsyncMock)
     @patch(f"{MODULE}.get_session")
-    async def test_successful_creation(
-        self, mock_get_session, mock_wallet, mock_notify
-    ):
+    async def test_successful_creation(self, mock_get_session, mock_wallet, mock_notify):
         from intentkit.core.agent.management import create_agent
 
         session_ctx, mock_session = _make_session_mock()
@@ -565,9 +555,7 @@ class TestBackfillAgentAvatar:
     @patch("intentkit.core.avatar.generate_avatar", new_callable=AsyncMock)
     @patch("intentkit.models.agent.Agent.model_validate")
     @patch(f"{MODULE}.get_session")
-    async def test_swallows_generate_failure(
-        self, mock_get_session, mock_validate, mock_generate
-    ):
+    async def test_swallows_generate_failure(self, mock_get_session, mock_validate, mock_generate):
         from intentkit.core.agent.management import backfill_agent_avatar
 
         read_session = MagicMock()

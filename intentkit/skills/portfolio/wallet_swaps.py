@@ -135,9 +135,7 @@ class WalletSwaps(PortfolioBaseTool):
                 method="GET", endpoint=endpoint, api_key=api_key, params=params
             )
         except Exception as e:
-            logger.error(
-                f"wallet_swaps.py: Error fetching wallet swaps: {e}", exc_info=True
-            )
+            logger.error(f"wallet_swaps.py: Error fetching wallet swaps: {e}", exc_info=True)
             return {
                 "error": "An error occurred while fetching wallet swaps. Please try again later."
             }

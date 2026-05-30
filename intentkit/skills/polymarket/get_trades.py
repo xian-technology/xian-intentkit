@@ -56,9 +56,7 @@ class GetTrades(PolymarketBaseTool):
 
         data = await self._clob_auth_get("/trades", params=params)
 
-        raw_trades: list[Any] = (
-            data if isinstance(data, list) else data.get("trades", [])
-        )
+        raw_trades: list[Any] = data if isinstance(data, list) else data.get("trades", [])
 
         formatted = []
         for trade in raw_trades[:limit]:

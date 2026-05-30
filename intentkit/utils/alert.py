@@ -147,9 +147,7 @@ def _format_telegram_message(
 
             # Color indicator
             color = attachment.get("color", "")
-            color_emoji = {"good": "🟢", "danger": "🔴", "warning": "🟡"}.get(
-                color, "⚪"
-            )
+            color_emoji = {"good": "🟢", "danger": "🔴", "warning": "🟡"}.get(color, "⚪")
 
             # Title
             title = attachment.get("title")
@@ -185,9 +183,7 @@ def _format_telegram_message(
             elif block_type == "header":
                 header_text = block.get("text", {})
                 if isinstance(header_text, dict):
-                    lines.append(
-                        f"<b>{html_mod.escape(header_text.get('text', ''))}</b>"
-                    )
+                    lines.append(f"<b>{html_mod.escape(header_text.get('text', ''))}</b>")
                 else:
                     lines.append(f"<b>{html_mod.escape(str(header_text))}</b>")
             elif block_type == "divider":

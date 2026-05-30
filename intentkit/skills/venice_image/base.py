@@ -70,6 +70,4 @@ class VeniceImageBaseTool(IntentKitSkill):
         """
         api_key = self.get_api_key()
 
-        return await make_venice_api_request(
-            api_key, path, payload, self.category, self.name
-        )
+        return await make_venice_api_request(api_key, path, payload, self.category, self.name)

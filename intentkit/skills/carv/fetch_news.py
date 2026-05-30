@@ -27,9 +27,7 @@ class FetchNewsTool(CarvBaseTool):
     """
 
     name: str = "carv_fetch_news"
-    description: str = (
-        "Fetch latest news articles from CARV API with title, URL, and summary."
-    )
+    description: str = "Fetch latest news articles from CARV API with title, URL, and summary."
     args_schema: ArgsSchema | None = CarvNewsInput
 
     async def _arun(

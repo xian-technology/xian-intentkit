@@ -25,9 +25,7 @@ async def cleanup_checkpoints(days: int = 90, dry_run: bool = False) -> int:
 
     # Use UTC for consistency with LangGraph timestamps
     cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
-    logger.info(
-        f"Cleaning up threads older than {days} days (before {cutoff_date.isoformat()})"
-    )
+    logger.info(f"Cleaning up threads older than {days} days (before {cutoff_date.isoformat()})")
 
     # 1. Identify threads to delete
     count_query = text("""

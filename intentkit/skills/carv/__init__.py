@@ -58,9 +58,7 @@ async def get_skills(
 
     # Iterate through all known skills defined in the map
     for skill_name in _SKILL_NAME_TO_CLASS_MAP:
-        state = skill_states.get(
-            skill_name, "disabled"
-        )  # Default to disabled if not in config
+        state = skill_states.get(skill_name, "disabled")  # Default to disabled if not in config
 
         if state == "disabled":
             continue
@@ -102,9 +100,7 @@ def get_carv_skill(
             _cache[name] = instance
             return instance
         except Exception as e:
-            logger.error(
-                "Failed to instantiate Carv skill '%s': %s", name, e, exc_info=True
-            )
+            logger.error("Failed to instantiate Carv skill '%s': %s", name, e, exc_info=True)
             return None  # Failed to instantiate
     else:
         # This handles cases where a name might be in config but not in our map

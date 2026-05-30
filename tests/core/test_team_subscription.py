@@ -21,9 +21,7 @@ def _make_mock_session():
     return mock_session, mock_ctx
 
 
-def _make_mock_agent(
-    team_id: str, visibility: AgentVisibility = AgentVisibility.PUBLIC
-):
+def _make_mock_agent(team_id: str, visibility: AgentVisibility = AgentVisibility.PUBLIC):
     """Create a mock agent with team_id and visibility."""
     agent = MagicMock()
     agent.team_id = team_id
@@ -53,9 +51,7 @@ async def test_subscribe_agent_not_found(mock_get_agent):
 async def test_subscribe_agent_private_different_team(mock_get_agent):
     from intentkit.core.team.subscription import subscribe_agent
 
-    mock_get_agent.return_value = _make_mock_agent(
-        "other-team", AgentVisibility.PRIVATE
-    )
+    mock_get_agent.return_value = _make_mock_agent("other-team", AgentVisibility.PRIVATE)
 
     with pytest.raises(IntentKitAPIError) as exc_info:
         await subscribe_agent("team-1", "agent-private")
@@ -87,9 +83,7 @@ async def test_subscribe_agent_public_success(mock_get_agent, mock_get_session):
     with patch.object(
         TeamSubscription,
         "model_validate",
-        return_value=TeamSubscription(
-            team_id="team-1", agent_id="agent-pub", subscribed_at=NOW
-        ),
+        return_value=TeamSubscription(team_id="team-1", agent_id="agent-pub", subscribed_at=NOW),
     ):
         result = await subscribe_agent("team-1", "agent-pub")
 
@@ -122,9 +116,7 @@ async def test_subscribe_agent_same_team_success(mock_get_agent, mock_get_sessio
     with patch.object(
         TeamSubscription,
         "model_validate",
-        return_value=TeamSubscription(
-            team_id="team-1", agent_id="agent-own", subscribed_at=NOW
-        ),
+        return_value=TeamSubscription(team_id="team-1", agent_id="agent-own", subscribed_at=NOW),
     ):
         result = await subscribe_agent("team-1", "agent-own")
 

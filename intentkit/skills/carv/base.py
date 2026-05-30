@@ -75,9 +75,7 @@ class CarvBaseTool(IntentKitSkill):
                 if method == "GET":
                     response = await client.get(url, headers=headers, params=params)
                 elif method == "POST":
-                    response = await client.post(
-                        url, headers=headers, json=payload, params=params
-                    )
+                    response = await client.post(url, headers=headers, json=payload, params=params)
                 else:
                     raise ToolException(f"Unsupported HTTP method: {method}")
 
@@ -94,16 +92,12 @@ class CarvBaseTool(IntentKitSkill):
 
                 if response.status_code >= 400 or "error" in response_json:
                     error_msg = response_json.get("error", "Unknown API error")
-                    raise ToolException(
-                        f"CARV API error ({response.status_code}): {error_msg}"
-                    )
+                    raise ToolException(f"CARV API error ({response.status_code}): {error_msg}")
 
                 return response_json.get("data", response_json)
 
         except ToolException:
             raise
         except Exception as e:
-            logger.error(
-                "Error calling CARV API to %s > %s: %s", method, url, e, exc_info=True
-            )
+            logger.error("Error calling CARV API to %s > %s: %s", method, url, e, exc_info=True)
             raise ToolException(f"CARV API request failed: {e!s}")

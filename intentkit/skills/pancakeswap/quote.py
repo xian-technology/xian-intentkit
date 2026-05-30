@@ -23,15 +23,9 @@ NAME = "pancakeswap_quote"
 class PancakeSwapQuoteInput(BaseModel):
     """Input for PancakeSwap quote."""
 
-    token_in: str = Field(
-        description="Input token address, or 'native' for native token"
-    )
-    token_out: str = Field(
-        description="Output token address, or 'native' for native token"
-    )
-    amount: str = Field(
-        description="Amount to swap in human-readable format (e.g. '1.5')"
-    )
+    token_in: str = Field(description="Input token address, or 'native' for native token")
+    token_out: str = Field(description="Output token address, or 'native' for native token")
+    amount: str = Field(description="Amount to swap in human-readable format (e.g. '1.5')")
 
 
 class PancakeSwapQuote(PancakeSwapBaseTool):
@@ -114,9 +108,7 @@ class PancakeSwapQuote(PancakeSwapBaseTool):
                     continue
 
             if best_out == 0:
-                raise ToolException(
-                    "No liquidity found for this pair on PancakeSwap V3."
-                )
+                raise ToolException("No liquidity found for this pair on PancakeSwap V3.")
 
             # Format output
             out_human = Decimal(best_out) / Decimal(10**decimals_out)

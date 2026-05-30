@@ -8,7 +8,9 @@ from intentkit.skills.base import NoArgsSchema
 from intentkit.skills.defillama.api import fetch_stablecoins
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_STABLECOINS_PROMPT = """Fetch all stablecoins data from DefiLlama including supply, prices, and peg info."""
+FETCH_STABLECOINS_PROMPT = (
+    """Fetch all stablecoins data from DefiLlama including supply, prices, and peg info."""
+)
 
 
 class CirculatingAmount(BaseModel):
@@ -40,9 +42,7 @@ class Stablecoin(BaseModel):
     circulatingPrevDay: CirculatingAmount = Field(..., description="Previous day")
     circulatingPrevWeek: CirculatingAmount = Field(..., description="Previous week")
     circulatingPrevMonth: CirculatingAmount = Field(..., description="Previous month")
-    chainCirculating: dict[str, ChainCirculating] = Field(
-        ..., description="Per-chain circulating"
-    )
+    chainCirculating: dict[str, ChainCirculating] = Field(..., description="Per-chain circulating")
     chains: list[str] = Field(..., description="Chains present on")
     price: float = Field(..., description="Price in USD")
 
@@ -50,9 +50,7 @@ class Stablecoin(BaseModel):
 class FetchStablecoinsResponse(BaseModel):
     """Response schema for stablecoin data."""
 
-    peggedAssets: list[Stablecoin] = Field(
-        default_factory=list, description="Stablecoins"
-    )
+    peggedAssets: list[Stablecoin] = Field(default_factory=list, description="Stablecoins")
     error: str | None = Field(default=None, description="Error message")
 
 

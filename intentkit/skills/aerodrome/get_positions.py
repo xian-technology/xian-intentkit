@@ -40,8 +40,7 @@ class AerodromeGetPositions(AerodromeBaseTool):
             chain_id = NETWORK_TO_CHAIN_ID.get(network_id)
             if not chain_id:
                 raise ToolException(
-                    f"Aerodrome is only supported on Base. "
-                    f"Current network: {network_id}"
+                    f"Aerodrome is only supported on Base. Current network: {network_id}"
                 )
 
             wallet = await self.get_unified_wallet()
@@ -59,17 +58,13 @@ class AerodromeGetPositions(AerodromeBaseTool):
 
             count = min(balance, MAX_POSITIONS)
             for i in range(count):
-                token_id = await pm.functions.tokenOfOwnerByIndex(
-                    wallet_address, i
-                ).call()
+                token_id = await pm.functions.tokenOfOwnerByIndex(wallet_address, i).call()
                 pos_info = await pm.functions.positions(token_id).call()
                 entry = await _format_position(w3, token_id, pos_info, staked=False)
                 if entry:
                     positions.append(entry)
 
-            staked_data = await self.get_agent_skill_data_raw(
-                SKILL_DATA_NAMESPACE, STAKED_DATA_KEY
-            )
+            staked_data = await self.get_agent_skill_data_raw(SKILL_DATA_NAMESPACE, STAKED_DATA_KEY)
             if staked_data and "token_ids" in staked_data:
                 gauges = staked_data.get("gauges", {})
                 for token_id in staked_data["token_ids"][:MAX_POSITIONS]:
@@ -79,9 +74,7 @@ class AerodromeGetPositions(AerodromeBaseTool):
                             continue
 
                         checksum_gauge = Web3.to_checksum_address(gauge_address)
-                        gauge = w3.eth.contract(
-                            address=checksum_gauge, abi=CL_GAUGE_ABI
-                        )
+                        gauge = w3.eth.contract(address=checksum_gauge, abi=CL_GAUGE_ABI)
 
                         is_staked = await gauge.functions.stakedContains(
                             wallet_address, token_id
@@ -90,9 +83,7 @@ class AerodromeGetPositions(AerodromeBaseTool):
                             continue
 
                         pos_info = await pm.functions.positions(token_id).call()
-                        pending_aero = await gauge.functions.earned(
-                            wallet_address, token_id
-                        ).call()
+                        pending_aero = await gauge.functions.earned(wallet_address, token_id).call()
                         entry = await _format_position(
                             w3,
                             token_id,

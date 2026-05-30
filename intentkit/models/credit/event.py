@@ -71,9 +71,7 @@ class CreditEventTable(Base):
 
     __tablename__: str = "credit_events"
     __table_args__: Any = (
-        Index(
-            "ix_credit_events_upstream", "upstream_type", "upstream_tx_id", unique=True
-        ),
+        Index("ix_credit_events_upstream", "upstream_type", "upstream_tx_id", unique=True),
         Index("ix_credit_events_account_id", "account_id"),
         Index("ix_credit_events_user_id", "user_id"),
         Index("ix_credit_events_agent_id", "agent_id"),
@@ -299,23 +297,13 @@ class CreditEvent(BaseModel):
             description="Unique identifier for the credit event",
         ),
     ]
-    account_id: Annotated[
-        str, Field(None, description="Account ID from which credits flow")
-    ]
+    account_id: Annotated[str, Field(None, description="Account ID from which credits flow")]
     event_type: Annotated[EventType, Field(description="Type of the event")]
-    user_id: Annotated[
-        str | None, Field(None, description="ID of the user if applicable")
-    ]
-    team_id: Annotated[
-        str | None, Field(None, description="ID of the team if applicable")
-    ]
-    upstream_type: Annotated[
-        UpstreamType, Field(description="Type of upstream transaction")
-    ]
+    user_id: Annotated[str | None, Field(None, description="ID of the user if applicable")]
+    team_id: Annotated[str | None, Field(None, description="ID of the team if applicable")]
+    upstream_type: Annotated[UpstreamType, Field(description="Type of upstream transaction")]
     upstream_tx_id: Annotated[str, Field(description="Upstream transaction ID if any")]
-    agent_id: Annotated[
-        str | None, Field(None, description="ID of the agent if applicable")
-    ]
+    agent_id: Annotated[str | None, Field(None, description="ID of the agent if applicable")]
     agent_wallet_address: Annotated[
         str | None,
         Field(None, description="Wallet address of the agent if applicable"),
@@ -324,18 +312,12 @@ class CreditEvent(BaseModel):
         str | None,
         Field(None, description="ID of the starting message if applicable"),
     ]
-    message_id: Annotated[
-        str | None, Field(None, description="ID of the message if applicable")
-    ]
-    model: Annotated[
-        str | None, Field(None, description="LLM model used if applicable")
-    ]
+    message_id: Annotated[str | None, Field(None, description="ID of the message if applicable")]
+    model: Annotated[str | None, Field(None, description="LLM model used if applicable")]
     skill_call_id: Annotated[
         str | None, Field(None, description="ID of the skill call if applicable")
     ]
-    skill_name: Annotated[
-        str | None, Field(None, description="Name of the skill if applicable")
-    ]
+    skill_name: Annotated[str | None, Field(None, description="Name of the skill if applicable")]
     direction: Annotated[Direction, Field(description="Direction of the credit flow")]
     total_amount: Annotated[
         Decimal,
@@ -391,15 +373,11 @@ class CreditEvent(BaseModel):
     ]
     fee_platform_free_amount: Annotated[
         Decimal | None,
-        Field(
-            default=Decimal("0"), description="Platform fee amount from free credits"
-        ),
+        Field(default=Decimal("0"), description="Platform fee amount from free credits"),
     ]
     fee_platform_reward_amount: Annotated[
         Decimal | None,
-        Field(
-            default=Decimal("0"), description="Platform fee amount from reward credits"
-        ),
+        Field(default=Decimal("0"), description="Platform fee amount from reward credits"),
     ]
     fee_platform_permanent_amount: Annotated[
         Decimal | None,
@@ -417,15 +395,11 @@ class CreditEvent(BaseModel):
     ]
     fee_dev_free_amount: Annotated[
         Decimal | None,
-        Field(
-            default=Decimal("0"), description="Developer fee amount from free credits"
-        ),
+        Field(default=Decimal("0"), description="Developer fee amount from free credits"),
     ]
     fee_dev_reward_amount: Annotated[
         Decimal | None,
-        Field(
-            default=Decimal("0"), description="Developer fee amount from reward credits"
-        ),
+        Field(default=Decimal("0"), description="Developer fee amount from reward credits"),
     ]
     fee_dev_permanent_amount: Annotated[
         Decimal | None,
@@ -450,9 +424,7 @@ class CreditEvent(BaseModel):
     ]
     fee_agent_permanent_amount: Annotated[
         Decimal | None,
-        Field(
-            default=Decimal("0"), description="Agent fee amount from permanent credits"
-        ),
+        Field(default=Decimal("0"), description="Agent fee amount from permanent credits"),
     ]
     free_amount: Annotated[
         Decimal | None,
@@ -467,9 +439,7 @@ class CreditEvent(BaseModel):
         Field(default=Decimal("0"), description="Permanent credit amount involved"),
     ]
     note: Annotated[str | None, Field(None, description="Additional notes")]
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this event was created")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this event was created")]
 
     @field_serializer("created_at")
     @classmethod

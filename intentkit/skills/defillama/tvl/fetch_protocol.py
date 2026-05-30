@@ -47,9 +47,7 @@ class Raise(BaseModel):
     categoryGroup: str = Field(..., description="Category group")
     source: str = Field(..., description="Source")
     leadInvestors: list[str] = Field(default_factory=list, description="Lead investors")
-    otherInvestors: list[str] = Field(
-        default_factory=list, description="Other investors"
-    )
+    otherInvestors: list[str] = Field(default_factory=list, description="Other investors")
     valuation: float | None = Field(None, description="Valuation")
     defillamaId: str | None = Field(None, description="DefiLlama ID")
 
@@ -145,8 +143,7 @@ class DefiLlamaFetchProtocol(DefiLlamaBaseTool):
         hallmarks = None
         if "hallmarks" in result:
             hallmarks = [
-                Hallmark(timestamp=h[0], description=h[1])
-                for h in result.get("hallmarks", [])
+                Hallmark(timestamp=h[0], description=h[1]) for h in result.get("hallmarks", [])
             ]
 
         # Create raises objects if present

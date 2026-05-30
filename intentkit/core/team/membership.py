@@ -107,12 +107,8 @@ async def generate_team_avatar(team_id: str, team_name: str) -> str | None:
 
     try:
         profile = f"Team Name: {team_name}"
-        image_prompt = await generate_image_prompt_from_profile(
-            profile, _TEAM_AVATAR_SYSTEM_PROMPT
-        )
-        logger.info(
-            "Generated avatar prompt for team %s: %s", team_id, image_prompt[:200]
-        )
+        image_prompt = await generate_image_prompt_from_profile(profile, _TEAM_AVATAR_SYSTEM_PROMPT)
+        logger.info("Generated avatar prompt for team %s: %s", team_id, image_prompt[:200])
     except Exception as e:
         logger.error("Failed to generate avatar prompt for team %s: %s", team_id, e)
         image_prompt = (
@@ -126,9 +122,7 @@ async def generate_team_avatar(team_id: str, team_name: str) -> str | None:
 
     try:
         key = f"avatars/team/{team_id}/{XID()}.png"
-        relative_path = await store_image_bytes(
-            image_bytes, key, content_type="image/png"
-        )
+        relative_path = await store_image_bytes(image_bytes, key, content_type="image/png")
         if not relative_path:
             logger.error("store_image_bytes returned empty path for team %s", team_id)
             return None
@@ -303,11 +297,7 @@ async def join_team(code: str, user_id: str) -> Team:
 
     async with get_session() as db:
         # Find invite with row lock to prevent race conditions
-        stmt = (
-            select(TeamInviteTable)
-            .where(TeamInviteTable.code == code)
-            .with_for_update()
-        )
+        stmt = select(TeamInviteTable).where(TeamInviteTable.code == code).with_for_update()
         result = await db.execute(stmt)
         invite = result.scalar_one_or_none()
 
@@ -414,9 +404,7 @@ async def _invalidate_role_cache(team_id: str, user_id: str) -> None:
         redis = get_redis()
         await redis.delete(f"{_CACHE_ROLE_PREFIX}{team_id}:{user_id}")
     except Exception as e:
-        logger.warning(
-            "Failed to invalidate role cache for %s:%s: %s", team_id, user_id, e
-        )
+        logger.warning("Failed to invalidate role cache for %s:%s: %s", team_id, user_id, e)
 
 
 async def _invalidate_team_cache(team_id: str) -> None:
@@ -522,9 +510,7 @@ async def check_permission(team_id: str, user_id: str, required_role: TeamRole) 
     try:
         user_role_str = await redis.get(cache_key)
     except Exception as e:
-        logger.warning(
-            "Redis cache read failed for role %s:%s: %s", team_id, user_id, e
-        )
+        logger.warning("Redis cache read failed for role %s:%s: %s", team_id, user_id, e)
 
     if user_role_str is None:
         # Cache miss — query DB
@@ -545,9 +531,7 @@ async def check_permission(team_id: str, user_id: str, required_role: TeamRole) 
         try:
             await redis.set(cache_key, user_role_str, ex=_CACHE_TTL)
         except Exception as e:
-            logger.warning(
-                "Redis cache write failed for role %s:%s: %s", team_id, user_id, e
-            )
+            logger.warning("Redis cache write failed for role %s:%s: %s", team_id, user_id, e)
 
     try:
         user_role = TeamRole(user_role_str)

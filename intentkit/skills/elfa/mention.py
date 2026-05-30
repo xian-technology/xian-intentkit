@@ -15,9 +15,7 @@ class ElfaGetTopMentionsInput(BaseModel):
     """Input parameters for top mentions."""
 
     ticker: str = Field(description="Ticker symbol (e.g., ETH, BTC)")
-    timeWindow: str | None = Field(
-        "1h", description="Time window (e.g., '1h', '24h', '7d')"
-    )
+    timeWindow: str | None = Field("1h", description="Time window (e.g., '1h', '24h', '7d')")
     page: int | None = Field(1, description="Page number")
     pageSize: int | None = Field(10, description="Items per page")
 

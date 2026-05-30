@@ -84,16 +84,12 @@ class HailuoVideoBase(VideoBaseTool):
                     if status == "Success":
                         file_id = poll_data.get("file_id")
                         if not file_id:
-                            raise ToolException(
-                                "No file_id in completed MiniMax video response"
-                            )
+                            raise ToolException("No file_id in completed MiniMax video response")
                         break
                     elif status == "Fail":
                         base_resp = poll_data.get("base_resp", {})
                         error_msg = base_resp.get("status_msg", "Unknown error")
-                        raise ToolException(
-                            f"MiniMax video generation failed: {error_msg}"
-                        )
+                        raise ToolException(f"MiniMax video generation failed: {error_msg}")
 
                 if not file_id:
                     raise ToolException(
@@ -112,19 +108,13 @@ class HailuoVideoBase(VideoBaseTool):
                 file_obj = file_data.get("file", {})
                 download_url = file_obj.get("download_url")
                 if not download_url:
-                    raise ToolException(
-                        "No download_url in MiniMax file retrieve response"
-                    )
+                    raise ToolException("No download_url in MiniMax file retrieve response")
 
                 # Download the video
-                video_resp = await client.get(
-                    download_url, follow_redirects=True, timeout=120
-                )
+                video_resp = await client.get(download_url, follow_redirects=True, timeout=120)
                 video_resp.raise_for_status()
                 if len(video_resp.content) > MAX_VIDEO_SIZE:
-                    raise ToolException(
-                        f"Video too large: {len(video_resp.content)} bytes"
-                    )
+                    raise ToolException(f"Video too large: {len(video_resp.content)} bytes")
                 return video_resp.content
         except ToolException:
             raise

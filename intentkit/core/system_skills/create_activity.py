@@ -17,9 +17,7 @@ class CreateActivityInput(BaseModel):
     """Input schema for creating an agent activity."""
 
     text: str = Field(..., description="Activity content, plain text, max 280 bytes")
-    images: list[str] | None = Field(
-        default=None, max_length=4, description="Image URLs"
-    )
+    images: list[str] | None = Field(default=None, max_length=4, description="Image URLs")
 
     @field_validator("text")
     @classmethod

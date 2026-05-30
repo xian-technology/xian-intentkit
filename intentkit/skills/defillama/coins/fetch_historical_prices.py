@@ -59,9 +59,7 @@ class DefiLlamaFetchHistoricalPrices(DefiLlamaBaseTool):
     description: str = FETCH_HISTORICAL_PRICES_PROMPT
     args_schema: ArgsSchema | None = FetchHistoricalPricesInput
 
-    async def _arun(
-        self, timestamp: int, coins: list[str]
-    ) -> FetchHistoricalPricesResponse:
+    async def _arun(self, timestamp: int, coins: list[str]) -> FetchHistoricalPricesResponse:
         """Fetch historical prices for the given tokens at the specified time.
 
         Args:

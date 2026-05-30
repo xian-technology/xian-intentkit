@@ -57,9 +57,7 @@ def _sse_response(gen: AsyncIterator[ChatMessage]) -> StreamingResponse:
 # ⚠️ INTERNAL USE ONLY - This endpoint bypasses authentication for internal microservice calls
 @core_router.post("/execute", response_model=list[ChatMessage])
 async def execute(
-    message: Annotated[
-        ChatMessageCreate, AfterValidator(ChatMessageCreate.model_validate)
-    ] = Body(
+    message: Annotated[ChatMessageCreate, AfterValidator(ChatMessageCreate.model_validate)] = Body(
         ...,
         description="The chat message containing agent_id, chat_id and message content",
     ),
@@ -71,9 +69,7 @@ async def execute(
 # ⚠️ INTERNAL USE ONLY - This endpoint bypasses authentication for internal microservice calls
 @core_router.post("/stream")
 async def stream(
-    message: Annotated[
-        ChatMessageCreate, AfterValidator(ChatMessageCreate.model_validate)
-    ] = Body(
+    message: Annotated[ChatMessageCreate, AfterValidator(ChatMessageCreate.model_validate)] = Body(
         ...,
         description="The chat message containing agent_id, chat_id and message content",
     ),
@@ -120,9 +116,7 @@ async def _resolve_lead(
 
         owner_id = await Team.get_owner(request.team_id)
         if owner_id:
-            await UserUpdate.model_validate(
-                {bind_field: request.channel_user_id}
-            ).patch(owner_id)
+            await UserUpdate.model_validate({bind_field: request.channel_user_id}).patch(owner_id)
             user = await User.get(owner_id)
 
     if user:

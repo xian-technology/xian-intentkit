@@ -63,9 +63,7 @@ async def make_venice_api_request(
         "Accept": "image/*, application/json",
     }
 
-    logger.info(
-        f"[{category}/{tool_name}] Sending request to {api_url} with payload: {payload}"
-    )
+    logger.info(f"[{category}/{tool_name}] Sending request to {api_url} with payload: {payload}")
 
     try:
         async with httpx.AsyncClient(timeout=180.0) as client:
@@ -119,9 +117,7 @@ async def _handle_response(
 
     elif response.status_code == 200:
         try:
-            logger.info(
-                "[%s/%s] Received successful JSON response.", category, tool_name
-            )
+            logger.info("[%s/%s] Received successful JSON response.", category, tool_name)
             return response.json(), None
         except Exception as json_err:
             error_msg = f"Failed to parse JSON response: {json_err} - {response.text}"
@@ -135,6 +131,8 @@ async def _handle_response(
             logger.error("[%s/%s] %s", category, tool_name, error_msg)
             return {}, {"success": False, "error": error_msg}
         except Exception:
-            error_msg = f"API returned status code {response.status_code} with text: {response.text}"
+            error_msg = (
+                f"API returned status code {response.status_code} with text: {response.text}"
+            )
             logger.error("[%s/%s] %s", category, tool_name, error_msg)
             return {}, {"success": False, "error": error_msg}

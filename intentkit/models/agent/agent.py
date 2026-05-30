@@ -160,9 +160,7 @@ class Agent(AgentCreate, AgentPublicInfo):
             if is_deprecated:
                 # Add deprecation message
                 if hasattr(field, "deprecation_message") and field.deprecation_message:
-                    yaml_lines.extend(
-                        wrap_text(f"Deprecated: {field.deprecation_message}")
-                    )
+                    yaml_lines.extend(wrap_text(f"Deprecated: {field.deprecation_message}"))
                 else:
                     yaml_lines.append("# Deprecated")
 
@@ -204,13 +202,9 @@ class Agent(AgentCreate, AgentPublicInfo):
                     if hasattr(item, "model_dump")
                 ]
                 # Dump the list of dicts
-                yaml_value = yaml.dump(
-                    model_dicts, default_flow_style=False, allow_unicode=True
-                )
+                yaml_value = yaml.dump(model_dicts, default_flow_style=False, allow_unicode=True)
                 # Indent all lines and append to yaml_lines
-                indented_yaml = "\\n".join(
-                    f"  {line}" for line in yaml_value.split("\\n")
-                )
+                indented_yaml = "\\n".join(f"  {line}" for line in yaml_value.split("\\n"))
                 yaml_lines.append(indented_yaml.rstrip())
             elif hasattr(value, "model_dump"):
                 # Handle individual Pydantic model
@@ -367,11 +361,7 @@ class Agent(AgentCreate, AgentPublicInfo):
                 wallet_enum = ["none", "native"]
                 wallet_titles = ["None", "Native Wallet"]
 
-                if (
-                    config.cdp_api_key_id
-                    and config.cdp_api_key_secret
-                    and config.cdp_wallet_secret
-                ):
+                if config.cdp_api_key_id and config.cdp_api_key_secret and config.cdp_wallet_secret:
                     wallet_enum.append("cdp")
                     wallet_titles.append("Coinbase Server Wallet V2")
 

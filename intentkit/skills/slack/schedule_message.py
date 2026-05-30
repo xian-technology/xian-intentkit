@@ -30,7 +30,9 @@ class SlackScheduleMessage(SlackBaseTool):
     """Tool for scheduling messages to be sent to a Slack channel or thread."""
 
     name: str = "slack_schedule_message"
-    description: str = "Schedule a Slack message for a specific time. Use current_time for current time."
+    description: str = (
+        "Schedule a Slack message for a specific time. Use current_time for current time."
+    )
     args_schema: ArgsSchema | None = SlackScheduleMessageSchema
 
     async def _arun(
@@ -84,9 +86,7 @@ class SlackScheduleMessage(SlackBaseTool):
                     "thread_ts": thread_ts,
                 }
             else:
-                raise ToolException(
-                    f"Error scheduling message: {response.get('error')}"
-                )
+                raise ToolException(f"Error scheduling message: {response.get('error')}")
 
         except Exception as e:
             raise ToolException(f"Error scheduling message: {str(e)}")

@@ -72,7 +72,7 @@ def _extract_mcp_reader_content(raw: str) -> str:
             inner = json.loads(decoded)
             if isinstance(inner, dict):
                 return inner.get("content", raw)
-    except (json.JSONDecodeError, TypeError):
+    except json.JSONDecodeError, TypeError:
         pass
     return raw
 
@@ -143,7 +143,9 @@ class ReadWebpageCloudflareSkill(SystemSkill):
 
     async def _fetch_markdown(self, account_id: str, api_token: str, url: str) -> str:
         """Fetch a URL and convert to markdown via Cloudflare Browser Rendering."""
-        api_url = f"https://api.cloudflare.com/client/v4/accounts/{account_id}/browser-rendering/markdown"
+        api_url = (
+            f"https://api.cloudflare.com/client/v4/accounts/{account_id}/browser-rendering/markdown"
+        )
 
         async with httpx.AsyncClient(timeout=60) as client:
             response = await client.post(
@@ -188,14 +190,10 @@ class ReadWebpageCloudflareSkill(SystemSkill):
 
         # Bill for the LLM usage
         input_tokens = (
-            response.usage_metadata.get("input_tokens", 0)
-            if response.usage_metadata
-            else 0
+            response.usage_metadata.get("input_tokens", 0) if response.usage_metadata else 0
         )
         output_tokens = (
-            response.usage_metadata.get("output_tokens", 0)
-            if response.usage_metadata
-            else 0
+            response.usage_metadata.get("output_tokens", 0) if response.usage_metadata else 0
         )
         cached_input_tokens = (
             response.usage_metadata.get("input_token_details", {}).get("cache_read", 0)
@@ -250,9 +248,7 @@ class ReadWebpageZaiSkill(SystemSkill):
 
             api_key = config.zai_plan_api_key
             if not api_key:
-                raise ToolException(
-                    "Z.AI Plan API is not configured. Set ZAI_PLAN_API_KEY."
-                )
+                raise ToolException("Z.AI Plan API is not configured. Set ZAI_PLAN_API_KEY.")
 
             raw = await call_mcp_tool(
                 _ZAI_READER_SERVER,

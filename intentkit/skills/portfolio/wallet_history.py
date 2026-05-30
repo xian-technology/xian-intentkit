@@ -106,9 +106,7 @@ class WalletHistory(PortfolioBaseTool):
             Dict containing transaction history data
         """
         context = self.get_context()
-        logger.debug(
-            f"wallet_history.py: Fetching wallet history with context {context}"
-        )
+        logger.debug(f"wallet_history.py: Fetching wallet history with context {context}")
 
         # Build query parameters
         params = {"chain": chain, "limit": limit, "order": order}
@@ -140,9 +138,7 @@ class WalletHistory(PortfolioBaseTool):
         except ToolException:
             raise
         except Exception as exc:  # noqa: BLE001
-            logger.error(
-                "wallet_history.py: Error fetching wallet history", exc_info=exc
-            )
+            logger.error("wallet_history.py: Error fetching wallet history", exc_info=exc)
             raise ToolException(
                 "An unexpected error occurred while fetching wallet history."
             ) from exc

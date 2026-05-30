@@ -104,9 +104,7 @@ async def test_morpho_vault_balance_of(w3: AsyncWeb3):
         address=w3.to_checksum_address(METAMORPHO_USDC_VAULT),
         abi=METAMORPHO_ABI,
     )
-    balance = await vault.functions.balanceOf(
-        w3.to_checksum_address(EMPTY_ADDRESS)
-    ).call()
+    balance = await vault.functions.balanceOf(w3.to_checksum_address(EMPTY_ADDRESS)).call()
     assert balance == 0
 
 

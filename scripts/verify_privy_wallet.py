@@ -104,9 +104,7 @@ async def test_wallet_creation_flow():
             return mock_response
 
         mock_client.post = mock_post
-        mock_client.get = AsyncMock(
-            return_value=MagicMock(status_code=404, json=lambda: None)
-        )
+        mock_client.get = AsyncMock(return_value=MagicMock(status_code=404, json=lambda: None))
 
         # Execute without spending limit (simpler test)
         result = await create_privy_safe_wallet(
@@ -120,10 +118,7 @@ async def test_wallet_creation_flow():
         logger.info("Result: %s", result)
 
         assert result["privy_wallet_id"] == "privy_wallet_id_123"
-        assert (
-            result["privy_wallet_address"]
-            == "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE21"
-        )
+        assert result["privy_wallet_address"] == "0x742d35Cc6634C0532925a3b844Bc9e7595f8fE21"
         assert result["provider"] == "safe"
         assert result["network_id"] == "base-mainnet"
         assert result["chain_id"] == 8453

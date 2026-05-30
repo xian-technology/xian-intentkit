@@ -92,9 +92,7 @@ class McpToolSkill(IntentKitSkill):
     async def _arun(self, **kwargs: Any) -> str:
         server_def = MCP_SERVERS.get(self.server_name)
         if not server_def:
-            raise ToolException(
-                f"MCP server '{self.server_name}' not found in registry"
-            )
+            raise ToolException(f"MCP server '{self.server_name}' not found in registry")
 
         api_key = self._resolve_api_key(server_def)
         try:
@@ -102,9 +100,7 @@ class McpToolSkill(IntentKitSkill):
         except McpToolError as e:
             raise ToolException(str(e)) from e
         except Exception as e:
-            raise ToolException(
-                f"Failed to call MCP tool '{self.mcp_tool_name}': {e}"
-            ) from e
+            raise ToolException(f"Failed to call MCP tool '{self.mcp_tool_name}': {e}") from e
 
 
 def create_mcp_skill(

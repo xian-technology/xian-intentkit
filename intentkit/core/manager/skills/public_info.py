@@ -66,9 +66,7 @@ class UpdatePublicInfoSkill(ManagerSkill):
     args_schema: ArgsSchema | None = {
         "type": "object",
         "properties": {
-            "public_info_update": resolve_schema_refs(
-                AgentPublicInfo.model_json_schema()
-            ),
+            "public_info_update": resolve_schema_refs(AgentPublicInfo.model_json_schema()),
         },
         "required": ["public_info_update"],
         "additionalProperties": False,
@@ -84,9 +82,7 @@ class UpdatePublicInfoSkill(ManagerSkill):
             raise ValueError("Missing required argument 'public_info_update'")
 
         # Ensure the agent exists and belongs to the current user
-        _ = await get_latest_public_info(
-            agent_id=context.agent_id, user_id=context.user_id
-        )
+        _ = await get_latest_public_info(agent_id=context.agent_id, user_id=context.user_id)
 
         public_info = AgentPublicInfo.model_validate(kwargs["public_info_update"])
         updated_agent = await update_public_info(

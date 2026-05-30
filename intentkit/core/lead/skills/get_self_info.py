@@ -29,9 +29,7 @@ class LeadGetSelfInfo(LeadSkill):
     """Skill to retrieve the lead agent's current configuration."""
 
     name: str = "lead_get_self_info"
-    description: str = (
-        "Get the lead agent's current name, avatar, personality, and memory."
-    )
+    description: str = "Get the lead agent's current name, avatar, personality, and memory."
     args_schema: ArgsSchema | None = NoArgsSchema
 
     @override

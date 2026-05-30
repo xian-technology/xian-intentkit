@@ -231,27 +231,19 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
             self._payment_hooks.last_payment_required_version = getattr(
                 payment_required, "x402_version", None
             )
-            payment_payload = await self._client.create_payment_payload(
-                payment_required
-            )
+            payment_payload = await self._client.create_payment_payload(payment_required)
             # Cast to Any to handle dynamic attributes like 'accepted' which might not be statically typed
             payment_payload = cast(Any, payment_payload)
 
             if hasattr(payment_payload, "accepted"):
-                self._payment_hooks.last_selected_requirements = (
-                    payment_payload.accepted
-                )
+                self._payment_hooks.last_selected_requirements = payment_payload.accepted
                 self._payment_hooks.last_paid_to = payment_payload.accepted.pay_to
             elif self._payment_hooks.last_selected_requirements is not None:
-                pay_to = getattr(
-                    self._payment_hooks.last_selected_requirements, "pay_to", None
-                )
+                pay_to = getattr(self._payment_hooks.last_selected_requirements, "pay_to", None)
                 if pay_to:
                     self._payment_hooks.last_paid_to = pay_to
 
-            payment_headers = self._http_client.encode_payment_signature_header(
-                payment_payload
-            )
+            payment_headers = self._http_client.encode_payment_signature_header(payment_payload)
 
             return await self._retry_with_payment_headers(request, payment_headers)
         except PaymentError:
@@ -323,9 +315,7 @@ class X402CompatTransport(httpx.AsyncBaseTransport):
     ) -> httpx.Response:
         new_headers = dict(request.headers)
         new_headers.update(payment_headers)
-        new_headers["Access-Control-Expose-Headers"] = (
-            "PAYMENT-RESPONSE,X-PAYMENT-RESPONSE"
-        )
+        new_headers["Access-Control-Expose-Headers"] = "PAYMENT-RESPONSE,X-PAYMENT-RESPONSE"
 
         new_extensions = dict(request.extensions)
         new_extensions[self.RETRY_KEY] = True

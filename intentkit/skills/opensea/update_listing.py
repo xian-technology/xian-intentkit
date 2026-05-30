@@ -20,18 +20,12 @@ class UpdateListingInput(BaseModel):
 
     order_hash: str = Field(description="The order hash of the listing to update")
     chain: str = Field(
-        description=(
-            "The blockchain name (e.g., 'ethereum', 'matic', 'base', 'arbitrum')"
-        )
+        description=("The blockchain name (e.g., 'ethereum', 'matic', 'base', 'arbitrum')")
     )
-    protocol_address: str = Field(
-        description="The protocol contract address (from get_listings)"
-    )
+    protocol_address: str = Field(description="The protocol contract address (from get_listings)")
     contract_address: str = Field(description="The ERC721 NFT contract address")
     token_id: str = Field(description="The token ID of the listed NFT")
-    new_price: str = Field(
-        description="New listing price in ETH (e.g., '0.5' for 0.5 ETH)"
-    )
+    new_price: str = Field(description="New listing price in ETH (e.g., '0.5' for 0.5 ETH)")
     expiration_hours: int = Field(
         default=168,
         description="New listing duration in hours (default 168 = 7 days)",
@@ -66,9 +60,7 @@ class OpenSeaUpdateListing(OpenSeaOnChainBaseTool):
     ) -> str:
         try:
             if not self.is_onchain_capable():
-                raise ToolException(
-                    "This agent does not have an on-chain wallet configured"
-                )
+                raise ToolException("This agent does not have an on-chain wallet configured")
 
             _, cancel_error = await self._post(
                 f"/orders/chain/{chain}/protocol/{protocol_address}/{order_hash}/cancel",

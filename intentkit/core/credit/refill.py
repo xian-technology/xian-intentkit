@@ -40,17 +40,14 @@ async def refill_free_credits_for_account(
         account: The credit account to refill
     """
     # Skip if refill_amount is zero or free_credits already equals or exceeds free_quota
-    if (
-        account.refill_amount <= Decimal("0")
-        or account.free_credits >= account.free_quota
-    ):
+    if account.refill_amount <= Decimal("0") or account.free_credits >= account.free_quota:
         return
 
     # Calculate the amount to add
     # If adding refill_amount would exceed free_quota, only add what's needed to reach free_quota
-    amount_to_add = min(
-        account.refill_amount, account.free_quota - account.free_credits
-    ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+    amount_to_add = min(account.refill_amount, account.free_quota - account.free_credits).quantize(
+        FOURPLACES, rounding=ROUND_HALF_UP
+    )
 
     if amount_to_add <= Decimal("0"):
         return  # Nothing to add

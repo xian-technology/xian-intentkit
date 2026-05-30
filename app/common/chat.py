@@ -41,9 +41,7 @@ class ChatMessagesResponse(BaseModel):
 
     model_config: ClassVar[ConfigDict] = ConfigDict(
         use_enum_values=True,
-        json_schema_extra={
-            "example": {"data": [], "has_more": False, "next_cursor": None}
-        },
+        json_schema_extra={"example": {"data": [], "has_more": False, "next_cursor": None}},
     )
 
 
@@ -261,9 +259,7 @@ async def _generate_chat_summary_title(agent_id: str, chat_id: str) -> str:
 async def _update_chat_summary_title(agent_id: str, chat_id: str) -> None:
     chat = await Chat.get(chat_id)
     if not chat:
-        logger.info(
-            f"Skip chat summary title update because chat was not found: {chat_id}"
-        )
+        logger.info(f"Skip chat summary title update because chat was not found: {chat_id}")
         return
     if chat.agent_id != agent_id:
         return
@@ -294,9 +290,7 @@ async def update_chat_summary_from_first_message(
 ) -> None:
     chat = await Chat.get(chat_id)
     if not chat:
-        logger.info(
-            f"Skip chat summary title update because chat was not found: {chat_id}"
-        )
+        logger.info(f"Skip chat summary title update because chat was not found: {chat_id}")
         return
     if chat.agent_id != agent_id:
         return

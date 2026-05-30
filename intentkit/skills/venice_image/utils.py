@@ -43,9 +43,7 @@ async def fetch_image_as_bytes(image_url: HttpUrl) -> bytes:
                 img = Image.open(io.BytesIO(original_bytes)).convert("RGBA")
                 with io.BytesIO() as output:
                     img.save(output, format="PNG")
-                    logger.info(
-                        f"Converted unsupported image type '{detected_ext}' to PNG."
-                    )
+                    logger.info(f"Converted unsupported image type '{detected_ext}' to PNG.")
                     return output.getvalue()
             except Exception as e:
                 msg = f"Failed to convert image ({detected_ext}) to PNG: {e}"

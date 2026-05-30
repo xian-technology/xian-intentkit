@@ -19,16 +19,10 @@ logger = logging.getLogger(__name__)
 class X402OrderBase(BaseModel):
     """Base fields for x402 order."""
 
-    agent_id: Annotated[
-        str, PydanticField(description="Agent that initiated the transaction")
-    ]
+    agent_id: Annotated[str, PydanticField(description="Agent that initiated the transaction")]
     chat_id: Annotated[str, PydanticField(description="Chat/conversation ID")]
-    user_id: Annotated[
-        str | None, PydanticField(description="User ID from context")
-    ] = None
-    task_id: Annotated[str | None, PydanticField(description="Autonomous task ID")] = (
-        None
-    )
+    user_id: Annotated[str | None, PydanticField(description="User ID from context")] = None
+    task_id: Annotated[str | None, PydanticField(description="Autonomous task ID")] = None
     skill_name: Annotated[
         str, PydanticField(description="Skill name (x402_pay, x402_http_request)")
     ]
@@ -46,19 +40,13 @@ class X402OrderBase(BaseModel):
     network: Annotated[str, PydanticField(description="Payment network")]
     pay_to: Annotated[str, PydanticField(description="Recipient address")]
     payer: Annotated[str | None, PydanticField(description="Payer address")] = None
-    payment_id: Annotated[
-        str | None, PydanticField(description="x402 payment identifier")
-    ] = None
+    payment_id: Annotated[str | None, PydanticField(description="x402 payment identifier")] = None
     tx_hash: Annotated[str | None, PydanticField(description="Transaction hash")] = None
-    status: Annotated[
-        str, PydanticField(description="Status: pending, success, failed")
-    ]
-    error: Annotated[
-        str | None, PydanticField(description="Error message if failed")
-    ] = None
-    http_status: Annotated[
-        int | None, PydanticField(description="HTTP response status code")
-    ] = None
+    status: Annotated[str, PydanticField(description="Status: pending, success, failed")]
+    error: Annotated[str | None, PydanticField(description="Error message if failed")] = None
+    http_status: Annotated[int | None, PydanticField(description="HTTP response status code")] = (
+        None
+    )
     description: Annotated[
         str | None, PydanticField(description="Payment description from x402 protocol")
     ] = None
@@ -162,12 +150,8 @@ class X402OrderTable(Base):
     user_id: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="User ID from context"
     )
-    task_id: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Autonomous task ID"
-    )
-    skill_name: Mapped[str] = mapped_column(
-        String, nullable=False, comment="Skill name"
-    )
+    task_id: Mapped[str | None] = mapped_column(String, nullable=True, comment="Autonomous task ID")
+    skill_name: Mapped[str] = mapped_column(String, nullable=False, comment="Skill name")
     method: Mapped[str] = mapped_column(String, nullable=False, comment="HTTP method")
     url: Mapped[str] = mapped_column(String, nullable=False, comment="Target URL")
     max_value: Mapped[int | None] = mapped_column(
@@ -180,27 +164,17 @@ class X402OrderTable(Base):
         String, nullable=True, comment="Exact payment amount as text"
     )
     asset: Mapped[str] = mapped_column(String, nullable=False, comment="Payment asset")
-    network: Mapped[str] = mapped_column(
-        String, nullable=False, comment="Payment network"
-    )
-    pay_to: Mapped[str] = mapped_column(
-        String, nullable=False, comment="Recipient address"
-    )
-    payer: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Payer address"
-    )
+    network: Mapped[str] = mapped_column(String, nullable=False, comment="Payment network")
+    pay_to: Mapped[str] = mapped_column(String, nullable=False, comment="Recipient address")
+    payer: Mapped[str | None] = mapped_column(String, nullable=True, comment="Payer address")
     payment_id: Mapped[str | None] = mapped_column(
         String, nullable=True, comment="x402 payment identifier"
     )
-    tx_hash: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Transaction hash"
-    )
+    tx_hash: Mapped[str | None] = mapped_column(String, nullable=True, comment="Transaction hash")
     status: Mapped[str] = mapped_column(
         String, nullable=False, index=True, comment="Status: pending, success, failed"
     )
-    error: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Error message"
-    )
+    error: Mapped[str | None] = mapped_column(String, nullable=True, comment="Error message")
     http_status: Mapped[int | None] = mapped_column(
         Integer, nullable=True, comment="HTTP response status code"
     )

@@ -125,10 +125,7 @@ async def _get_wallet_net_worth(wallet_address: str, network_id: str | None) -> 
 
     try:
         async with httpx.AsyncClient() as client:
-            url = (
-                "https://deep-index.moralis.io/api/v2.2/wallets/"
-                f"{wallet_address}/net-worth"
-            )
+            url = f"https://deep-index.moralis.io/api/v2.2/wallets/{wallet_address}/net-worth"
             headers = {
                 "accept": "application/json",
             }
@@ -212,10 +209,7 @@ async def _get_xian_net_worth(
     usd_price: Decimal | None = None
     if price_config.strategy == "fixed_usd":
         usd_price = price_config.fixed_usd
-    elif (
-        price_config.strategy == "solana_jupiter"
-        and price_config.solana_mint is not None
-    ):
+    elif price_config.strategy == "solana_jupiter" and price_config.solana_mint is not None:
         usd_price = await _get_solana_jupiter_price_usd(price_config.solana_mint)
 
     if usd_price is None:
@@ -262,15 +256,11 @@ async def build_assets_list(
     if network_id and network_id.endswith("-mainnet"):
         usdc_address = USDC_ADDRESSES.get(str(network_id))
         if usdc_address:
-            usdc_balance = await _get_token_balance(
-                web3_client, wallet_address, usdc_address
-            )
+            usdc_balance = await _get_token_balance(web3_client, wallet_address, usdc_address)
             assets.append(Asset(symbol="USDC", balance=usdc_balance))
 
     if network_id == "base-mainnet":
-        nation_balance = await _get_token_balance(
-            web3_client, wallet_address, NATION_ADDRESS
-        )
+        nation_balance = await _get_token_balance(web3_client, wallet_address, NATION_ADDRESS)
         assets.append(Asset(symbol="NATION", balance=nation_balance))
 
     if agent.ticker and agent.token_address:
@@ -333,9 +323,7 @@ async def agent_asset(agent_id: str) -> AgentAssets:
         try:
             web3_client = get_async_web3_client(str(agent.network_id))
             tokens = await build_assets_list(agent, agent_data, web3_client)
-            net_worth = await _get_wallet_net_worth(
-                str(evm_wallet_address), str(agent.network_id)
-            )
+            net_worth = await _get_wallet_net_worth(str(evm_wallet_address), str(agent.network_id))
             assets_result = AgentAssets(net_worth=net_worth, tokens=tokens)
         except IntentKitAPIError:
             raise
@@ -355,9 +343,7 @@ async def agent_asset(agent_id: str) -> AgentAssets:
     try:
         async with get_session() as session:
             await session.execute(
-                update(AgentTable)
-                .where(AgentTable.id == agent_id)
-                .values(assets=assets_payload)
+                update(AgentTable).where(AgentTable.id == agent_id).values(assets=assets_payload)
             )
             await session.commit()
     except Exception as exc:  # pragma: no cover - db persistence path only

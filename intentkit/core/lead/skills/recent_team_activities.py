@@ -15,9 +15,7 @@ class LeadRecentTeamActivities(LeadSkill):
     """Skill to retrieve the team's recent activities from all subscribed agents."""
 
     name: str = "lead_recent_team_activities"
-    description: str = (
-        "Retrieve the team's 20 most recent activities from all subscribed agents."
-    )
+    description: str = "Retrieve the team's 20 most recent activities from all subscribed agents."
     args_schema: ArgsSchema | None = NoArgsSchema
 
     @override

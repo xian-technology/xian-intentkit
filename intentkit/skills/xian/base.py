@@ -23,9 +23,7 @@ class XianBaseTool(IntentKitSkill):
     def ensure_xian_provider(self) -> None:
         agent = self.get_context().agent
         if agent.wallet_provider != "xian":
-            raise ToolException(
-                "This skill is only available when wallet_provider is 'xian'."
-            )
+            raise ToolException("This skill is only available when wallet_provider is 'xian'.")
         if not is_xian_network(agent.network_id):
             raise ToolException(
                 "This skill requires a supported Xian network_id such as "

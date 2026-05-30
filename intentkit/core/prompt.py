@@ -58,9 +58,7 @@ def build_system_skills_section(agent: Agent, context: AgentContext) -> str:
             "- recent_activities: Retrieve your recent activities to maintain context.\n"
         )
     if agent.enable_long_term_memory:
-        lines.append(
-            "- update_memory: Add or update your long-term memory with new information.\n"
-        )
+        lines.append("- update_memory: Add or update your long-term memory with new information.\n")
 
     cautions = []
     if agent.is_post_enabled:
@@ -133,9 +131,7 @@ def _build_social_accounts_section(agent: Agent, agent_data: AgentData) -> str:
             f"Your twitter id is {agent_data.twitter_id}, never reply or retweet yourself."
         )
         if agent_data.twitter_username:
-            social_parts.append(
-                f"Your twitter username is {agent_data.twitter_username}."
-            )
+            social_parts.append(f"Your twitter username is {agent_data.twitter_username}.")
         if agent_data.twitter_name:
             social_parts.append(f"Your twitter name is {agent_data.twitter_name}.")
 
@@ -150,13 +146,9 @@ def _build_social_accounts_section(agent: Agent, agent_data: AgentData) -> str:
         if agent_data.telegram_id:
             social_parts.append(f"Your telegram bot id is {agent_data.telegram_id}.")
         if agent_data.telegram_username:
-            social_parts.append(
-                f"Your telegram bot username is {agent_data.telegram_username}."
-            )
+            social_parts.append(f"Your telegram bot username is {agent_data.telegram_username}.")
         if agent_data.telegram_name:
-            social_parts.append(
-                f"Your telegram bot name is {agent_data.telegram_name}."
-            )
+            social_parts.append(f"Your telegram bot name is {agent_data.telegram_name}.")
 
     return "\n".join(social_parts) + ("\n" if social_parts else "")
 
@@ -237,9 +229,7 @@ async def _build_user_info_section(context: AgentContext) -> str:
     return ""
 
 
-def build_agent_prompt(
-    agent: Agent, agent_data: AgentData, context: AgentContext
-) -> str:
+def build_agent_prompt(agent: Agent, agent_data: AgentData, context: AgentContext) -> str:
     """
     Build the complete agent system prompt.
 
@@ -358,9 +348,7 @@ async def build_entrypoint_prompt(agent: Agent, context: AgentContext) -> str | 
         if config.tg_system_prompt:
             entrypoint_prompt = _append(entrypoint_prompt, config.tg_system_prompt)
         if agent.telegram_entrypoint_prompt:
-            entrypoint_prompt = _append(
-                entrypoint_prompt, agent.telegram_entrypoint_prompt
-            )
+            entrypoint_prompt = _append(entrypoint_prompt, agent.telegram_entrypoint_prompt)
     elif entrypoint == AuthorType.XMTP.value:
         if config.xmtp_system_prompt:
             entrypoint_prompt = _append(entrypoint_prompt, config.xmtp_system_prompt)
@@ -375,9 +363,7 @@ async def build_entrypoint_prompt(agent: Agent, context: AgentContext) -> str | 
         if config.wechat_system_prompt:
             entrypoint_prompt = _append(entrypoint_prompt, config.wechat_system_prompt)
         if agent.wechat_entrypoint_prompt:
-            entrypoint_prompt = _append(
-                entrypoint_prompt, agent.wechat_entrypoint_prompt
-            )
+            entrypoint_prompt = _append(entrypoint_prompt, agent.wechat_entrypoint_prompt)
     elif entrypoint == AuthorType.TRIGGER.value:
         entrypoint_prompt = "\n\n" + _build_autonomous_task_prompt(agent, context)
 
@@ -387,7 +373,9 @@ async def build_entrypoint_prompt(agent: Agent, context: AgentContext) -> str | 
 def build_internal_info_prompt(context: AgentContext) -> str:
     """Build internal info prompt with context information."""
     internal_info = "## Internal Info\n\n"
-    internal_info += "These are for your internal use. You can use them when querying or storing data, "
+    internal_info += (
+        "These are for your internal use. You can use them when querying or storing data, "
+    )
     internal_info += "but please do not directly share this information with users.\n\n"
     internal_info += f"chat_id: {context.chat_id}\n\n"
     if context.user_id:
@@ -400,9 +388,7 @@ def build_internal_info_prompt(context: AgentContext) -> str:
 # ============================================================================
 
 
-async def build_system_prompt(
-    agent: Agent, agent_data: AgentData, context: AgentContext
-) -> str:
+async def build_system_prompt(agent: Agent, agent_data: AgentData, context: AgentContext) -> str:
     """Construct the final system prompt for an agent run."""
 
     base_prompt = build_agent_prompt(agent, agent_data, context)
@@ -414,9 +400,7 @@ async def build_system_prompt(
 
     entrypoint_prompt = await build_entrypoint_prompt(agent, context)
     if entrypoint_prompt:
-        final_system_prompt = (
-            f"{final_system_prompt}## Entrypoint rules{entrypoint_prompt}\n\n"
-        )
+        final_system_prompt = f"{final_system_prompt}## Entrypoint rules{entrypoint_prompt}\n\n"
 
     # Skip user info section for autonomous tasks
     if context.entrypoint != AuthorType.TRIGGER.value:
@@ -429,7 +413,9 @@ async def build_system_prompt(
 
     if agent.enable_long_term_memory:
         memory_section = "## Memory\n\n"
-        memory_section += "If you want to add or update your memory, call the update_memory skill.\n\n"
+        memory_section += (
+            "If you want to add or update your memory, call the update_memory skill.\n\n"
+        )
         memory_section += "Here is your current memory:\n\n"
         if agent_data.long_term_memory:
             memory_section += agent_data.long_term_memory + "\n\n"

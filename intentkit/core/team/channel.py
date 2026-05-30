@@ -134,9 +134,7 @@ async def _require_enabled_channel_and_team(db, team_id: str, channel_type: str)
 
     Returns the TeamTable row. Raises ValueError on failure.
     """
-    channel = await db.get(
-        TeamChannelTable, {"team_id": team_id, "channel_type": channel_type}
-    )
+    channel = await db.get(TeamChannelTable, {"team_id": team_id, "channel_type": channel_type})
     if not channel:
         raise ValueError(f"Channel '{channel_type}' is not configured for this team")
     if not channel.enabled:
@@ -188,9 +186,7 @@ async def set_push_channel(team_id: str, channel_type: str, chat_id: str) -> Non
         await db.commit()
 
 
-async def set_push_channel_if_empty(
-    team_id: str, channel_type: str, chat_id: str
-) -> bool:
+async def set_push_channel_if_empty(team_id: str, channel_type: str, chat_id: str) -> bool:
     """Set the push target only if not already set. Returns True if set."""
     async with get_session() as db:
         team = await db.get(TeamTable, team_id)
@@ -201,9 +197,7 @@ async def set_push_channel_if_empty(
             return False
 
         # Verify channel exists
-        channel = await db.get(
-            TeamChannelTable, {"team_id": team_id, "channel_type": channel_type}
-        )
+        channel = await db.get(TeamChannelTable, {"team_id": team_id, "channel_type": channel_type})
         if not channel or not channel.enabled:
             return False
 

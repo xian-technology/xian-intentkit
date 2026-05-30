@@ -71,9 +71,7 @@ class WalletNetWorth(PortfolioBaseTool):
             Dict containing wallet net worth data
         """
         context = self.get_context()
-        logger.debug(
-            f"wallet_net_worth.py: Calculating wallet net worth with context {context}"
-        )
+        logger.debug(f"wallet_net_worth.py: Calculating wallet net worth with context {context}")
 
         # Get the API key from the agent's configuration
         api_key = self.get_api_key()

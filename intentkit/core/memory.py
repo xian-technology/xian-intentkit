@@ -40,8 +40,7 @@ async def update_memory(agent_id: str, new_content: str) -> str:
 
     if existing_memory:
         user_msg = (
-            f"### Existing Memory\n\n{existing_memory}\n\n"
-            f"### New Information\n\n{new_content}"
+            f"### Existing Memory\n\n{existing_memory}\n\n### New Information\n\n{new_content}"
         )
     else:
         user_msg = f"### New Information\n\n{new_content}"
@@ -63,11 +62,7 @@ async def update_memory(agent_id: str, new_content: str) -> str:
     except Exception as e:
         logger.error("LLM memory merge failed for agent %s: %s", agent_id, e)
         # Fallback: just append
-        result = (
-            f"{existing_memory}\n\n{new_content}".strip()
-            if existing_memory
-            else new_content
-        )
+        result = f"{existing_memory}\n\n{new_content}".strip() if existing_memory else new_content
 
     # Truncate to max bytes
     encoded = result.encode("utf-8")

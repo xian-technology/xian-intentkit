@@ -13,9 +13,7 @@ from .base import TwitterBaseTool
 logger = logging.getLogger(__name__)
 
 NAME = "twitter_get_user_tweets"
-PROMPT = (
-    "Get tweets from a specific user by user ID. If result_count is 0, don't retry."
-)
+PROMPT = "Get tweets from a specific user by user ID. If result_count is 0, don't retry."
 
 
 class TwitterGetUserTweetsInput(BaseModel):

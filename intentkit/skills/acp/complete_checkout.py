@@ -15,9 +15,7 @@ class AcpCompleteCheckoutInput(BaseModel):
         description="Base URL of the ACP merchant (e.g. https://merchant.example.com)"
     )
     session_id: str = Field(description="Checkout session ID.")
-    tx_hash: str = Field(
-        description="Transaction hash from the x402 payment as proof of payment."
-    )
+    tx_hash: str = Field(description="Transaction hash from the x402 payment as proof of payment.")
     timeout: float = Field(default=30.0, description="Timeout in seconds.")
 
 
@@ -47,9 +45,7 @@ class AcpCompleteCheckout(AcpBaseTool):
     ) -> str:
         validate_url(merchant_url)
         url = f"{merchant_url.rstrip('/')}/checkout_sessions/{session_id}/complete"
-        response = await acp_request(
-            "POST", url, timeout=timeout, json={"tx_hash": tx_hash}
-        )
+        response = await acp_request("POST", url, timeout=timeout, json={"tx_hash": tx_hash})
 
         data = response.json()
         total = data.get("total_amount", 0)

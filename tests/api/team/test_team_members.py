@@ -16,9 +16,7 @@ from app.team.team import (
 class TestLeaveTeam:
     @pytest.mark.asyncio
     async def test_owner_cannot_leave(self):
-        with patch(
-            "app.team.team.check_permission", new_callable=AsyncMock
-        ) as mock_check:
+        with patch("app.team.team.check_permission", new_callable=AsyncMock) as mock_check:
             mock_check.return_value = True
             with pytest.raises(IntentKitAPIError) as exc:
                 await leave_team_endpoint(auth=("user-123", "team-456"))
@@ -28,9 +26,7 @@ class TestLeaveTeam:
     @pytest.mark.asyncio
     async def test_member_can_leave(self):
         with (
-            patch(
-                "app.team.team.check_permission", new_callable=AsyncMock
-            ) as mock_check,
+            patch("app.team.team.check_permission", new_callable=AsyncMock) as mock_check,
             patch("app.team.team.remove_member", new_callable=AsyncMock) as mock_remove,
         ):
             mock_check.return_value = False

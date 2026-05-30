@@ -47,9 +47,7 @@ class JupiterBaseTool(IntentKitSkill):
         Returns:
             JSON response.
         """
-        base_url = (
-            JUPITER_QUOTE_API_URL if api_type == "quote" else JUPITER_PRICE_API_URL
-        )
+        base_url = JUPITER_QUOTE_API_URL if api_type == "quote" else JUPITER_PRICE_API_URL
         url = f"{base_url}{endpoint}"
 
         headers = {}
@@ -58,9 +56,7 @@ class JupiterBaseTool(IntentKitSkill):
 
         async with httpx.AsyncClient() as client:
             try:
-                response = await client.get(
-                    url, params=params, headers=headers, timeout=30.0
-                )
+                response = await client.get(url, params=params, headers=headers, timeout=30.0)
                 response.raise_for_status()
                 return response.json()
             except httpx.HTTPError as e:

@@ -25,9 +25,7 @@ DEFAULT_NETWORK_JSON = WORKSPACE_DIR / "xian-stack" / ".localnet" / "network.jso
 DEFAULT_DEX_BUNDLE_PATH = (
     WORKSPACE_DIR / "xian-configs" / "solution-packs" / "dex" / "contract-bundle.json"
 )
-TOKEN_FIXTURE = (
-    WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
-)
+TOKEN_FIXTURE = WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
 
 TOKEN_DEPLOY_STAMPS = 200_000
 PAIR_DEPLOY_STAMPS = 350_000
@@ -209,8 +207,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--twitter-redirect-uri",
-        default=_env("INTENTKIT_E2E_TWITTER_REDIRECT_URI")
-        or _env("INTENTKIT_E2E_APP_URL"),
+        default=_env("INTENTKIT_E2E_TWITTER_REDIRECT_URI") or _env("INTENTKIT_E2E_APP_URL"),
         help=(
             "Redirect URI used when generating the IntentKit /auth/twitter URL for "
             "linked-account mode. It must be under IntentKit APP_BASE_URL."
@@ -295,8 +292,7 @@ def load_social_config(
             if allow_missing:
                 return None
             raise LiveWorkflowError(
-                "Missing required live X env vars for self_key mode: "
-                + ", ".join(missing)
+                "Missing required live X env vars for self_key mode: " + ", ".join(missing)
             )
 
     return SocialConfig(
@@ -338,12 +334,8 @@ def render_dex_contract(*, pairs_contract: str) -> str:
 
 def render_helper_contract(*, dex_contract: str, pairs_contract: str) -> str:
     source = _read_file(_dex_source_path("helper", "con_dex_helper.py"))
-    source = source.replace(
-        'DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1
-    )
-    source = source.replace(
-        'DEX_PAIRS = "con_pairs"', f'DEX_PAIRS = "{pairs_contract}"', 1
-    )
+    source = source.replace('DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1)
+    source = source.replace('DEX_PAIRS = "con_pairs"', f'DEX_PAIRS = "{pairs_contract}"', 1)
     return source
 
 
@@ -798,9 +790,7 @@ async def wait_for_twitter_link(
         if payload.get("has_twitter_linked"):
             return payload
         await asyncio.sleep(1)
-    raise LiveWorkflowError(
-        f"Timed out waiting for a linked X account on agent {agent_id}"
-    )
+    raise LiveWorkflowError(f"Timed out waiting for a linked X account on agent {agent_id}")
 
 
 async def ensure_twitter_linked(
@@ -951,9 +941,7 @@ async def wait_for_workflow_messages(
             raise
         messages = payload.get("data", [])
         skill_names = {
-            call.get("name")
-            for message in messages
-            for call in (message.get("skill_calls") or [])
+            call.get("name") for message in messages for call in (message.get("skill_calls") or [])
         }
         if {
             "xian_dex_trade",
@@ -982,9 +970,7 @@ async def verify_agent_trade_on_chain(
         if trade_hash:
             break
     if not trade_hash:
-        raise LiveWorkflowError(
-            "Could not extract the agent trade tx hash from the skill calls"
-        )
+        raise LiveWorkflowError("Could not extract the agent trade tx hash from the skill calls")
 
     indexed_tx = await client.get_indexed_tx(trade_hash)
     if indexed_tx is None:
@@ -992,9 +978,7 @@ async def verify_agent_trade_on_chain(
     events = await client.get_events_for_tx(trade_hash)
     event_names = {f"{event.contract}:{event.event}" for event in events}
     if f"{expected_events_contract}:Swap" not in event_names:
-        raise LiveWorkflowError(
-            f"Agent trade tx {trade_hash} did not emit the expected swap event"
-        )
+        raise LiveWorkflowError(f"Agent trade tx {trade_hash} did not emit the expected swap event")
     return {
         "trade_tx_hash": trade_hash,
         "indexed_tx_hash": indexed_tx.tx_hash,
@@ -1021,9 +1005,7 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
     )
     founder_wallet = Wallet(private_key=network.founder_private_key)
 
-    async with aiohttp.ClientSession(
-        timeout=aiohttp.ClientTimeout(total=30)
-    ) as session:
+    async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
         founder_client = XianAsync(
             network.rpc_url,
             chain_id=network.chain_id,
@@ -1060,11 +1042,7 @@ async def run_live_trade_social_workflow(args: argparse.Namespace) -> dict[str, 
         effective_twitter_auth_mode = (
             social.twitter_auth_mode
             if social is not None
-            else (
-                "linked_account"
-                if agent.get("has_twitter_linked")
-                else "existing_agent"
-            )
+            else ("linked_account" if agent.get("has_twitter_linked") else "existing_agent")
         )
         if effective_twitter_auth_mode == "linked_account" and social is not None:
             twitter_link = await ensure_twitter_linked(

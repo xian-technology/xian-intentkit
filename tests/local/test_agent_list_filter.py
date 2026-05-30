@@ -47,9 +47,7 @@ async def test_get_agents_filters_by_system_team(system_agent):
     mock_response.id = "system-agent-1"
 
     with (
-        patch.object(
-            agent_module, "render_agent", new_callable=AsyncMock
-        ) as mock_render,
+        patch.object(agent_module, "render_agent", new_callable=AsyncMock) as mock_render,
         patch(
             "app.local.agent.AgentResponse.from_agent", new_callable=AsyncMock
         ) as mock_from_agent,

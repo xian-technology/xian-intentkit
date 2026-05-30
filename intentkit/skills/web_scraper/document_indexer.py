@@ -62,9 +62,7 @@ class DocumentIndexer(WebScraperBaseTool):
     """
 
     name: str = "web_scraper_document_indexer"
-    description: str = (
-        "Index document content into the vector database for later querying."
-    )
+    description: str = "Index document content into the vector database for later querying."
     price: Decimal = Decimal("200")
     args_schema: ArgsSchema | None = DocumentIndexerInput
 

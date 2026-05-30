@@ -46,9 +46,7 @@ class AcpCreateCheckout(AcpBaseTool):
     ) -> str:
         validate_url(merchant_url)
         url = f"{merchant_url.rstrip('/')}/checkout_sessions"
-        response = await acp_request(
-            "POST", url, timeout=timeout, json={"items": items}
-        )
+        response = await acp_request("POST", url, timeout=timeout, json={"items": items})
 
         data = response.json()
         session_id = data["id"]

@@ -19,9 +19,7 @@ from intentkit.config.config import config
 from intentkit.config.db import get_session, init_db
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -167,9 +165,7 @@ async def update_account_credits(
     )
 
 
-async def process_single_account(
-    account_id: str, dry_run: bool = False
-) -> tuple[bool, bool]:
+async def process_single_account(account_id: str, dry_run: bool = False) -> tuple[bool, bool]:
     """Process a single account in its own session.
 
     Args:
@@ -300,9 +296,7 @@ async def main(dry_run: bool = False) -> None:
             else:
                 mismatch_count += 1
                 if not dry_run:
-                    logger.error(
-                        "Stopping migration due to mismatch. Please investigate."
-                    )
+                    logger.error("Stopping migration due to mismatch. Please investigate.")
                     break
         except Exception as e:
             logger.error(f"Failed to process account {account_id}: {e}")
@@ -325,9 +319,7 @@ async def main(dry_run: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Fix credit account balances from transactions"
-    )
+    parser = argparse.ArgumentParser(description="Fix credit account balances from transactions")
     parser.add_argument(
         "--dry-run",
         action="store_true",

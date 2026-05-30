@@ -76,9 +76,7 @@ async def _send_wechat(
         "X-WECHAT-UIN": _generate_wechat_uin(),
     }
     async with httpx.AsyncClient(timeout=40) as client:
-        resp = await client.post(
-            f"{baseurl}/ilink/bot/sendmessage", json=body, headers=headers
-        )
+        resp = await client.post(f"{baseurl}/ilink/bot/sendmessage", json=body, headers=headers)
         resp.raise_for_status()
         data = resp.json()
         logger.debug("iLink sendmessage response: %s", data)
@@ -106,9 +104,7 @@ async def push_to_team(team_id: str, text: str) -> bool:
         # Load channel credentials
         channel = await TeamChannel.get(team_id, channel_type)
         if not channel or not channel.enabled or not channel.config:
-            logger.warning(
-                "Push channel %s not available for team %s", channel_type, team_id
-            )
+            logger.warning("Push channel %s not available for team %s", channel_type, team_id)
             return False
 
         # Send via channel using typed config models
@@ -172,9 +168,7 @@ async def push_to_team(team_id: str, text: str) -> bool:
                 thread_type=thread_type,
             )
         except Exception:
-            logger.warning(
-                "Failed to record push message for team %s", team_id, exc_info=True
-            )
+            logger.warning("Failed to record push message for team %s", team_id, exc_info=True)
 
         logger.info("Pushed message to team %s via %s", team_id, channel_type)
         return True

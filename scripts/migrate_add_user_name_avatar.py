@@ -12,9 +12,7 @@ from sqlalchemy import text
 
 from intentkit.config.db import get_session, init_db
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 
@@ -23,13 +21,9 @@ async def migrate():
 
     async with get_session() as db:
         # Add name column
-        await db.execute(
-            text("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR NULL")
-        )
+        await db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS name VARCHAR NULL"))
         # Add avatar column
-        await db.execute(
-            text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR NULL")
-        )
+        await db.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar VARCHAR NULL"))
         await db.commit()
         logger.info("Successfully added 'name' and 'avatar' columns to users table.")
 

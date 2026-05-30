@@ -39,15 +39,11 @@ async def create_backup_table(session: AsyncSession) -> None:
     exists = await session.scalar(check_query, {"table_name": backup_table_name})
 
     if exists:
-        logger.info(
-            f"Backup table {backup_table_name} already exists, skipping creation"
-        )
+        logger.info(f"Backup table {backup_table_name} already exists, skipping creation")
         return
 
     # Create backup table
-    backup_query = text(
-        f"CREATE TABLE {backup_table_name} AS SELECT * FROM credit_accounts"
-    )
+    backup_query = text(f"CREATE TABLE {backup_table_name} AS SELECT * FROM credit_accounts")
     await session.execute(backup_query)
     await session.commit()
     logger.info(f"Created backup table: {backup_table_name}")
@@ -144,9 +140,7 @@ async def update_account_statistics(
             WHERE id = :account_id
         """)
 
-        result = await session.execute(
-            update_query, {"account_id": account_id, **statistics}
-        )
+        result = await session.execute(update_query, {"account_id": account_id, **statistics})
 
         if result.rowcount == 0:
             logger.error(f"No account found with ID: {account_id}")
@@ -172,9 +166,7 @@ async def process_single_account(account_id: str) -> bool:
     async with get_session() as session:
         try:
             # Calculate statistics from transactions (with table locks)
-            statistics = await calculate_statistics_from_transactions(
-                session, account_id
-            )
+            statistics = await calculate_statistics_from_transactions(session, account_id)
 
             # Update account with calculated statistics
             success = await update_account_statistics(session, account_id, statistics)
@@ -254,9 +246,7 @@ async def main():
             if i % 100 == 0:
                 logger.info(f"Progress: {i}/{len(account_ids)} accounts processed")
 
-        logger.info(
-            f"Migration complete: {success_count} successful, {failure_count} failed"
-        )
+        logger.info(f"Migration complete: {success_count} successful, {failure_count} failed")
 
         if failure_count > 0:
             logger.warning("Some accounts failed to migrate. Check logs for details.")

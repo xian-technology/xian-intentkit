@@ -166,9 +166,7 @@ class CreditEventConsistencyChecker:
         # Check 2: Fee amounts consistency
         # Platform fee breakdown
         calculated_platform_fee = (
-            fee_platform_free_amount
-            + fee_platform_reward_amount
-            + fee_platform_permanent_amount
+            fee_platform_free_amount + fee_platform_reward_amount + fee_platform_permanent_amount
         )
         if abs(fee_platform_amount - calculated_platform_fee) > TOLERANCE:
             errors.append(
@@ -178,9 +176,7 @@ class CreditEventConsistencyChecker:
             self.fee_breakdown_errors += 1
 
         # Dev fee breakdown
-        calculated_dev_fee = (
-            fee_dev_free_amount + fee_dev_reward_amount + fee_dev_permanent_amount
-        )
+        calculated_dev_fee = fee_dev_free_amount + fee_dev_reward_amount + fee_dev_permanent_amount
         if abs(fee_dev_amount - calculated_dev_fee) > TOLERANCE:
             errors.append(
                 f"Dev fee breakdown mismatch: fee_dev_amount={fee_dev_amount}, "
@@ -200,9 +196,7 @@ class CreditEventConsistencyChecker:
             self.fee_breakdown_errors += 1
 
         # Check 3: Base amount consistency
-        calculated_base_amount = (
-            base_free_amount + base_reward_amount + base_permanent_amount
-        )
+        calculated_base_amount = base_free_amount + base_reward_amount + base_permanent_amount
         if abs(base_amount - calculated_base_amount) > TOLERANCE:
             errors.append(
                 f"Base amount breakdown mismatch: base_amount={base_amount}, "
@@ -225,10 +219,7 @@ class CreditEventConsistencyChecker:
         # Check 5: Credit type consistency between base amounts and total amounts
         # Base free amount should be consistent with free amount minus fees
         expected_base_free = (
-            free_amount
-            - fee_platform_free_amount
-            - fee_dev_free_amount
-            - fee_agent_free_amount
+            free_amount - fee_platform_free_amount - fee_dev_free_amount - fee_agent_free_amount
         )
         if abs(base_free_amount - expected_base_free) > TOLERANCE:
             errors.append(
@@ -281,9 +272,7 @@ class CreditEventConsistencyChecker:
                 "total_amount": str(total_amount),
                 "error_type": error_type,
                 "errors": errors,
-                "created_at": event.created_at.isoformat()
-                if event.created_at
-                else None,
+                "created_at": event.created_at.isoformat() if event.created_at else None,
             }
             self.inconsistent_records.append(inconsistent_record)
 
@@ -308,18 +297,14 @@ class CreditEventConsistencyChecker:
 
         if self.total_inconsistencies > 0:
             consistency_rate = (
-                (self.total_checked - self.total_inconsistencies)
-                / self.total_checked
-                * 100
+                (self.total_checked - self.total_inconsistencies) / self.total_checked * 100
             )
             logger.info(f"Consistency rate: {consistency_rate:.2f}%")
 
             # Log some example inconsistencies
             logger.info("\nExample inconsistencies:")
             for i, record in enumerate(self.inconsistent_records[:5]):
-                logger.info(
-                    f"  {i + 1}. Event {record['id']} ({record['error_type']}):"
-                )
+                logger.info(f"  {i + 1}. Event {record['id']} ({record['error_type']}):")
                 for error in record["errors"][:2]:  # Show first 2 errors per record
                     logger.info(f"     - {error}")
                 if len(record["errors"]) > 2:

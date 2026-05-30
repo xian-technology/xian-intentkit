@@ -59,9 +59,7 @@ class VeniceAudioTool(VeniceAudioBaseTool):
                 return error_info
 
             if not api_key:
-                message = (
-                    f"Venice AI API key configuration missing for skill '{self.name}'."
-                )
+                message = f"Venice AI API key configuration missing for skill '{self.name}'."
                 details = f"API key not found for category '{self.category}'. Please configure it."
                 logger.error(message)
                 return {
@@ -74,9 +72,7 @@ class VeniceAudioTool(VeniceAudioBaseTool):
                 }
 
             if not voice_model:
-                message = (
-                    f"Instance of {self.name} was created without a 'voice_model'."
-                )
+                message = f"Instance of {self.name} was created without a 'voice_model'."
                 details = "Voice model must be specified for this tool instance."
                 logger.error(message)
                 return {
@@ -119,19 +115,13 @@ class VeniceAudioTool(VeniceAudioBaseTool):
                     f"Venice Audio API Response: Voice='{voice_model}', Format='{final_response_format}', Status={response.status_code}"
                 )
 
-                content_type_header = str(
-                    response.headers.get("content-type", "")
-                ).lower()
+                content_type_header = str(response.headers.get("content-type", "")).lower()
 
                 # --- Handle API Success or Error from Response Body ---
-                if response.status_code == 200 and content_type_header.startswith(
-                    "audio/"
-                ):
+                if response.status_code == 200 and content_type_header.startswith("audio/"):
                     audio_bytes = response.content
                     if not audio_bytes:
-                        message = (
-                            "API returned success status but response body was empty."
-                        )
+                        message = "API returned success status but response body was empty."
                         logger.warning(
                             f"Venice Audio API (Voice: {voice_model}) returned 200 OK but empty audio content."
                         )
@@ -218,7 +208,9 @@ class VeniceAudioTool(VeniceAudioBaseTool):
                     except json.JSONDecodeError:
                         pass  # Keep raw text if JSON parsing fails
 
-                    message = "Venice Audio API returned a non-success status or unexpected content type."
+                    message = (
+                        "Venice Audio API returned a non-success status or unexpected content type."
+                    )
                     logger.error(
                         f"Venice Audio API Error: Voice='{voice_model}', Format='{final_response_format}', Status={response.status_code}, Details: {error_details}"
                     )
@@ -234,10 +226,12 @@ class VeniceAudioTool(VeniceAudioBaseTool):
 
         except Exception as e:
             # Global exception handling for any uncaught error
-            error_type = type(
-                e
-            ).__name__  # Gets the class name of the exception (e.g., 'TimeoutException', 'ToolException')
-            message = f"An unexpected error occurred during audio generation for voice {voice_model}."
+            error_type = (
+                type(e).__name__
+            )  # Gets the class name of the exception (e.g., 'TimeoutException', 'ToolException')
+            message = (
+                f"An unexpected error occurred during audio generation for voice {voice_model}."
+            )
             details = str(e)  # The string representation of the exception
 
             # Log the error with full traceback for debugging

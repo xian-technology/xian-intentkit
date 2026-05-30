@@ -15,9 +15,7 @@ from intentkit.models.llm import LLMProvider, calculate_search_cost
 class TestCountWebSearchesOpenAI:
     def test_single_web_search_call(self):
         msg = SimpleNamespace(
-            additional_kwargs={
-                "tool_outputs": [{"type": "web_search_call", "id": "ws_1"}]
-            },
+            additional_kwargs={"tool_outputs": [{"type": "web_search_call", "id": "ws_1"}]},
             response_metadata={},
         )
         assert count_web_searches(msg, LLMProvider.OPENAI) == 1
@@ -54,9 +52,7 @@ class TestCountWebSearchesOpenAI:
 class TestCountWebSearchesGoogle:
     def test_grounding_metadata_snake_case(self):
         msg = SimpleNamespace(
-            additional_kwargs={
-                "grounding_metadata": {"web_search_queries": ["query1", "query2"]}
-            },
+            additional_kwargs={"grounding_metadata": {"web_search_queries": ["query1", "query2"]}},
             response_metadata={},
         )
         assert count_web_searches(msg, LLMProvider.GOOGLE) == 2
@@ -71,9 +67,7 @@ class TestCountWebSearchesGoogle:
     def test_grounding_in_response_metadata(self):
         msg = SimpleNamespace(
             additional_kwargs={},
-            response_metadata={
-                "grounding_metadata": {"web_search_queries": ["q1", "q2", "q3"]}
-            },
+            response_metadata={"grounding_metadata": {"web_search_queries": ["q1", "q2", "q3"]}},
         )
         assert count_web_searches(msg, LLMProvider.GOOGLE) == 3
 
@@ -107,9 +101,7 @@ class TestCountWebSearchesXAI:
     def test_combined_search_counts(self):
         msg = SimpleNamespace(
             additional_kwargs={},
-            response_metadata={
-                "server_side_tool_usage": {"web_search": 2, "x_search": 1}
-            },
+            response_metadata={"server_side_tool_usage": {"web_search": 2, "x_search": 1}},
         )
         assert count_web_searches(msg, LLMProvider.XAI) == 3
 

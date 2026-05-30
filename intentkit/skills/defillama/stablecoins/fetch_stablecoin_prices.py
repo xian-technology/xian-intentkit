@@ -21,9 +21,7 @@ class PriceDataPoint(BaseModel):
 class FetchStablecoinPricesResponse(BaseModel):
     """Response schema for stablecoin prices data."""
 
-    data: list[PriceDataPoint] = Field(
-        default_factory=list, description="Price data points"
-    )
+    data: list[PriceDataPoint] = Field(default_factory=list, description="Price data points")
     error: str | None = Field(default=None, description="Error message")
 
 

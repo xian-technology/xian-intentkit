@@ -85,15 +85,11 @@ class SlackGetMessage(SlackBaseTool):
                 if response["ok"]:
                     messages = response.get("messages") or []
                     return {
-                        "messages": [
-                            self._format_message(msg, channel_id) for msg in messages
-                        ],
+                        "messages": [self._format_message(msg, channel_id) for msg in messages],
                         "has_more": response.get("has_more", False),
                     }
                 else:
-                    raise ToolException(
-                        f"Error getting thread messages: {response.get('error')}"
-                    )
+                    raise ToolException(f"Error getting thread messages: {response.get('error')}")
 
             # Get channel history
             else:
@@ -101,15 +97,11 @@ class SlackGetMessage(SlackBaseTool):
                 if response["ok"]:
                     messages = response.get("messages") or []
                     return {
-                        "messages": [
-                            self._format_message(msg, channel_id) for msg in messages
-                        ],
+                        "messages": [self._format_message(msg, channel_id) for msg in messages],
                         "has_more": response.get("has_more", False),
                     }
                 else:
-                    raise ToolException(
-                        f"Error getting channel messages: {response.get('error')}"
-                    )
+                    raise ToolException(f"Error getting channel messages: {response.get('error')}")
 
         except Exception as e:
             raise ToolException(f"Error getting messages: {str(e)}")

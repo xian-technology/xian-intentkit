@@ -9,9 +9,7 @@ from pydantic import BaseModel, Field
 from intentkit.skills.defillama.api import fetch_dex_summary
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_DEX_SUMMARY_PROMPT = (
-    """Fetch summary data for a specific DEX protocol via DefiLlama."""
-)
+FETCH_DEX_SUMMARY_PROMPT = """Fetch summary data for a specific DEX protocol via DefiLlama."""
 
 
 class FetchDexSummaryInput(BaseModel):
@@ -58,9 +56,7 @@ class FetchDexSummaryResponse(BaseModel):
     total7d: float | None = Field(None, description="7d volume")
     totalAllTime: float | None = Field(None, description="All-time volume")
     totalDataChart: list[Any] = Field(default_factory=list, description="Chart data")
-    totalDataChartBreakdown: list[Any] = Field(
-        default_factory=list, description="Chart breakdown"
-    )
+    totalDataChartBreakdown: list[Any] = Field(default_factory=list, description="Chart breakdown")
     change_1d: float | None = Field(None, description="1d change %")
     error: str | None = Field(default=None, description="Error message")
 

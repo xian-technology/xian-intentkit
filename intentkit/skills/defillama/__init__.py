@@ -253,17 +253,13 @@ def get_defillama_skill(
         if name not in _cache:
             _cache[name] = DefiLlamaFetchDexSummary()
         return _cache[name]
-    elif (
-        name == "fetch_options_overview"
-    ):  # Handles both base and chain-specific overviews
+    elif name == "fetch_options_overview":  # Handles both base and chain-specific overviews
         if name not in _cache:
             _cache[name] = DefiLlamaFetchOptionsOverview()
         return _cache[name]
 
     # Fees Skills
-    elif (
-        name == "fetch_fees_overview"
-    ):  # Handles both base and chain-specific overviews
+    elif name == "fetch_fees_overview":  # Handles both base and chain-specific overviews
         if name not in _cache:
             _cache[name] = DefiLlamaFetchFeesOverview()
         return _cache[name]

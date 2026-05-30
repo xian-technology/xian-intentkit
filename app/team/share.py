@@ -64,22 +64,16 @@ async def create_team_share_link(
     if payload.target_type == ShareLinkTargetType.POST:
         post = await get_agent_post(payload.target_id)
         if post is None:
-            raise IntentKitAPIError(
-                status_code=404, key="NotFound", message="Post not found"
-            )
+            raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
         await get_accessible_agent(post.agent_id, team_id)
         agent_id = post.agent_id
     else:
         chat = await Chat.get(payload.target_id)
         if chat is None:
-            raise IntentKitAPIError(
-                status_code=404, key="NotFound", message="Chat not found"
-            )
+            raise IntentKitAPIError(status_code=404, key="NotFound", message="Chat not found")
         await get_accessible_agent(chat.agent_id, team_id)
         if not await check_permission(team_id, chat.user_id, TeamRole.MEMBER):
-            raise IntentKitAPIError(
-                status_code=404, key="NotFound", message="Chat not found"
-            )
+            raise IntentKitAPIError(status_code=404, key="NotFound", message="Chat not found")
         agent_id = chat.agent_id
 
     link = await create_share_link(

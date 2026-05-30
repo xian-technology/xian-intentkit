@@ -136,9 +136,7 @@ async def create_user_server_wallet(
             },
         )
         _ = await partial_wallet_data.save()
-        logger.info(
-            f"Created Privy wallet {existing_privy_wallet_id} for user {user_id}"
-        )
+        logger.info(f"Created Privy wallet {existing_privy_wallet_id} for user {user_id}")
 
     # Assertions to ensure wallet data exists (for type checker)
     assert existing_privy_wallet_id is not None
@@ -197,9 +195,7 @@ async def create_user_server_wallet(
     )
     _ = await user_update.patch(user_id)
 
-    logger.info(
-        f"Created {mode} server wallet for user {user_id}: {server_wallet_address}"
-    )
+    logger.info(f"Created {mode} server wallet for user {user_id}: {server_wallet_address}")
 
     return wallet_data
 

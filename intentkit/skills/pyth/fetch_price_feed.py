@@ -28,7 +28,9 @@ class PythFetchPriceFeed(PythBaseTool):
     """
 
     name: str = "pyth_fetch_price_feed"
-    description: str = "Look up a Pyth price feed ID by asset symbol. Supports crypto, equities, FX, and metals."
+    description: str = (
+        "Look up a Pyth price feed ID by asset symbol. Supports crypto, equities, FX, and metals."
+    )
     args_schema: ArgsSchema | None = FetchPriceFeedInput
 
     async def _arun(
@@ -77,8 +79,7 @@ class PythFetchPriceFeed(PythBaseTool):
                     for item in data
                     if (
                         item["attributes"]["base"].lower() == token_symbol.lower()
-                        and item["attributes"]["quote_currency"].lower()
-                        == quote_currency.lower()
+                        and item["attributes"]["quote_currency"].lower() == quote_currency.lower()
                     )
                 ]
 

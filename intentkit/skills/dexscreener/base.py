@@ -49,16 +49,12 @@ class DexScreenerBaseTool(IntentKitSkill):
         headers = {"Accept": "application/json"}
         method = "GET"
 
-        logger.debug(
-            "Calling DexScreener API: %s %s with params: %s", method, url, params
-        )
+        logger.debug("Calling DexScreener API: %s %s with params: %s", method, url, params)
         response = None  # Define response outside try block for access in except
 
         try:
             async with httpx.AsyncClient() as client:
-                response = await client.request(
-                    method, url, params=params, headers=headers
-                )
+                response = await client.request(method, url, params=params, headers=headers)
 
                 # Attempt to parse JSON response text
                 try:
@@ -80,9 +76,7 @@ class DexScreenerBaseTool(IntentKitSkill):
 
                 # Check HTTP status *after* attempting JSON parse
                 if response.is_success:  # 2xx
-                    logger.debug(
-                        f"DexScreener API success response status: {response.status_code}"
-                    )
+                    logger.debug(f"DexScreener API success response status: {response.status_code}")
                     return response_data, None  # Success
                 else:  # 4xx/5xx
                     logger.warning(
@@ -98,9 +92,7 @@ class DexScreenerBaseTool(IntentKitSkill):
                     return None, error_details  # Return API error
 
         except httpx.RequestError as req_err:
-            logger.error(
-                f"Request error connecting to DexScreener API: {req_err}", exc_info=True
-            )
+            logger.error(f"Request error connecting to DexScreener API: {req_err}", exc_info=True)
             error_details = {
                 "error": "Failed to connect to DexScreener API",
                 "error_type": "connection_error",
@@ -111,9 +103,7 @@ class DexScreenerBaseTool(IntentKitSkill):
 
         except Exception as e:
             # Catch any other unexpected errors during the process
-            logger.exception(
-                f"An unexpected error occurred during DexScreener API GET call: {e}"
-            )
+            logger.exception(f"An unexpected error occurred during DexScreener API GET call: {e}")
             status_code = response.status_code if response else None
             error_details = {
                 "error": "An unexpected error occurred during API call",

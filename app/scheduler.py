@@ -121,9 +121,7 @@ if __name__ == "__main__":
             scheduler.start()
 
             # Wait for shutdown event
-            logger.info(
-                "Scheduler process running. Press Ctrl+C or send SIGTERM to exit."
-            )
+            logger.info("Scheduler process running. Press Ctrl+C or send SIGTERM to exit.")
             _ = await shutdown_event.wait()
             logger.info("Received shutdown signal. Shutting down gracefully...")
         except Exception as e:

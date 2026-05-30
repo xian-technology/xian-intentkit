@@ -84,9 +84,7 @@ class MorphoWithdrawCollateral(MorphoBaseTool):
             tx_hash = await wallet.send_transaction(to=checksum_morpho, data=call_data)
             receipt = await wallet.wait_for_receipt(tx_hash)
             if receipt.get("status", 0) != 1:
-                raise ToolException(
-                    f"Withdraw collateral transaction failed. Hash: {tx_hash}"
-                )
+                raise ToolException(f"Withdraw collateral transaction failed. Hash: {tx_hash}")
 
             return (
                 f"**Morpho Blue Withdraw Collateral**\n"

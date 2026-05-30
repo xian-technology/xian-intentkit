@@ -22,15 +22,9 @@ class AgentStatistics(BaseModel):
     balance: Decimal = Field(description="Current credit account balance")
     total_income: Decimal = Field(description="Total income across all events")
     net_income: Decimal = Field(description="Net income from fee allocations")
-    permanent_income: Decimal = Field(
-        description="Total permanent income across all events"
-    )
-    permanent_profit: Decimal = Field(
-        description="Permanent profit allocated to the agent"
-    )
-    last_24h_income: Decimal = Field(
-        description="Income generated during the last 24 hours"
-    )
+    permanent_income: Decimal = Field(description="Total permanent income across all events")
+    permanent_profit: Decimal = Field(description="Permanent profit allocated to the agent")
+    last_24h_income: Decimal = Field(description="Income generated during the last 24 hours")
     last_24h_permanent_income: Decimal = Field(
         description="Permanent income generated during the last 24 hours"
     )
@@ -70,32 +64,22 @@ async def get_agent_statistics(
         end_time = end_time.astimezone(UTC)
 
     async def _compute(session: AsyncSession) -> AgentStatistics:
-        account = await CreditAccount.get_or_create_in_session(
-            session, OwnerType.AGENT, agent_id
-        )
+        account = await CreditAccount.get_or_create_in_session(session, OwnerType.AGENT, agent_id)
         balance = account.free_credits + account.reward_credits + account.credits
 
         totals_stmt = select(
             func.sum(CreditEventTable.total_amount).label("total_income"),
             func.sum(CreditEventTable.fee_agent_amount).label("net_income"),
             func.sum(CreditEventTable.permanent_amount).label("permanent_income"),
-            func.sum(CreditEventTable.fee_agent_permanent_amount).label(
-                "permanent_profit"
-            ),
+            func.sum(CreditEventTable.fee_agent_permanent_amount).label("permanent_profit"),
         ).where(CreditEventTable.agent_id == agent_id)
         totals_result = await session.execute(totals_stmt)
         totals_row = totals_result.first()
 
         total_income = (
-            totals_row.total_income
-            if totals_row and totals_row.total_income
-            else Decimal("0")
+            totals_row.total_income if totals_row and totals_row.total_income else Decimal("0")
         )
-        net_income = (
-            totals_row.net_income
-            if totals_row and totals_row.net_income
-            else Decimal("0")
-        )
+        net_income = totals_row.net_income if totals_row and totals_row.net_income else Decimal("0")
         permanent_income = (
             totals_row.permanent_income
             if totals_row and totals_row.permanent_income
@@ -110,9 +94,7 @@ async def get_agent_statistics(
         window_start = end_time - timedelta(hours=24)
         window_stmt = select(
             func.sum(CreditEventTable.total_amount).label("last_24h_income"),
-            func.sum(CreditEventTable.permanent_amount).label(
-                "last_24h_permanent_income"
-            ),
+            func.sum(CreditEventTable.permanent_amount).label("last_24h_permanent_income"),
         ).where(
             CreditEventTable.agent_id == agent_id,
             CreditEventTable.created_at >= window_start,

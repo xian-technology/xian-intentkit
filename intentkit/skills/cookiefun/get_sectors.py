@@ -20,9 +20,7 @@ class GetSectors(CookieFunBaseTool):
     """Tool to get all available sectors from the CookieFun API."""
 
     name: str = "cookiefun_get_sectors"
-    description: str = (
-        "Returns a list of all available sectors in the CookieFun system."
-    )
+    description: str = "Returns a list of all available sectors in the CookieFun system."
     price: Decimal = Decimal("70")
     args_schema: ArgsSchema | None = GetSectorsInput
 
@@ -48,9 +46,7 @@ class GetSectors(CookieFunBaseTool):
 
             async with httpx.AsyncClient() as client:
                 response = await client.get(ENDPOINTS["sectors"], headers=headers)
-                logger.debug(
-                    "Received response with status code: %d", response.status_code
-                )
+                logger.debug("Received response with status code: %d", response.status_code)
 
                 response.raise_for_status()
                 data = response.json()
@@ -67,23 +63,15 @@ class GetSectors(CookieFunBaseTool):
                     sectors = data["ok"]["sectors"]
                     logger.info("Successfully retrieved %d sectors", len(sectors))
                     return sectors
-                elif (
-                    data.get("success")
-                    and "ok" in data
-                    and isinstance(data["ok"], list)
-                ):
+                elif data.get("success") and "ok" in data and isinstance(data["ok"], list):
                     # If "ok" is directly a list
                     sectors = data["ok"]
-                    logger.info(
-                        "Successfully retrieved %d sectors from ok list", len(sectors)
-                    )
+                    logger.info("Successfully retrieved %d sectors from ok list", len(sectors))
                     return sectors
                 elif data.get("success") and isinstance(data.get("sectors"), list):
                     # If sectors is at the top level
                     sectors = data["sectors"]
-                    logger.info(
-                        "Successfully retrieved %d sectors from top level", len(sectors)
-                    )
+                    logger.info("Successfully retrieved %d sectors from top level", len(sectors))
                     return sectors
                 elif data.get("success") and isinstance(data.get("entries"), list):
                     # If entries is at the top level
@@ -115,9 +103,7 @@ class GetSectors(CookieFunBaseTool):
                         "Could not find sectors in response structure. Full response: %s",
                         data,
                     )
-                    error_msg = data.get(
-                        "error", "Unknown error - check API response format"
-                    )
+                    error_msg = data.get("error", "Unknown error - check API response format")
                     logger.error("Error in API response: %s", error_msg)
                     raise ToolException(f"Error fetching sectors: {error_msg}")
         except ToolException:

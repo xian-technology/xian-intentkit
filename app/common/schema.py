@@ -184,8 +184,8 @@ async def get_agent_schema(db: AsyncSession = Depends(get_db)) -> JSONResponse:
             # Filter out individually unavailable skills from states
             states = simplified.get("properties", {}).get("states")
             if states:
-                simplified["properties"]["states"] = (
-                    _filter_unavailable_skills_from_schema(module, category, states)
+                simplified["properties"]["states"] = _filter_unavailable_skills_from_schema(
+                    module, category, states
                 )
 
             filtered_skills[category] = simplified
@@ -232,7 +232,7 @@ async def get_skill_schema(
     try:
         with open(normalized_path) as f:
             schema = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
+    except FileNotFoundError, json.JSONDecodeError:
         raise IntentKitAPIError(404, "NotFound", "Skill schema not found")
 
     return JSONResponse(content=schema, media_type="application/json")

@@ -67,8 +67,6 @@ def available() -> bool:
         ]
     )
     # Or Privy credentials
-    has_privy = bool(system_config.privy_app_id) and bool(
-        system_config.privy_app_secret
-    )
+    has_privy = bool(system_config.privy_app_id) and bool(system_config.privy_app_secret)
 
     return has_cdp or has_privy

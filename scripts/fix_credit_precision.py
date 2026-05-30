@@ -46,9 +46,7 @@ async def fix_credit_precision():
     fixed_count = 0
     async with get_session() as session:
         # Find all message events
-        stmt = select(CreditEventTable).where(
-            CreditEventTable.event_type == EventType.MESSAGE
-        )
+        stmt = select(CreditEventTable).where(CreditEventTable.event_type == EventType.MESSAGE)
         result = await session.execute(stmt)
         events = result.scalars().all()
 
@@ -61,9 +59,9 @@ async def fix_credit_precision():
             fee_agent_amount = event.fee_agent_amount or Decimal("0")
 
             # Calculate the correct total with 4 decimal places
-            correct_total = (
-                base_amount + fee_platform_amount + fee_agent_amount
-            ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+            correct_total = (base_amount + fee_platform_amount + fee_agent_amount).quantize(
+                FOURPLACES, rounding=ROUND_HALF_UP
+            )
 
             # Check if there's a discrepancy
             if event.total_amount != correct_total:
@@ -115,13 +113,13 @@ async def fix_credit_precision():
                             FOURPLACES, rounding=ROUND_HALF_UP
                         )
                     elif event.credit_type == CreditType.FREE:
-                        account.free_credits = (
-                            account.free_credits - difference
-                        ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                        account.free_credits = (account.free_credits - difference).quantize(
+                            FOURPLACES, rounding=ROUND_HALF_UP
+                        )
                     elif event.credit_type == CreditType.REWARD:
-                        account.reward_credits = (
-                            account.reward_credits - difference
-                        ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
+                        account.reward_credits = (account.reward_credits - difference).quantize(
+                            FOURPLACES, rounding=ROUND_HALF_UP
+                        )
 
                     logger.info(
                         f"Updated account {account.id} balance: "

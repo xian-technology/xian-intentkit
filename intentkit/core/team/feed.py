@@ -25,9 +25,7 @@ PUBLIC_TEAM_ID = "public"
 async def _resolve_target_teams(session: AsyncSession, agent_id: str) -> list[str]:
     """Get all teams that should receive fan-out for an agent's content."""
     result = await session.execute(
-        select(TeamSubscriptionTable.team_id).where(
-            TeamSubscriptionTable.agent_id == agent_id
-        )
+        select(TeamSubscriptionTable.team_id).where(TeamSubscriptionTable.agent_id == agent_id)
     )
     team_ids = list(result.scalars().all())
 
@@ -44,9 +42,7 @@ async def _resolve_target_teams(session: AsyncSession, agent_id: str) -> list[st
     return team_ids
 
 
-async def fan_out_activity(
-    activity_id: str, agent_id: str, created_at: datetime
-) -> list[str]:
+async def fan_out_activity(activity_id: str, agent_id: str, created_at: datetime) -> list[str]:
     """Fan out an activity to subscribed teams. Returns the list of target team IDs."""
     async with get_session() as session:
         team_ids = await _resolve_target_teams(session, agent_id)
@@ -106,9 +102,7 @@ async def query_activity_feed(
     team_id: str, limit: int = 20, cursor: str | None = None
 ) -> tuple[list[AgentActivity], str | None]:
     async with get_session() as session:
-        query = select(TeamActivityFeedTable).where(
-            TeamActivityFeedTable.team_id == team_id
-        )
+        query = select(TeamActivityFeedTable).where(TeamActivityFeedTable.team_id == team_id)
 
         if cursor:
             cursor_dt, cursor_id = _parse_cursor(cursor)
@@ -140,8 +134,7 @@ async def query_activity_feed(
             select(AgentActivityTable).where(AgentActivityTable.id.in_(activity_ids))
         )
         activity_map = {
-            row.id: AgentActivity.model_validate(row)
-            for row in activity_result.scalars().all()
+            row.id: AgentActivity.model_validate(row) for row in activity_result.scalars().all()
         }
 
         items = [activity_map[aid] for aid in activity_ids if aid in activity_map]
@@ -189,10 +182,7 @@ async def query_post_feed(
         post_result = await session.execute(
             select(AgentPostTable).where(AgentPostTable.id.in_(post_ids))
         )
-        post_map = {
-            row.id: AgentPostBrief.from_table(row)
-            for row in post_result.scalars().all()
-        }
+        post_map = {row.id: AgentPostBrief.from_table(row) for row in post_result.scalars().all()}
 
         items = [post_map[pid] for pid in post_ids if pid in post_map]
 

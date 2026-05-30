@@ -15,13 +15,9 @@ from intentkit.models.team import Team
 class UpdateSelfInput(BaseModel):
     """Input model for lead_update_self skill."""
 
-    name: str | None = Field(
-        default=None, description="New display name (max 50 chars)"
-    )
+    name: str | None = Field(default=None, description="New display name (max 50 chars)")
     avatar: str | None = Field(default=None, description="New avatar URL")
-    personality: str | None = Field(
-        default=None, description="New personality description"
-    )
+    personality: str | None = Field(default=None, description="New personality description")
 
 
 class UpdateSelfOutput(BaseModel):

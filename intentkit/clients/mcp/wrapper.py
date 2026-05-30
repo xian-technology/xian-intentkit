@@ -97,9 +97,7 @@ class McpCategoryModule:
 
         # Use per-agent API key for discovery if system key is not set
         agent_api_key = config.get("api_key")
-        result = await _get_mcp_tools_and_skills(
-            self._server_def, api_key_override=agent_api_key
-        )
+        result = await _get_mcp_tools_and_skills(self._server_def, api_key_override=agent_api_key)
         skills = result[1]
         return [s for name, s in skills.items() if name in available_skills]
 

@@ -76,32 +76,20 @@ class GrokVideoBase(VideoBaseTool):
                     status = poll_data.get("status")
                     if status == "done":
                         video_obj = poll_data.get("video", {})
-                        video_url = (
-                            video_obj.get("url")
-                            if isinstance(video_obj, dict)
-                            else None
-                        )
+                        video_url = video_obj.get("url") if isinstance(video_obj, dict) else None
                         if not video_url:
-                            raise ToolException(
-                                "No video.url in completed xAI response"
-                            )
+                            raise ToolException("No video.url in completed xAI response")
                         # Download the video
-                        video_resp = await client.get(
-                            video_url, follow_redirects=True, timeout=120
-                        )
+                        video_resp = await client.get(video_url, follow_redirects=True, timeout=120)
                         video_resp.raise_for_status()
                         if len(video_resp.content) > MAX_VIDEO_SIZE:
-                            raise ToolException(
-                                f"Video too large: {len(video_resp.content)} bytes"
-                            )
+                            raise ToolException(f"Video too large: {len(video_resp.content)} bytes")
                         return video_resp.content
                     elif status == "failed":
                         error = poll_data.get("error", "Unknown error")
                         raise ToolException(f"xAI video generation failed: {error}")
 
-                raise ToolException(
-                    f"xAI video generation timed out after {MAX_POLL_TIME} seconds"
-                )
+                raise ToolException(f"xAI video generation timed out after {MAX_POLL_TIME} seconds")
         except ToolException:
             raise
         except httpx.HTTPStatusError:

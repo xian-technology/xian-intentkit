@@ -11,9 +11,7 @@ from web3 import AsyncWeb3
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Configure logging
-logging.basicConfig(
-    level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.ERROR, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
 # Constants

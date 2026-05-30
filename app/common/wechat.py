@@ -43,14 +43,10 @@ async def fetch_wechat_qrcode() -> WechatQrCodeResponse:
         params={"bot_type": "3"},
     )
     if resp.status_code != 200:
-        raise IntentKitAPIError(
-            502, "WechatApiError", f"iLink API returned {resp.status_code}"
-        )
+        raise IntentKitAPIError(502, "WechatApiError", f"iLink API returned {resp.status_code}")
     data = resp.json()
     if "qrcode" not in data:
-        raise IntentKitAPIError(
-            502, "WechatApiError", "iLink API did not return qrcode"
-        )
+        raise IntentKitAPIError(502, "WechatApiError", "iLink API did not return qrcode")
     return WechatQrCodeResponse(
         qrcode=data["qrcode"],
         qrcode_img_content=data.get("qrcode_img_content", ""),
@@ -67,9 +63,7 @@ async def poll_wechat_qrcode(qrcode: str) -> WechatQrStatusResponse:
     except httpx.ReadTimeout:
         return WechatQrStatusResponse(status="pending")
     if resp.status_code != 200:
-        raise IntentKitAPIError(
-            502, "WechatApiError", f"iLink API returned {resp.status_code}"
-        )
+        raise IntentKitAPIError(502, "WechatApiError", f"iLink API returned {resp.status_code}")
     data = resp.json()
     return WechatQrStatusResponse(
         status=data.get("status", "pending"),

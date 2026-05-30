@@ -46,9 +46,7 @@ async def recharge(
         Updated team credit account
     """
     # Check for idempotency - prevent duplicate transactions
-    await CreditEvent.check_upstream_tx_id_exists(
-        session, UpstreamType.API, upstream_tx_id
-    )
+    await CreditEvent.check_upstream_tx_id_exists(session, UpstreamType.API, upstream_tx_id)
 
     if amount <= Decimal("0"):
         raise ValueError("Recharge amount must be positive")
@@ -61,9 +59,7 @@ async def recharge(
         session=session,
         owner_type=OwnerType.TEAM,
         owner_id=team_id,
-        amount_details={
-            CreditType.PERMANENT: amount
-        },  # Recharge adds to permanent credits
+        amount_details={CreditType.PERMANENT: amount},  # Recharge adds to permanent credits
         event_id=event_id,
     )
 

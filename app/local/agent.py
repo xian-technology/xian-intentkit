@@ -278,9 +278,7 @@ async def get_agent(
     """
     agent = await get_agent_by_id_or_slug(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Agent not found")
 
     # Get agent data
     agent_data = await AgentData.get(agent.id)
@@ -317,9 +315,7 @@ async def get_agent_editable(
     """
     agent = await get_agent_by_id_or_slug(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Agent not found")
 
     editable_agent = AgentUpdate.model_validate(agent)
     return Response(
@@ -350,9 +346,7 @@ async def export_agent(
     """
     agent = await get_agent_by_id(agent_id)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Agent not found")
     # Ensure agent.skills is initialized
     if agent.skills is None:
         agent.skills = {}
@@ -381,9 +375,7 @@ async def export_agent(
                 if hasattr(skill_module, "SkillStates") and hasattr(
                     skill_module.SkillStates, "__annotations__"
                 ):
-                    available_skills = list(
-                        skill_module.SkillStates.__annotations__.keys()
-                    )
+                    available_skills = list(skill_module.SkillStates.__annotations__.keys())
                 # Add missing skills with disabled state
                 for skill_name in available_skills:
                     if skill_name not in category_config["states"]:
@@ -403,9 +395,7 @@ async def export_agent(
                     if hasattr(base, "__annotations__"):
                         for field_name, field_type in base.__annotations__.items():
                             # Skip fields already set or marked as NotRequired
-                            if field_name in category_config or "NotRequired" in str(
-                                field_type
-                            ):
+                            if field_name in category_config or "NotRequired" in str(field_type):
                                 continue
                             # Add default value based on type
                             if field_name != "states":  # states already handled above
@@ -417,18 +407,14 @@ async def export_agent(
                                     category_config[field_name] = 0
                                 elif "float" in str(field_type):
                                     category_config[field_name] = 0.0
-                                elif "list" in str(field_type) or "List" in str(
-                                    field_type
-                                ):
+                                elif "list" in str(field_type) or "List" in str(field_type):
                                     category_config[field_name] = []
-                                elif "dict" in str(field_type) or "Dict" in str(
-                                    field_type
-                                ):
+                                elif "dict" in str(field_type) or "Dict" in str(field_type):
                                     category_config[field_name] = {}
 
                 # Update the agent's skills config
                 agent.skills[category] = category_config
-        except (ImportError, AttributeError):
+        except ImportError, AttributeError:
             # Skip if module import fails or doesn't have required components
             pass
     yaml_content = agent.to_yaml()
@@ -447,9 +433,7 @@ async def export_agent(
 )
 async def import_agent(
     agent_id: str = Path(...),
-    file: UploadFile = File(
-        ..., description="YAML file containing agent configuration"
-    ),
+    file: UploadFile = File(..., description="YAML file containing agent configuration"),
 ) -> str:
     """Import agent configuration from YAML file.
     Only updates existing agents, will not create new ones.
@@ -472,9 +456,7 @@ async def import_agent(
     # First check if agent exists
     existing_agent = await get_agent_by_id(agent_id)
     if not existing_agent:
-        raise IntentKitAPIError(
-            status_code=404, key="NotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NotFound", message="Agent not found")
 
     # Read and parse YAML
     content = await file.read()

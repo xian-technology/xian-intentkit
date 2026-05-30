@@ -74,20 +74,14 @@ class EnsoGetNetworks(EnsoBaseTool):
                 for item in json_dict:
                     network = ConnectedNetwork(**item)
                     networks.append(network)
-                    networks_memory[str(network.id)] = network.model_dump(
-                        exclude_none=True
-                    )
+                    networks_memory[str(network.id)] = network.model_dump(exclude_none=True)
 
                 await self.save_agent_skill_data("networks", networks_memory)
 
                 return EnsoGetNetworksOutput(res=networks)
             except httpx.RequestError as req_err:
-                raise ToolException(
-                    f"request error from Enso API: {req_err}"
-                ) from req_err
+                raise ToolException(f"request error from Enso API: {req_err}") from req_err
             except httpx.HTTPStatusError as http_err:
-                raise ToolException(
-                    f"http error from Enso API: {http_err}"
-                ) from http_err
+                raise ToolException(f"http error from Enso API: {http_err}") from http_err
             except Exception as e:
                 raise ToolException(f"error from Enso API: {e}") from e

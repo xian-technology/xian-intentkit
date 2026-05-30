@@ -40,9 +40,7 @@ class GetAccountFeedInput(BaseModel):
     userId: str | None = Field(default=None, description="Twitter user ID")
     startDate: str | None = Field(default=None, description="Start date (dd/mm/yyyy)")
     endDate: str | None = Field(default=None, description="End date (dd/mm/yyyy)")
-    type: int | None = Field(
-        default=None, description="Tweet type: 0=Original, 1=Reply, 2=Quote"
-    )
+    type: int | None = Field(default=None, description="Tweet type: 0=Original, 1=Reply, 2=Quote")
     hasMedia: bool | None = Field(default=None, description="Filter tweets with media")
     sortBy: int | None = Field(default=None, description="0=CreatedDate, 1=Impressions")
     sortOrder: int | None = Field(default=None, description="0=Ascending, 1=Descending")
@@ -52,9 +50,7 @@ class GetAccountFeed(CookieFunBaseTool):
     """Tool to get the feed (tweets) of a Twitter account."""
 
     name: str = "cookiefun_get_account_feed"
-    description: str = (
-        "Get tweets for a Twitter account with filtering and sorting options."
-    )
+    description: str = "Get tweets for a Twitter account with filtering and sorting options."
     price: Decimal = Decimal("70")
     args_schema: ArgsSchema | None = GetAccountFeedInput
 
@@ -137,9 +133,7 @@ class GetAccountFeed(CookieFunBaseTool):
                 response = await client.post(
                     ENDPOINTS["account_feed"], headers=headers, json=payload
                 )
-                logger.debug(
-                    "Received response with status code: %d", response.status_code
-                )
+                logger.debug("Received response with status code: %d", response.status_code)
 
                 response.raise_for_status()
                 data = response.json()
@@ -158,25 +152,15 @@ class GetAccountFeed(CookieFunBaseTool):
                     return tweets
                 elif data.get("success") and "ok" in data and "posts" in data["ok"]:
                     tweets = data["ok"]["posts"]
-                    logger.info(
-                        "Successfully retrieved %d tweets from posts field", len(tweets)
-                    )
+                    logger.info("Successfully retrieved %d tweets from posts field", len(tweets))
                     return tweets
                 elif data.get("success") and "ok" in data and "feed" in data["ok"]:
                     tweets = data["ok"]["feed"]
-                    logger.info(
-                        "Successfully retrieved %d tweets from feed field", len(tweets)
-                    )
+                    logger.info("Successfully retrieved %d tweets from feed field", len(tweets))
                     return tweets
-                elif (
-                    data.get("success")
-                    and "ok" in data
-                    and isinstance(data["ok"], list)
-                ):
+                elif data.get("success") and "ok" in data and isinstance(data["ok"], list):
                     tweets = data["ok"]
-                    logger.info(
-                        "Successfully retrieved %d tweets from ok list", len(tweets)
-                    )
+                    logger.info("Successfully retrieved %d tweets from ok list", len(tweets))
                     return tweets
                 elif data.get("success") and isinstance(data.get("tweets"), list):
                     tweets = data["tweets"]
@@ -240,9 +224,7 @@ class GetAccountFeed(CookieFunBaseTool):
                         "Could not find tweets in response structure. Full response: %s",
                         data,
                     )
-                    error_msg = data.get(
-                        "error", "Unknown error - check API response format"
-                    )
+                    error_msg = data.get("error", "Unknown error - check API response format")
                     logger.error("Error in API response: %s", error_msg)
                     raise ToolException(f"Error fetching account feed: {error_msg}")
         except ToolException:

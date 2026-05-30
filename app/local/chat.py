@@ -116,9 +116,7 @@ async def create_chat_thread(
     )
     _ = await chat.save()
     if request and should_summarize_first_message(request.first_message):
-        await update_chat_summary_from_first_message(
-            aid, chat.id, request.first_message or ""
-        )
+        await update_chat_summary_from_first_message(aid, chat.id, request.first_message or "")
     # Retrieve the full Chat object with auto-generated fields
     full_chat = await Chat.get(chat.id)
     return full_chat
@@ -146,9 +144,7 @@ async def update_chat_thread(
 
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != aid:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     # Update the summary field
     updated_chat = await chat.update_summary(request.summary)
@@ -176,9 +172,7 @@ async def delete_chat_thread(
 
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != aid:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     await chat.delete()
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -202,9 +196,7 @@ async def list_messages(
     chat_id: str = Path(..., description="Chat ID"),
     db: AsyncSession = Depends(get_db),
     cursor: str | None = Query(None, description="Cursor for pagination (message id)"),
-    limit: int = Query(
-        20, ge=1, le=100, description="Maximum number of messages to return"
-    ),
+    limit: int = Query(20, ge=1, le=100, description="Maximum number of messages to return"),
 ) -> ChatMessagesResponse:
     """Get the message history for a chat thread with cursor-based pagination."""
     agent = await get_agent(aid)
@@ -215,9 +207,7 @@ async def list_messages(
 
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != aid:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     stmt = (
         select(ChatMessageTable)
@@ -231,9 +221,7 @@ async def list_messages(
     messages = result.all()
     has_more = len(messages) > limit
     messages_to_return = messages[:limit]
-    next_cursor = (
-        str(messages_to_return[-1].id) if has_more and messages_to_return else None
-    )
+    next_cursor = str(messages_to_return[-1].id) if has_more and messages_to_return else None
     # Return as ChatMessagesResponse object
     return ChatMessagesResponse(
         data=[ChatMessage.model_validate(m) for m in messages_to_return],
@@ -273,13 +261,9 @@ async def send_message(
     # Verify that the chat exists
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != aid:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
-    should_schedule_summary = await should_schedule_chat_summary(
-        aid, chat_id, AuthorType.WEB
-    )
+    should_schedule_summary = await should_schedule_chat_summary(aid, chat_id, AuthorType.WEB)
 
     # Update summary if it's empty
     if not chat.summary:
@@ -385,9 +369,7 @@ async def retry_message(
     # Verify that the chat exists
     chat = await Chat.get(chat_id)
     if not chat or chat.agent_id != aid:
-        raise IntentKitAPIError(
-            status_code=404, key="ChatNotFound", message="Chat not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="ChatNotFound", message="Chat not found")
 
     last = await db.scalar(
         select(ChatMessageTable)
@@ -397,9 +379,7 @@ async def retry_message(
     )
 
     if not last:
-        raise IntentKitAPIError(
-            status_code=404, key="NoMessagesFound", message="No messages found"
-        )
+        raise IntentKitAPIError(status_code=404, key="NoMessagesFound", message="No messages found")
 
     last_message = ChatMessage.model_validate(last)
 
@@ -517,9 +497,7 @@ async def get_skill_history(
     # Get agent and check if exists
     agent = await get_agent(aid)
     if not agent:
-        raise IntentKitAPIError(
-            status_code=404, key="AgentNotFound", message="Agent not found"
-        )
+        raise IntentKitAPIError(status_code=404, key="AgentNotFound", message="Agent not found")
 
     # Get skill messages (last 50 in DESC order)
     result = await db.scalars(

@@ -559,9 +559,7 @@ async def test_read_webpage_cloudflare_missing_config():
     with patch("intentkit.config.config.config") as mock_config:
         mock_config.cloudflare_account_id = None
         mock_config.cloudflare_api_token = None
-        with pytest.raises(
-            ToolException, match="Cloudflare Browser Rendering is not configured"
-        ):
+        with pytest.raises(ToolException, match="Cloudflare Browser Rendering is not configured"):
             await skill._arun("https://example.com")  # pyright: ignore[reportPrivateUsage]
 
 
@@ -571,12 +569,8 @@ async def test_read_webpage_cloudflare_success():
     skill = ReadWebpageCloudflareSkill()
     with (
         patch("intentkit.config.config.config") as mock_config,
-        patch.object(
-            skill, "_fetch_markdown", new=AsyncMock(return_value="raw markdown")
-        ),
-        patch.object(
-            skill, "_clean_with_llm", new=AsyncMock(return_value="cleaned markdown")
-        ),
+        patch.object(skill, "_fetch_markdown", new=AsyncMock(return_value="raw markdown")),
+        patch.object(skill, "_clean_with_llm", new=AsyncMock(return_value="cleaned markdown")),
     ):
         mock_config.cloudflare_account_id = "test_id"
         mock_config.cloudflare_api_token = "test_token"

@@ -380,9 +380,7 @@ class SafeWalletProvider(WalletProvider):
         """
         try:
             if self.chain_config is None:
-                return TransactionResult(
-                    success=False, error="Chain config not initialized"
-                )
+                return TransactionResult(success=False, error="Chain config not initialized")
             target_chain_id = chain_id or self.chain_config.chain_id
             rpc_url = self._get_rpc_url_for_chain(target_chain_id)
 
@@ -431,9 +429,7 @@ class SafeWalletProvider(WalletProvider):
                 )
 
                 # c. Sign Hash with Privy (Owner)
-                signature = await self.privy_client.sign_hash(
-                    self.privy_wallet_id, safe_tx_hash
-                )
+                signature = await self.privy_client.sign_hash(self.privy_wallet_id, safe_tx_hash)
                 sig_bytes = bytes.fromhex(
                     signature[2:] if signature.startswith("0x") else signature
                 )
@@ -641,9 +637,7 @@ class SafeWalletProvider(WalletProvider):
             allowance_module = chain_config.allowance_module_address
 
             # Get current allowance nonce
-            nonce = await self.get_allowance_nonce(
-                rpc_url, allowance_module, token_address
-            )
+            nonce = await self.get_allowance_nonce(rpc_url, allowance_module, token_address)
 
             # Generate transfer hash
             transfer_hash = await self.generate_transfer_hash(
@@ -656,9 +650,7 @@ class SafeWalletProvider(WalletProvider):
             )
 
             # Sign the hash with Privy
-            signature = await self.privy_client.sign_hash(
-                self.privy_wallet_id, transfer_hash
-            )
+            signature = await self.privy_client.sign_hash(self.privy_wallet_id, transfer_hash)
 
             # Execute the allowance transfer
             exec_data = self.encode_execute_allowance_transfer(
@@ -691,9 +683,7 @@ class SafeWalletProvider(WalletProvider):
         rpc_url = self._get_rpc_url_for_chain(target_chain_id)
 
         if not rpc_url:
-            raise IntentKitAPIError(
-                500, "ConfigError", f"No RPC URL for chain {target_chain_id}"
-            )
+            raise IntentKitAPIError(500, "ConfigError", f"No RPC URL for chain {target_chain_id}")
 
         async with httpx.AsyncClient() as client:
             response = await client.post(
@@ -725,9 +715,7 @@ class SafeWalletProvider(WalletProvider):
         rpc_url = self._get_rpc_url_for_chain(target_chain_id)
 
         if not rpc_url:
-            raise IntentKitAPIError(
-                500, "ConfigError", f"No RPC URL for chain {target_chain_id}"
-            )
+            raise IntentKitAPIError(500, "ConfigError", f"No RPC URL for chain {target_chain_id}")
 
         # Encode balanceOf call
         balance_selector = keccak(text="balanceOf(address)")[:4]
@@ -945,9 +933,7 @@ class SafeWalletProvider(WalletProvider):
             text="executeAllowanceTransfer(address,address,address,uint96,address,uint96,address,bytes)"
         )[:4]
 
-        sig_bytes = bytes.fromhex(
-            signature[2:] if signature.startswith("0x") else signature
-        )
+        sig_bytes = bytes.fromhex(signature[2:] if signature.startswith("0x") else signature)
 
         exec_data = encode(
             [
@@ -1096,9 +1082,7 @@ async def deploy_safe_with_allowance(
                 + f"configured for network {network_id}"
             )
         else:
-            logger.info(
-                f"Setting weekly spending limit: {weekly_spending_limit_usdc} USDC"
-            )
+            logger.info(f"Setting weekly spending limit: {weekly_spending_limit_usdc} USDC")
             limit_result = await set_safe_token_spending_limit(
                 privy_client=privy_client,
                 privy_wallet_id=privy_wallet_id,
@@ -1113,12 +1097,8 @@ async def deploy_safe_with_allowance(
                 nonce=current_nonce,
             )
             result["tx_hashes"].extend(limit_result["tx_hashes"])
-            result["allowance_module_enabled"] = limit_result[
-                "allowance_module_enabled"
-            ]
-            result["spending_limit_configured"] = limit_result[
-                "spending_limit_configured"
-            ]
+            result["allowance_module_enabled"] = limit_result["allowance_module_enabled"]
+            result["spending_limit_configured"] = limit_result["spending_limit_configured"]
             current_nonce = limit_result["next_nonce"]
 
     return result
@@ -1202,9 +1182,7 @@ async def deploy_safe(
 
             # Estimate gas
             try:
-                estimated_gas = await w3.eth.estimate_gas(
-                    cast(TxParams, cast(object, tx))
-                )
+                estimated_gas = await w3.eth.estimate_gas(cast(TxParams, cast(object, tx)))
                 tx["gas"] = int(estimated_gas * 1.2)  # Add 20% buffer
                 logger.debug("Estimated gas for Safe deployment: %s", estimated_gas)
             except Exception as e:
@@ -1393,9 +1371,7 @@ def get_safe_tx_hash(
         The EIP-712 hash to sign
     """
     # Domain separator
-    domain_type_hash = keccak(
-        text="EIP712Domain(uint256 chainId,address verifyingContract)"
-    )
+    domain_type_hash = keccak(text="EIP712Domain(uint256 chainId,address verifyingContract)")
     domain_separator = keccak(
         domain_type_hash
         + encode(["uint256", "address"], [chain_id, to_checksum_address(safe_address)])
@@ -1549,15 +1525,11 @@ async def send_transaction_with_master_wallet(
             }
 
             try:
-                estimated_gas = await w3.eth.estimate_gas(
-                    cast(TxParams, cast(object, tx))
-                )
+                estimated_gas = await w3.eth.estimate_gas(cast(TxParams, cast(object, tx)))
                 # Add 20% buffer, but don't exceed block gas limit blindly
                 tx["gas"] = int(estimated_gas * 1.2)
             except Exception as e:
-                logger.warning(
-                    "Gas estimation failed, using default %s: %s", gas_limit, e
-                )
+                logger.warning("Gas estimation failed, using default %s: %s", gas_limit, e)
 
             signed_tx = master_account.sign_transaction(tx)
             tx_hash = await w3.eth.send_raw_transaction(signed_tx.raw_transaction)
@@ -1634,12 +1606,8 @@ async def send_safe_transaction_with_master_wallet(
     # Event signatures:
     # - ExecutionSuccess(bytes32,uint256): 0x442e715f...
     # - ExecutionFailure(bytes32,uint256): 0x23428b18...
-    execution_success_topic = (
-        "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e"
-    )
-    execution_failure_topic = (
-        "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
-    )
+    execution_success_topic = "0x442e715f626346e8c54381002da614f62bee8d27386535b2521ec8540898556e"
+    execution_failure_topic = "0x23428b18acfb3ea64b08dc0c1d296ea9c09702c09083ca5272e64d115b687d23"
 
     execution_success = False
     execution_failed = False
@@ -1803,9 +1771,7 @@ async def set_spending_limit(
     add_delegate_data = add_delegate_selector + encode(["address"], [delegate_address])
 
     # Then, set allowance: setAllowance(address delegate, address token, uint96 allowanceAmount, uint16 resetTimeMin, uint32 resetBaseMin)
-    set_allowance_selector = keccak(
-        text="setAllowance(address,address,uint96,uint16,uint32)"
-    )[:4]
+    set_allowance_selector = keccak(text="setAllowance(address,address,uint96,uint16,uint32)")[:4]
     set_allowance_data = set_allowance_selector + encode(
         ["address", "address", "uint96", "uint16", "uint32"],
         [
@@ -2018,9 +1984,7 @@ async def set_safe_token_spending_limit(
     )
 
     tx_hashes: list[dict[str, str]] = []
-    current_nonce = (
-        nonce if nonce is not None else await get_safe_nonce(safe_checksum, rpc_url)
-    )
+    current_nonce = nonce if nonce is not None else await get_safe_nonce(safe_checksum, rpc_url)
 
     if allowance_amount > 0 and not module_enabled:
         logger.info("Enabling Allowance Module")
@@ -2230,9 +2194,7 @@ async def execute_allowance_transfer_gasless(
     )
 
     # Get nonce
-    nonce = await safe_provider.get_allowance_nonce(
-        rpc_url, allowance_module, token_address
-    )
+    nonce = await safe_provider.get_allowance_nonce(rpc_url, allowance_module, token_address)
 
     # Generate hash
     transfer_hash = await safe_provider.generate_transfer_hash(
@@ -2329,9 +2291,7 @@ async def transfer_erc20_gasless(
                     f"Fetched Privy wallet address {effective_wallet_address} for ID {privy_wallet_id}"
                 )
             except Exception as e:
-                logger.warning(
-                    f"Failed to fetch wallet address for {privy_wallet_id}: {e}"
-                )
+                logger.warning(f"Failed to fetch wallet address for {privy_wallet_id}: {e}")
 
         if effective_wallet_address:
             logger.info("Allowance Module enabled, using allowance transfer (gasless)")
@@ -2434,9 +2394,7 @@ async def create_privy_safe_wallet(
     # 1. Get or create Privy Wallet (EOA that will own the Safe)
     # Recovery mode: use existing wallet if provided (avoids creating duplicate wallets)
     if existing_privy_wallet_id and existing_privy_wallet_address:
-        logger.info(
-            f"Recovery mode: using existing Privy wallet {existing_privy_wallet_id}"
-        )
+        logger.info(f"Recovery mode: using existing Privy wallet {existing_privy_wallet_id}")
         privy_wallet_id = existing_privy_wallet_id
         privy_wallet_address = existing_privy_wallet_address
     else:

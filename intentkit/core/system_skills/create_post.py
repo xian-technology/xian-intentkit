@@ -28,13 +28,9 @@ class CreatePostInput(BaseModel):
         max_length=60,
         pattern="^[a-zA-Z0-9-]+$",
     )
-    excerpt: str = Field(
-        ..., description="Short summary, max 200 chars", max_length=200
-    )
+    excerpt: str = Field(..., description="Short summary, max 200 chars", max_length=200)
     tags: list[str] = Field(..., description="Tags, max 3", max_length=3)
-    cover: str | None = Field(
-        default=None, description="Cover image URL", max_length=1000
-    )
+    cover: str | None = Field(default=None, description="Cover image URL", max_length=1000)
 
 
 class CreatePostSkill(SystemSkill):
@@ -45,9 +41,7 @@ class CreatePostSkill(SystemSkill):
     """
 
     name: str = "create_post"
-    description: str = (
-        "Create a post with title, markdown body, and optional cover image."
-    )
+    description: str = "Create a post with title, markdown body, and optional cover image."
     args_schema: ArgsSchema | None = CreatePostInput
     response_format: Literal["content", "content_and_artifact"] = "content_and_artifact"
 

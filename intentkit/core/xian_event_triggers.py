@@ -169,9 +169,7 @@ def _payload_decimal(payload: dict[str, Any], field_name: str) -> Decimal:
     try:
         return Decimal(str(raw))
     except (InvalidOperation, ValueError, TypeError) as exc:
-        raise ValueError(
-            f"payload field '{field_name}' is not numeric: {raw!r}"
-        ) from exc
+        raise ValueError(f"payload field '{field_name}' is not numeric: {raw!r}") from exc
 
 
 def _compute_dex_price_metrics(
@@ -182,9 +180,7 @@ def _compute_dex_price_metrics(
 ) -> tuple[str, Decimal, dict[str, Any]]:
     pair_value = payload.get(trigger.pair_field)
     if pair_value is None:
-        raise ValueError(
-            f"missing payload field '{trigger.pair_field}' for dex price trigger"
-        )
+        raise ValueError(f"missing payload field '{trigger.pair_field}' for dex price trigger")
     reserve0 = _payload_decimal(payload, trigger.reserve0_field)
     reserve1 = _payload_decimal(payload, trigger.reserve1_field)
     if reserve0 <= 0 or reserve1 <= 0:
@@ -224,9 +220,7 @@ class XianEventTriggerService:
     ) -> None:
         self.redis = redis_client
         self.batch_limit = (
-            batch_limit
-            if batch_limit is not None
-            else config.xian_event_trigger_batch_limit
+            batch_limit if batch_limit is not None else config.xian_event_trigger_batch_limit
         )
         self.poll_interval_seconds = (
             poll_interval_seconds
@@ -348,9 +342,7 @@ class XianEventTriggerService:
             return
         active = self._task_drains.get(runtime_id)
         if active is None or active.done():
-            self._task_drains[runtime_id] = asyncio.create_task(
-                self._drain_task(runtime_id)
-            )
+            self._task_drains[runtime_id] = asyncio.create_task(self._drain_task(runtime_id))
             return
         self._task_pending.add(runtime_id)
 
@@ -360,9 +352,7 @@ class XianEventTriggerService:
         contract: str,
         event: str,
     ) -> None:
-        for runtime_id in self._tasks_by_source.get(
-            (network_id, contract, event), set()
-        ):
+        for runtime_id in self._tasks_by_source.get((network_id, contract, event), set()):
             await self.request_sync(runtime_id)
 
     async def request_sync_all(self) -> None:
@@ -445,9 +435,7 @@ class XianEventTriggerService:
         latest_matching: IndexedEvent | None = None
         for item in latest:
             if event_matches_trigger(task, item):
-                if latest_matching is None or (item.id or 0) > (
-                    latest_matching.id or 0
-                ):
+                if latest_matching is None or (item.id or 0) > (latest_matching.id or 0):
                     latest_matching = item
         if latest_matching is not None:
             await self._update_dex_baseline_from_event(task, latest_matching)
@@ -545,7 +533,7 @@ class XianEventTriggerService:
             return True
         try:
             last_run = float(raw)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return True
         return (time.time() - last_run) >= cooldown
 
@@ -556,7 +544,7 @@ class XianEventTriggerService:
             raw = await self.redis.get(task.cursor_key)
         try:
             return int(raw or 0)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             return 0
 
     async def _process_event(

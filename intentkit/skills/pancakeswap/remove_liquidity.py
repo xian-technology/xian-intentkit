@@ -99,9 +99,7 @@ class PancakeSwapRemoveLiquidity(PancakeSwapBaseTool):
                     if user_info[6].lower() == wallet_address.lower():
                         was_staked = True
                         # Withdraw from MasterChef (also harvests CAKE)
-                        withdraw_data = mc.encode_abi(
-                            "withdraw", [token_id, wallet_address]
-                        )
+                        withdraw_data = mc.encode_abi("withdraw", [token_id, wallet_address])
                         tx_hash = await wallet.send_transaction(
                             to=checksum_mc,
                             data=withdraw_data,
@@ -210,8 +208,6 @@ class PancakeSwapRemoveLiquidity(PancakeSwapBaseTool):
         if staked_data and "token_ids" in staked_data:
             token_ids = [tid for tid in staked_data["token_ids"] if tid != token_id]
             if token_ids:
-                await self.save_agent_skill_data(
-                    "staked_token_ids", {"token_ids": token_ids}
-                )
+                await self.save_agent_skill_data("staked_token_ids", {"token_ids": token_ids})
             else:
                 await self.delete_agent_skill_data("staked_token_ids")

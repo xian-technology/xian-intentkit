@@ -59,9 +59,7 @@ class CDPGetWalletDetails(CDPBaseTool):
                 "optimism-mainnet": {"symbol": "ETH", "display": "Optimism Mainnet"},
                 "bnb-mainnet": {"symbol": "BNB", "display": "BNB Chain"},
             }
-            info = network_info.get(
-                network_id, {"symbol": "ETH", "display": network_id}
-            )
+            info = network_info.get(network_id, {"symbol": "ETH", "display": network_id})
             native_symbol = info["symbol"]
             network_display = info["display"]
 

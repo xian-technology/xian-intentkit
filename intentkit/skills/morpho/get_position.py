@@ -78,9 +78,7 @@ class MorphoGetPosition(MorphoBaseTool):
             loan_token, collateral_token, _oracle, _irm, lltv = params
 
             if loan_token == "0x0000000000000000000000000000000000000000":
-                raise ToolException(
-                    f"Error: Market {market_id} does not exist on Morpho Blue"
-                )
+                raise ToolException(f"Error: Market {market_id} does not exist on Morpho Blue")
 
             loan_contract = w3.eth.contract(
                 address=Web3.to_checksum_address(loan_token), abi=ERC20_ABI
@@ -101,24 +99,18 @@ class MorphoGetPosition(MorphoBaseTool):
             )
 
             if total_supply_shares > 0:
-                user_supply_assets = (
-                    supply_shares * total_supply_assets // total_supply_shares
-                )
+                user_supply_assets = supply_shares * total_supply_assets // total_supply_shares
             else:
                 user_supply_assets = 0
 
             if total_borrow_shares > 0:
-                user_borrow_assets = (
-                    borrow_shares * total_borrow_assets // total_borrow_shares
-                )
+                user_borrow_assets = borrow_shares * total_borrow_assets // total_borrow_shares
             else:
                 user_borrow_assets = 0
 
             supply_formatted = Decimal(user_supply_assets) / Decimal(10**loan_decimals)
             borrow_formatted = Decimal(user_borrow_assets) / Decimal(10**loan_decimals)
-            collateral_formatted = Decimal(collateral) / Decimal(
-                10**collateral_decimals
-            )
+            collateral_formatted = Decimal(collateral) / Decimal(10**collateral_decimals)
             lltv_pct = Decimal(lltv) / Decimal(10**18) * 100
 
             return (

@@ -138,8 +138,7 @@ async def issue_all_plan_credits() -> None:
                 .where(
                     TeamTable.plan.in_([TeamPlan.PRO.value, TeamPlan.MAX.value]),
                     TeamTable.next_credit_issue_at <= cutoff,
-                    (TeamTable.plan_expires_at.is_(None))
-                    | (TeamTable.plan_expires_at > now),
+                    (TeamTable.plan_expires_at.is_(None)) | (TeamTable.plan_expires_at > now),
                 )
                 .limit(1)
                 .with_for_update(skip_locked=True)

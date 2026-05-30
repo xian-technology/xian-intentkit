@@ -55,9 +55,7 @@ class AaveV3Borrow(AaveV3BaseTool):
             chain_id = self._resolve_chain_id()
 
             if interest_rate_mode not in (1, 2):
-                raise ToolException(
-                    "interest_rate_mode must be 1 (stable) or 2 (variable)"
-                )
+                raise ToolException("interest_rate_mode must be 1 (stable) or 2 (variable)")
 
             wallet = await self.get_unified_wallet()
             w3 = self.web3_client()

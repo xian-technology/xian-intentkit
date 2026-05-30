@@ -32,9 +32,7 @@ logger = logging.getLogger(__name__)
 class SearchTokenInput(BaseModel):
     """Input schema for the DexScreener search_token tool."""
 
-    query: str = Field(
-        description="Token symbol, name, address, or $TICKER for exact match"
-    )
+    query: str = Field(description="Token symbol, name, address, or $TICKER for exact match")
     sort_by: SortBy | None = Field(
         default=SortBy.LIQUIDITY,
         description="Sort by 'liquidity' (default) or 'volume'",
@@ -114,9 +112,7 @@ class SearchToken(DexScreenerBaseTool):
                 return handle_validation_error(e, query, len(str(data)))
 
             if not result.pairs:
-                return create_no_results_response(
-                    query, reason="returned null or empty for pairs"
-                )
+                return create_no_results_response(query, reason="returned null or empty for pairs")
 
             pairs_list = [p for p in result.pairs if p is not None]
 

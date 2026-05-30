@@ -118,9 +118,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
         skill_config = context.agent.skill_config(self.category)
         logger.debug("firecrawl_scrape: Running scrape with context %s", context)
 
-        if skill_config.get("rate_limit_number") and skill_config.get(
-            "rate_limit_minutes"
-        ):
+        if skill_config.get("rate_limit_number") and skill_config.get("rate_limit_minutes"):
             await self.user_rate_limit_by_category(
                 skill_config["rate_limit_number"],
                 skill_config["rate_limit_minutes"] * 60,
@@ -129,9 +127,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
         # Get the API key from the agent's configuration
         api_key = self.get_api_key()
         if not api_key:
-            raise ToolException(
-                "Error: No Firecrawl API key provided in the configuration."
-            )
+            raise ToolException("Error: No Firecrawl API key provided in the configuration.")
         # Validate and set defaults
         if formats is None:
             formats = ["markdown"]
@@ -196,7 +192,9 @@ class FirecrawlScrape(FirecrawlBaseTool):
 
                 if "html" in formats and result_data.get("html"):
                     formatted_result += "## HTML Content\n"
-                    formatted_result += f"HTML content available ({len(result_data['html'])} characters)\n\n"
+                    formatted_result += (
+                        f"HTML content available ({len(result_data['html'])} characters)\n\n"
+                    )
 
                 if "links" in formats and result_data.get("links"):
                     formatted_result += "## Extracted Links\n"
@@ -204,9 +202,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
                     for link in links:
                         formatted_result += f"- {link}\n"
                     if len(result_data["links"]) > 10:
-                        formatted_result += (
-                            f"... and {len(result_data['links']) - 10} more links\n"
-                        )
+                        formatted_result += f"... and {len(result_data['links']) - 10} more links\n"
                     formatted_result += "\n"
 
                 if "json" in formats and result_data.get("json"):
@@ -218,9 +214,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
 
                 if "screenshot" in formats and result_data.get("screenshot"):
                     formatted_result += "## Screenshot\n"
-                    formatted_result += (
-                        f"Screenshot available at: {result_data['screenshot']}\n\n"
-                    )
+                    formatted_result += f"Screenshot available at: {result_data['screenshot']}\n\n"
 
                 # Add metadata information
                 metadata = result_data.get("metadata", {})
@@ -266,9 +260,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
                             vs_manager = FirecrawlVectorStoreManager()
 
                             # Load existing vector store
-                            existing_vector_store = await vs_manager.load_vector_store(
-                                agent_id
-                            )
+                            existing_vector_store = await vs_manager.load_vector_store(agent_id)
 
                             # Split the new document into chunks
                             split_docs = FirecrawlDocumentProcessor.split_documents(
@@ -291,10 +283,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
                                         doc
                                         for doc_id in existing_vector_store.index_to_docstore_id.values()
                                         if isinstance(
-                                            doc
-                                            := existing_vector_store.docstore.search(
-                                                doc_id
-                                            ),
+                                            doc := existing_vector_store.docstore.search(doc_id),
                                             Document,
                                         )
                                         and doc.metadata.get("source") != url
@@ -313,7 +302,9 @@ class FirecrawlScrape(FirecrawlBaseTool):
                                             all_documents, embeddings
                                         )
                                         formatted_result += "\n## Content Replacement\n"
-                                        formatted_result += f"Replaced existing content for URL: {url}\n"
+                                        formatted_result += (
+                                            f"Replaced existing content for URL: {url}\n"
+                                        )
                                         num_preserved_urls = len(
                                             set(
                                                 doc.metadata.get("source", "")
@@ -327,26 +318,24 @@ class FirecrawlScrape(FirecrawlBaseTool):
                                             split_docs, embeddings
                                         )
                                         formatted_result += "\n## Content Replacement\n"
-                                        formatted_result += f"Created new index with content from: {url}\n"
+                                        formatted_result += (
+                                            f"Created new index with content from: {url}\n"
+                                        )
                                 except Exception as e:
                                     logger.warning(
                                         f"Could not preserve other URLs, creating fresh index: {e}"
                                     )
                                     # Fallback: create new store with just the new documents
-                                    new_vector_store = FAISS.from_documents(
-                                        split_docs, embeddings
-                                    )
+                                    new_vector_store = FAISS.from_documents(split_docs, embeddings)
                                     formatted_result += "\n## Content Replacement\n"
-                                    formatted_result += f"Created fresh index with content from: {url}\n"
+                                    formatted_result += (
+                                        f"Created fresh index with content from: {url}\n"
+                                    )
                             else:
                                 # No existing store, create new one
-                                new_vector_store = FAISS.from_documents(
-                                    split_docs, embeddings
-                                )
+                                new_vector_store = FAISS.from_documents(split_docs, embeddings)
                                 formatted_result += "\n## Content Indexing\n"
-                                formatted_result += (
-                                    f"Created new index with content from: {url}\n"
-                                )
+                                formatted_result += f"Created new index with content from: {url}\n"
 
                             # Save the new vector store
                             await vs_manager.save_vector_store(
@@ -362,9 +351,7 @@ class FirecrawlScrape(FirecrawlBaseTool):
 
                             if existing_metadata and existing_metadata.get("urls"):
                                 # Remove the current URL and add it back (to update timestamp)
-                                existing_urls = [
-                                    u for u in existing_metadata["urls"] if u != url
-                                ]
+                                existing_urls = [u for u in existing_metadata["urls"] if u != url]
                                 existing_urls.append(url)
                                 updated_metadata = {
                                     "urls": existing_urls,
@@ -374,10 +361,8 @@ class FirecrawlScrape(FirecrawlBaseTool):
                                 }
                             else:
                                 # Create new metadata
-                                updated_metadata = (
-                                    FirecrawlMetadataManager.create_url_metadata(
-                                        [url], [document], "firecrawl_scrape"
-                                    )
+                                updated_metadata = FirecrawlMetadataManager.create_url_metadata(
+                                    [url], [document], "firecrawl_scrape"
                                 )
 
                             await FirecrawlMetadataManager.update_metadata(
@@ -385,13 +370,13 @@ class FirecrawlScrape(FirecrawlBaseTool):
                             )
 
                             formatted_result += "\n## Content Indexing (REPLACE MODE)\n"
-                            formatted_result += "Successfully REPLACED indexed content in vector store:\n"
+                            formatted_result += (
+                                "Successfully REPLACED indexed content in vector store:\n"
+                            )
                             formatted_result += f"- Chunks created: {len(split_docs)}\n"
                             formatted_result += f"- Chunk size: {chunk_size}\n"
                             formatted_result += f"- Chunk overlap: {chunk_overlap}\n"
-                            formatted_result += (
-                                "- Previous content for this URL: REPLACED\n"
-                            )
+                            formatted_result += "- Previous content for this URL: REPLACED\n"
                             formatted_result += "Use the 'firecrawl_query_indexed_content' skill to search this content.\n"
 
                             logger.info(
@@ -399,12 +384,12 @@ class FirecrawlScrape(FirecrawlBaseTool):
                             )
                         else:
                             formatted_result += "\n## Content Indexing\n"
-                            formatted_result += "Warning: Could not index content - agent ID not available.\n"
+                            formatted_result += (
+                                "Warning: Could not index content - agent ID not available.\n"
+                            )
 
                     except Exception as index_error:
-                        logger.error(
-                            f"firecrawl_scrape: Error indexing content: {index_error}"
-                        )
+                        logger.error(f"firecrawl_scrape: Error indexing content: {index_error}")
                         formatted_result += "\n## Content Indexing\n"
                         formatted_result += f"Warning: Failed to index content for later querying: {str(index_error)}\n"
 

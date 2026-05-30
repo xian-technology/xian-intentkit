@@ -74,9 +74,7 @@ async def list_autonomous(
 )
 async def add_autonomous(
     agent_id: str = Path(..., description="Agent ID"),
-    task_request: AutonomousCreateRequest = Body(
-        ..., description="Autonomous task configuration"
-    ),
+    task_request: AutonomousCreateRequest = Body(..., description="Autonomous task configuration"),
     auth: tuple[str, str] = Depends(verify_team_member),
 ) -> AutonomousResponse:
     """Add a new autonomous task to a team agent."""
@@ -95,9 +93,7 @@ async def add_autonomous(
 async def update_autonomous(
     agent_id: str = Path(..., description="Agent ID"),
     autonomous_id: str = Path(..., description="Autonomous task ID"),
-    task_update: AutonomousUpdateRequest = Body(
-        ..., description="Task update configuration"
-    ),
+    task_update: AutonomousUpdateRequest = Body(..., description="Task update configuration"),
     auth: tuple[str, str] = Depends(verify_team_member),
 ) -> AutonomousResponse:
     """Update a specific autonomous task for a team agent."""

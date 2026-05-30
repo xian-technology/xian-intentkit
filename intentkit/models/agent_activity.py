@@ -13,16 +13,12 @@ from intentkit.config.base import Base
 
 class AgentActivityBase(BaseModel):
     agent_id: Annotated[str, PydanticField(description="ID of the agent")]
-    agent_name: Annotated[
-        str | None, PydanticField(description="Name of the agent")
-    ] = None
-    agent_picture: Annotated[
-        str | None, PydanticField(description="Picture URL of the agent")
-    ] = None
+    agent_name: Annotated[str | None, PydanticField(description="Name of the agent")] = None
+    agent_picture: Annotated[str | None, PydanticField(description="Picture URL of the agent")] = (
+        None
+    )
     text: Annotated[str, PydanticField(description="Content of the activity")]
-    images: Annotated[
-        list[str] | None, PydanticField(description="List of image URLs")
-    ] = None
+    images: Annotated[list[str] | None, PydanticField(description="List of image URLs")] = None
     video: Annotated[str | None, PydanticField(description="Video URL")] = None
     link: Annotated[str | None, PydanticField(description="Link URL")] = None
     link_meta: Annotated[
@@ -65,9 +61,7 @@ class AgentActivityTable(Base):
     images: Mapped[list[str] | None] = mapped_column(
         ARRAY(String), nullable=True, comment="List of image URLs"
     )
-    video: Mapped[str | None] = mapped_column(
-        String, nullable=True, comment="Video URL"
-    )
+    video: Mapped[str | None] = mapped_column(String, nullable=True, comment="Video URL")
     link: Mapped[str | None] = mapped_column(String, nullable=True, comment="Link URL")
     link_meta: Mapped[dict[str, str | None] | None] = mapped_column(
         JSONB, nullable=True, comment="Link metadata"

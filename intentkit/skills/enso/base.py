@@ -41,9 +41,7 @@ class EnsoBaseTool(IntentKitOnChainSkill):
             raise ToolException("Enso API token is not configured")
         return config.enso_api_token
 
-    def resolve_chain_id(
-        self, context: AgentContext, chain_id: int | None = None
-    ) -> int:
+    def resolve_chain_id(self, context: AgentContext, chain_id: int | None = None) -> int:
         """
         Resolve the chain ID for the operation.
 
@@ -70,9 +68,7 @@ class EnsoBaseTool(IntentKitOnChainSkill):
 
         network_id = network_to_id.get(network)
         if network_id is None:
-            raise ToolException(
-                f"Unable to determine chain id for network: {agent.network_id}"
-            )
+            raise ToolException(f"Unable to determine chain id for network: {agent.network_id}")
         return int(network_id)
 
     category: str = "enso"

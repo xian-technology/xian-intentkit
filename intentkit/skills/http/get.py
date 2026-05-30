@@ -41,9 +41,7 @@ class HttpGet(HttpBaseTool):
     """
 
     name: str = "http_get"
-    description: str = (
-        "Make an HTTP GET request to a URL. Returns the response as text."
-    )
+    description: str = "Make an HTTP GET request to a URL. Returns the response as text."
     args_schema: ArgsSchema | None = HttpGetInput
 
     async def _arun(
@@ -80,12 +78,12 @@ class HttpGet(HttpBaseTool):
                 response.raise_for_status()
 
                 # Return response content
-                return f"Status: {response.status_code}\nContent: {truncate_response(response.text)}"
+                return (
+                    f"Status: {response.status_code}\nContent: {truncate_response(response.text)}"
+                )
 
         except httpx.TimeoutException as exc:
-            raise ToolException(
-                f"Request to {url} timed out after {timeout} seconds"
-            ) from exc
+            raise ToolException(f"Request to {url} timed out after {timeout} seconds") from exc
         except httpx.HTTPStatusError as exc:
             raise ToolException(
                 f"HTTP {exc.response.status_code} - {truncate_response(exc.response.text)}"

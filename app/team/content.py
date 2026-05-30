@@ -156,9 +156,7 @@ async def get_post(
         stmt = select(AgentPostTable).where(AgentPostTable.id == post_id)
         post = (await db.scalars(stmt)).first()
         if not post:
-            raise IntentKitAPIError(
-                status_code=404, key="NotFound", message="Post not found"
-            )
+            raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
 
     await get_accessible_agent(post.agent_id, team_id)
     return AgentPost.model_validate(post)
@@ -179,9 +177,7 @@ async def get_post_pdf(
         stmt = select(AgentPostTable).where(AgentPostTable.id == post_id)
         post = (await db.scalars(stmt)).first()
         if not post:
-            raise IntentKitAPIError(
-                status_code=404, key="NotFound", message="Post not found"
-            )
+            raise IntentKitAPIError(status_code=404, key="NotFound", message="Post not found")
 
     await get_accessible_agent(post.agent_id, team_id)
     return await post_pdf_response(post, cdn_base=config.aws_s3_cdn_url)

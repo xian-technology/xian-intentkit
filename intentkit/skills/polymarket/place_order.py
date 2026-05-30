@@ -18,8 +18,7 @@ class PlaceOrderInput(BaseModel):
 
     token_id: str = Field(
         description=(
-            "The token ID of the outcome to trade. "
-            "Get token IDs from the get_market skill."
+            "The token ID of the outcome to trade. Get token IDs from the get_market skill."
         ),
     )
     side: Literal["BUY", "SELL"] = Field(

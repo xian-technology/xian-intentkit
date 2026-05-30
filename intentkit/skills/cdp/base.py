@@ -19,6 +19,4 @@ class CDPBaseTool(IntentKitOnChainSkill):
     def ensure_cdp_provider(self) -> None:
         """Ensure the agent's wallet provider is CDP."""
         if self.get_agent_wallet_provider_type() != "cdp":
-            raise ToolException(
-                "This skill is only available when the wallet provider is 'cdp'."
-            )
+            raise ToolException("This skill is only available when the wallet provider is 'cdp'.")

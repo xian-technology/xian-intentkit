@@ -108,9 +108,7 @@ class ChatMessageSkillCall(TypedDict):
     name: str
     parameters: dict[str, object]
     success: bool
-    response: NotRequired[
-        str
-    ]  # Optional response from the skill call, trimmed to 100 characters
+    response: NotRequired[str]  # Optional response from the skill call, trimmed to 100 characters
     error_message: NotRequired[str]  # Optional error message from the skill call
     credit_event_id: NotRequired[str]  # ID of the credit event for this skill call
     credit_cost: NotRequired[Decimal]  # Credit cost for the skill call
@@ -260,9 +258,7 @@ class ChatMessageCreate(BaseModel):
             description="Unique identifier for the chat message",
         ),
     ] = Field(default_factory=lambda: str(XID()))
-    agent_id: Annotated[
-        str, Field(description="ID of the agent this message belongs to")
-    ]
+    agent_id: Annotated[str, Field(description="ID of the agent this message belongs to")]
     chat_id: Annotated[str, Field(description="ID of the chat this message belongs to")]
     user_id: Annotated[
         str | None,
@@ -270,9 +266,7 @@ class ChatMessageCreate(BaseModel):
     ]
     author_id: Annotated[str, Field(description="ID of the message author")]
     author_type: Annotated[AuthorType, Field(description="Type of the message author")]
-    model: Annotated[
-        str | None, Field(None, description="LLM model used if applicable")
-    ] = None
+    model: Annotated[str | None, Field(None, description="LLM model used if applicable")] = None
     thread_type: Annotated[
         AuthorType | None,
         Field(None, description="Author Type of the message thread start"),
@@ -290,18 +284,16 @@ class ChatMessageCreate(BaseModel):
         list[ChatMessageSkillCall] | None,
         Field(None, description="Skill call details"),
     ] = None
-    input_tokens: Annotated[
-        int, Field(0, description="Number of tokens in the input message")
-    ] = 0
+    input_tokens: Annotated[int, Field(0, description="Number of tokens in the input message")] = 0
     output_tokens: Annotated[
         int, Field(0, description="Number of tokens in the output message")
     ] = 0
     cached_input_tokens: Annotated[
         int, Field(0, description="Number of cached input tokens (cache hits)")
     ] = 0
-    time_cost: Annotated[
-        float, Field(0.0, description="Time cost for the message in seconds")
-    ] = 0.0
+    time_cost: Annotated[float, Field(0.0, description="Time cost for the message in seconds")] = (
+        0.0
+    )
     credit_event_id: Annotated[
         str | None,
         Field(None, description="ID of the credit event for this message"),
@@ -410,9 +402,7 @@ class ChatMessage(ChatMessageCreate):
         from_attributes=True,
     )
 
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this message was created")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this message was created")]
 
     @field_serializer("created_at")
     @classmethod
@@ -449,29 +439,19 @@ class ChatMessage(ChatMessageCreate):
                     resp += f"  Success: {skill_call.get('response', '')}\n"
                 else:
                     resp += f"  Failed: {skill_call.get('error_message', '')}\n"
-            resp += (
-                f"\n------------------- skill cost: {self.time_cost:.3f} seconds\n\n"
-            )
+            resp += f"\n------------------- skill cost: {self.time_cost:.3f} seconds\n\n"
         elif self.author_type == AuthorType.AGENT:
-            resp += (
-                f"[ Agent: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC)\n\n"
-            )
+            resp += f"[ Agent: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC)\n\n"
             resp += f" {self.message}\n"
-            resp += (
-                f"\n------------------- agent cost: {self.time_cost:.3f} seconds\n\n"
-            )
+            resp += f"\n------------------- agent cost: {self.time_cost:.3f} seconds\n\n"
         elif self.author_type == AuthorType.THINKING:
             resp += f"[ Thinking: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC)\n\n"
             resp += f" {self.message}\n"
             resp += "\n------------------- thinking\n\n"
         elif self.author_type == AuthorType.SYSTEM:
-            resp += (
-                f"[ System: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC)\n\n"
-            )
+            resp += f"[ System: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC)\n\n"
             resp += f" {self.message}\n"
-            resp += (
-                f"\n------------------- system cost: {self.time_cost:.3f} seconds\n\n"
-            )
+            resp += f"\n------------------- system cost: {self.time_cost:.3f} seconds\n\n"
         else:
             resp += f"[ User: ] ({self.created_at.strftime('%Y-%m-%d %H:%M:%S')} UTC) by {self.author_id}\n\n"
             resp += f" {self.message}\n"
@@ -596,12 +576,8 @@ class Chat(ChatCreate):
         from_attributes=True,
     )
 
-    created_at: Annotated[
-        datetime, Field(description="Timestamp when this chat was created")
-    ]
-    updated_at: Annotated[
-        datetime, Field(description="Timestamp when this chat was updated")
-    ]
+    created_at: Annotated[datetime, Field(description="Timestamp when this chat was created")]
+    updated_at: Annotated[datetime, Field(description="Timestamp when this chat was updated")]
 
     @field_serializer("created_at", "updated_at")
     @classmethod
@@ -643,9 +619,7 @@ class Chat(ChatCreate):
         """
         async with get_session() as db:
             stmt = (
-                update(ChatTable)
-                .where(ChatTable.id == self.id)
-                .values(rounds=ChatTable.rounds + 1)
+                update(ChatTable).where(ChatTable.id == self.id).values(rounds=ChatTable.rounds + 1)
             )
             _ = await db.execute(stmt)
             await db.commit()
@@ -665,9 +639,7 @@ class Chat(ChatCreate):
             Chat: The updated chat instance
         """
         async with get_session() as db:
-            stmt = (
-                update(ChatTable).where(ChatTable.id == self.id).values(summary=summary)
-            )
+            stmt = update(ChatTable).where(ChatTable.id == self.id).values(summary=summary)
             _ = await db.execute(stmt)
             await db.commit()
 

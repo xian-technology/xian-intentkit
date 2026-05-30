@@ -13,9 +13,7 @@ from .utils import make_elfa_request
 class ElfaGetTrendingTokensInput(BaseModel):
     """Input parameters for trending tokens."""
 
-    timeWindow: str | None = Field(
-        "7d", description="Time window (e.g., '1h', '7d', '30d')"
-    )
+    timeWindow: str | None = Field("7d", description="Time window (e.g., '1h', '7d', '30d')")
     page: int | None = Field(1, description="Page number")
     pageSize: int | None = Field(50, description="Items per page")
     minMentions: int | None = Field(5, description="Minimum mentions required")
@@ -107,9 +105,7 @@ class ElfaGetTrendingTokens(ElfaBaseTool):
                 trending_tokens = [TrendingToken(**item) for item in response.data]
             elif isinstance(response.data, dict) and "data" in response.data:
                 # Handle nested data structure if present
-                trending_tokens = [
-                    TrendingToken(**item) for item in response.data["data"]
-                ]
+                trending_tokens = [TrendingToken(**item) for item in response.data["data"]]
 
         return ElfaGetTrendingTokensOutput(
             success=response.success, data=trending_tokens, metadata=response.metadata

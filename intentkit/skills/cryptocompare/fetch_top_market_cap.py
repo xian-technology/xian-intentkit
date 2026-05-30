@@ -75,9 +75,7 @@ class CryptoCompareFetchTopMarketCap(CryptoCompareBaseTool):
                         CryptoCurrency(
                             id=str(coin_info.get("Id", "")),
                             name=coin_info.get("Name", ""),
-                            symbol=coin_info.get(
-                                "Name", ""
-                            ),  # API uses same field for symbol
+                            symbol=coin_info.get("Name", ""),  # API uses same field for symbol
                             full_name=coin_info.get("FullName", ""),
                             market_cap=raw_data.get("MKTCAP", 0),
                             volume24h=raw_data.get("VOLUME24HOUR", 0),

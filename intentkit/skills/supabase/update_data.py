@@ -17,9 +17,7 @@ class SupabaseUpdateDataInput(BaseModel):
 
     table: str = Field(description="Table name")
     data: dict[str, Any] = Field(description="Column-value pairs to update")
-    filters: dict[str, Any] = Field(
-        description="Filters to match records, e.g. {'id': 123}"
-    )
+    filters: dict[str, Any] = Field(description="Filters to match records, e.g. {'id': 123}")
     returning: str = Field(default="*", description="Columns to return after update")
 
 

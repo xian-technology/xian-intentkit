@@ -167,9 +167,7 @@ class TwitterClient(TwitterABC):
             if not agent_data.twitter_access_token:
                 raise ValueError(f"[{self.agent_id}] Twitter access token not found")
             if not agent_data.twitter_access_token_expires_at:
-                raise ValueError(
-                    f"[{self.agent_id}] Twitter access token expiration not found"
-                )
+                raise ValueError(f"[{self.agent_id}] Twitter access token expiration not found")
             if (
                 agent_data.twitter_access_token_expires_at
                 and agent_data.twitter_access_token_expires_at <= datetime.now(tz=UTC)
@@ -190,12 +188,9 @@ class TwitterClient(TwitterABC):
                 agent_data = await self._refresh_agent_data()
                 if (
                     agent_data.twitter_access_token_expires_at
-                    and agent_data.twitter_access_token_expires_at
-                    <= datetime.now(tz=UTC)
+                    and agent_data.twitter_access_token_expires_at <= datetime.now(tz=UTC)
                 ):
-                    raise ValueError(
-                        f"[{self.agent_id}] Twitter access token has expired"
-                    )
+                    raise ValueError(f"[{self.agent_id}] Twitter access token has expired")
                 self._client = AsyncClient(
                     bearer_token=agent_data.twitter_access_token,
                     return_type=cast(Any, dict),
@@ -345,9 +340,7 @@ class TwitterClient(TwitterABC):
                     id=str(tweet["id"]),
                     text=tweet["text"],
                     author_id=str(tweet["author_id"]),
-                    created_at=datetime.fromisoformat(
-                        tweet["created_at"].replace("Z", "+00:00")
-                    ),
+                    created_at=datetime.fromisoformat(tweet["created_at"].replace("Z", "+00:00")),
                     author=users_dict.get(tweet["author_id"]),
                     referenced_tweets=None,  # Will be populated in second pass
                     attachments=None,  # Will be populated in second pass
@@ -362,10 +355,7 @@ class TwitterClient(TwitterABC):
 
             # Process attachments if present
             attachments = None
-            if (
-                "attachments" in tweet_data
-                and "media_keys" in tweet_data["attachments"]
-            ):
+            if "attachments" in tweet_data and "media_keys" in tweet_data["attachments"]:
                 attachments = [
                     media_dict[media_key]
                     for media_key in tweet_data["attachments"]["media_keys"]
@@ -386,9 +376,7 @@ class TwitterClient(TwitterABC):
                 id=str(tweet_id),
                 text=tweet_data["text"],
                 author_id=str(author_id),
-                created_at=datetime.fromisoformat(
-                    tweet_data["created_at"].replace("Z", "+00:00")
-                ),
+                created_at=datetime.fromisoformat(tweet_data["created_at"].replace("Z", "+00:00")),
                 author=users_dict.get(author_id),
                 referenced_tweets=referenced_tweets,
                 attachments=attachments,
@@ -435,9 +423,7 @@ class TwitterClient(TwitterABC):
                 async for chunk in response.aiter_bytes():
                     total += len(chunk)
                     if total > max_content_length:
-                        raise ValueError(
-                            f"Image too large: >{max_content_length} bytes"
-                        )
+                        raise ValueError(f"Image too large: >{max_content_length} bytes")
                     chunks.append(chunk)
                 image_content = b"".join(chunks)
                 resp_content_type = response.headers.get("content-type", "image/jpeg")
@@ -451,9 +437,7 @@ class TwitterClient(TwitterABC):
                 # tweepy is outdated, we need to use httpx call new API
                 try:
                     # Upload the image directly to Twitter using the Media Upload API
-                    headers = {
-                        "Authorization": f"Bearer {agent_data.twitter_access_token}"
-                    }
+                    headers = {"Authorization": f"Bearer {agent_data.twitter_access_token}"}
 
                     # Upload to Twitter's media/upload endpoint using multipart/form-data
                     upload_url = "https://api.twitter.com/2/media/upload"
@@ -493,9 +477,7 @@ class TwitterClient(TwitterABC):
                     if os.path.exists(tmp_file_path):
                         os.unlink(tmp_file_path)
             else:
-                raise ValueError(
-                    f"Failed to download image from URL: {image_url}. Empty content."
-                )
+                raise ValueError(f"Failed to download image from URL: {image_url}. Empty content.")
 
         return media_ids
 
@@ -589,9 +571,7 @@ class OAuth2UserHandler(OAuth2Session):
             self.code_challenge = await kv.get(_CHALLENGE_KEY)
             if not self.code_verifier or not self.code_challenge:
                 self.code_verifier = self._client.create_code_verifier(128)
-                self.code_challenge = self._client.create_code_challenge(
-                    self.code_verifier, "S256"
-                )
+                self.code_challenge = self._client.create_code_challenge(self.code_verifier, "S256")
                 assert self.code_verifier is not None
                 assert self.code_challenge is not None
                 await kv.set(_VERIFIER_KEY, self.code_verifier, ex=_OAUTH2_PKCE_TTL)

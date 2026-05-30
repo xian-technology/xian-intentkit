@@ -192,9 +192,7 @@ class NativeWalletProvider:
             return await self.execute_transaction(
                 to=token_address,
                 value=0,
-                data=tx_data
-                if isinstance(tx_data, bytes)
-                else bytes.fromhex(tx_data[2:]),
+                data=tx_data if isinstance(tx_data, bytes) else bytes.fromhex(tx_data[2:]),
                 chain_id=chain_id,
             )
 

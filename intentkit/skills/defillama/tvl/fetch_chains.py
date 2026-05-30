@@ -16,9 +16,7 @@ class ChainTVLData(BaseModel):
     name: str = Field(..., description="Chain name")
     tvl: float = Field(..., description="TVL in USD")
     gecko_id: str | None = Field(None, description="CoinGecko ID")
-    token_symbol: str | None = Field(
-        None, alias="tokenSymbol", description="Token symbol"
-    )
+    token_symbol: str | None = Field(None, alias="tokenSymbol", description="Token symbol")
     cmc_id: str | None = Field(None, alias="cmcId", description="CMC ID")
     chain_id: int | str | None = Field(None, alias="chainId", description="Chain ID")
 
@@ -36,9 +34,7 @@ class FetchChainsInput(BaseModel):
 class FetchChainsResponse(BaseModel):
     """Response schema for all chains' TVL data."""
 
-    chains: list[ChainTVLData] = Field(
-        default_factory=list, description="Chains with TVL"
-    )
+    chains: list[ChainTVLData] = Field(default_factory=list, description="Chains with TVL")
     total_tvl: float = Field(..., description="Total TVL in USD")
     error: str | None = Field(default=None, description="Error message")
 

@@ -27,11 +27,7 @@ async def validate_and_store_image(file: UploadFile, key_prefix: str) -> str:
     if len(content) > MAX_IMAGE_SIZE:
         raise IntentKitAPIError(400, "BadRequest", "Image must be less than 5MB")
 
-    ext = (
-        file.filename.rsplit(".", 1)[-1].lower()
-        if file.filename and "." in file.filename
-        else ""
-    )
+    ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else ""
     if ext not in ALLOWED_IMAGE_EXTENSIONS:
         ext = "jpg"
     key = f"{key_prefix}{XID()}.{ext}"

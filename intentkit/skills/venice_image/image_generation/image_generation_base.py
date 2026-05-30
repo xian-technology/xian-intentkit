@@ -29,9 +29,7 @@ class VeniceImageGenerationBaseTool(VeniceImageBaseTool):
     args_schema: ArgsSchema | None = VeniceImageGenerationInput
 
     # --- Attributes Subclasses MUST Define ---
-    name: str = Field(
-        default="", description="The unique name of the image generation tool/model."
-    )
+    name: str = Field(default="", description="The unique name of the image generation tool/model.")
     description: str = Field(
         default="",
         description="A description of what the image generation tool/model does.",
@@ -94,18 +92,14 @@ class VeniceImageGenerationBaseTool(VeniceImageBaseTool):
             except Exception as decode_error:
                 raise ToolException("Invalid base64 image data.") from decode_error
 
-            response_format = (
-                result.get("request", {}).get("data", {}).get("format", format)
-            )
+            response_format = result.get("request", {}).get("data", {}).get("format", format)
             file_extension = response_format or format
             content_type = f"image/{file_extension}"
 
             image_hash = hashlib.sha256(image_bytes).hexdigest()
             key = f"{self.category}/{self.model_id}/{image_hash}.{file_extension}"
 
-            stored_path = await store_image_bytes(
-                image_bytes, key, content_type=content_type
-            )
+            stored_path = await store_image_bytes(image_bytes, key, content_type=content_type)
 
             # Cleanup & enrich the response
             result.pop("images", None)

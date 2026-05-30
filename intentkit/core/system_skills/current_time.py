@@ -68,8 +68,7 @@ class CurrentTimeSkill(SystemSkill):
             ]
             suggestion_str = ", ".join([f"'{tz}'" for tz in common_timezones])
             raise ToolException(
-                f"Unknown timezone '{timezone}'.\n"
-                f"Some common timezone options: {suggestion_str}"
+                f"Unknown timezone '{timezone}'.\nSome common timezone options: {suggestion_str}"
             )
         except ToolException:
             raise

@@ -8,18 +8,14 @@ from intentkit.skills.base import NoArgsSchema
 from intentkit.skills.defillama.api import fetch_pools
 from intentkit.skills.defillama.base import DefiLlamaBaseTool
 
-FETCH_POOLS_PROMPT = (
-    """Fetch all yield pools from DefiLlama with TVL, APY, and risk data."""
-)
+FETCH_POOLS_PROMPT = """Fetch all yield pools from DefiLlama with TVL, APY, and risk data."""
 
 
 class PredictionData(BaseModel):
     """Model representing prediction data for a pool."""
 
     predictedClass: str | None = Field(None, description="APY direction prediction")
-    predictedProbability: float | None = Field(
-        None, description="Prediction probability"
-    )
+    predictedProbability: float | None = Field(None, description="Prediction probability")
     binnedConfidence: int | None = Field(None, description="Confidence bucket")
 
 

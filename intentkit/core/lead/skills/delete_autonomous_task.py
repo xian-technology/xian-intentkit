@@ -16,17 +16,13 @@ class DeleteAutonomousTaskInput(BaseModel):
     """Input model for delete_autonomous_task skill."""
 
     agent_id: str = Field(description="The ID of the agent owning the task")
-    task_id: str = Field(
-        description="The unique identifier of the autonomous task to delete"
-    )
+    task_id: str = Field(description="The unique identifier of the autonomous task to delete")
 
 
 class DeleteAutonomousTaskOutput(BaseModel):
     """Output model for delete_autonomous_task skill."""
 
-    success: bool = Field(
-        description="Whether the task was successfully deleted", default=True
-    )
+    success: bool = Field(description="Whether the task was successfully deleted", default=True)
     message: str = Field(description="Confirmation message about the deletion")
 
 

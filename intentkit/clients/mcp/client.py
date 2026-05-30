@@ -31,9 +31,7 @@ def _build_headers(server_def: McpServerDef, api_key: str | None) -> dict[str, s
     headers: dict[str, str] = {}
     if api_key and server_def.api_key_header:
         if server_def.api_key_prefix:
-            headers[server_def.api_key_header] = (
-                f"{server_def.api_key_prefix} {api_key}"
-            )
+            headers[server_def.api_key_header] = f"{server_def.api_key_prefix} {api_key}"
         else:
             headers[server_def.api_key_header] = api_key
     return headers
@@ -57,15 +55,11 @@ async def _connect(
 
     async with cm as transport:
         read_stream, write_stream = transport[0], transport[1]
-        async with ClientSession(
-            read_stream, write_stream, client_info=_CLIENT_INFO
-        ) as session:
+        async with ClientSession(read_stream, write_stream, client_info=_CLIENT_INFO) as session:
             yield session
 
 
-async def list_mcp_tools(
-    server_def: McpServerDef, api_key: str | None
-) -> list[McpToolInfo]:
+async def list_mcp_tools(server_def: McpServerDef, api_key: str | None) -> list[McpToolInfo]:
     """Connect to an MCP server and list available tools."""
     headers = _build_headers(server_def, api_key)
 
@@ -96,9 +90,7 @@ async def call_mcp_tool(
         result = await session.call_tool(tool_name, arguments)
 
         if result.isError:
-            error_text = "\n".join(
-                c.text for c in result.content if isinstance(c, TextContent)
-            )
+            error_text = "\n".join(c.text for c in result.content if isinstance(c, TextContent))
             raise McpToolError(
                 f"MCP tool '{tool_name}' returned error: {error_text or 'unknown error'}"
             )

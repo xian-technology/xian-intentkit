@@ -100,9 +100,7 @@ async def fetch_nft_data(
     default_params = {"normalizeMetadata": True}
     if params:
         default_params.update(params)
-    return await fetch_moralis_data(
-        api_key, endpoint, address, chain_id, default_params
-    )
+    return await fetch_moralis_data(api_key, endpoint, address, chain_id, default_params)
 
 
 # Transaction History
@@ -201,9 +199,7 @@ async def fetch_solana_api(
             logger.error("Solana API request error: %s", e)
             return {"error": str(e)}
         except httpx.HTTPStatusError as e:
-            logger.error(
-                f"Solana API error: {e.response.status_code} {e.response.text}"
-            )
+            logger.error(f"Solana API error: {e.response.status_code} {e.response.text}")
             return {"error": f"HTTP error {e.response.status_code}: {e.response.text}"}
 
 

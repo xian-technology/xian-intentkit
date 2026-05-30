@@ -91,35 +91,23 @@ def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
                     "provider": provider,
                     "enabled": _parse_bool(row.get("enabled")),
                     "input_price": Decimal(row.get("input_price", "0")),
-                    "cached_input_price": _parse_optional_decimal(
-                        row.get("cached_input_price")
-                    ),
+                    "cached_input_price": _parse_optional_decimal(row.get("cached_input_price")),
                     "output_price": Decimal(row.get("output_price", "0")),
                     "price_level": _parse_optional_int(row.get("price_level")),
                     "context_length": int(row.get("context_length") or 0),
                     "output_length": int(row.get("output_length") or 0),
                     "intelligence": int(row.get("intelligence") or 1),
                     "speed": int(row.get("speed") or 1),
-                    "supports_image_input": _parse_bool(
-                        row.get("supports_image_input")
-                    ),
-                    "supports_audio_input": _parse_bool(
-                        row.get("supports_audio_input")
-                    ),
-                    "supports_video_input": _parse_bool(
-                        row.get("supports_video_input")
-                    ),
+                    "supports_image_input": _parse_bool(row.get("supports_image_input")),
+                    "supports_audio_input": _parse_bool(row.get("supports_audio_input")),
+                    "supports_video_input": _parse_bool(row.get("supports_video_input")),
                     "supports_file_input": _parse_bool(row.get("supports_file_input")),
                     "reasoning_effort": row.get("reasoning_effort", "").strip() or None,
-                    "supports_temperature": _parse_bool(
-                        row.get("supports_temperature")
-                    ),
+                    "supports_temperature": _parse_bool(row.get("supports_temperature")),
                     "supports_frequency_penalty": _parse_bool(
                         row.get("supports_frequency_penalty")
                     ),
-                    "supports_presence_penalty": _parse_bool(
-                        row.get("supports_presence_penalty")
-                    ),
+                    "supports_presence_penalty": _parse_bool(row.get("supports_presence_penalty")),
                     "timeout": int(row.get("timeout") or 180),
                     "created_at": timestamp,
                     "updated_at": timestamp,
@@ -130,9 +118,7 @@ def load_default_llm_models() -> dict[str, "LLMModelInfo"]:
                 if not model.provider.is_configured:
                     continue
             except Exception as exc:
-                logger.error(
-                    "Failed to load default LLM model %s: %s", row.get("id"), exc
-                )
+                logger.error("Failed to load default LLM model %s: %s", row.get("id"), exc)
                 continue
             # Key by provider:id so the same model from different providers is kept
             key = f"{provider.value}:{row_id}"
@@ -307,42 +293,20 @@ class LLMModelInfoTable(Base):
     output_price: Mapped[Decimal] = mapped_column(
         Numeric(22, 4), nullable=False
     )  # Price per 1M output tokens in USD
-    price_level: Mapped[int | None] = mapped_column(
-        Integer, nullable=True
-    )  # Price level rating
-    context_length: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )  # Context length
+    price_level: Mapped[int | None] = mapped_column(Integer, nullable=True)  # Price level rating
+    context_length: Mapped[int] = mapped_column(Integer, nullable=False)  # Context length
     output_length: Mapped[int] = mapped_column(Integer, nullable=False)  # Output length
-    intelligence: Mapped[int] = mapped_column(
-        Integer, nullable=False
-    )  # Intelligence rating
+    intelligence: Mapped[int] = mapped_column(Integer, nullable=False)  # Intelligence rating
     speed: Mapped[int] = mapped_column(Integer, nullable=False)  # Speed rating
-    supports_image_input: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False
-    )
-    supports_audio_input: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False
-    )
-    supports_video_input: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False
-    )
-    supports_file_input: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False
-    )
+    supports_image_input: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    supports_audio_input: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    supports_video_input: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    supports_file_input: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     reasoning_effort: Mapped[str | None] = mapped_column(String, nullable=True)
-    supports_temperature: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=True
-    )
-    supports_frequency_penalty: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=True
-    )
-    supports_presence_penalty: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=True
-    )
-    timeout: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=180
-    )  # Timeout seconds
+    supports_temperature: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    supports_frequency_penalty: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    supports_presence_penalty: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    timeout: Mapped[int] = mapped_column(Integer, nullable=False, default=180)  # Timeout seconds
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,
@@ -370,9 +334,7 @@ class LLMModelInfo(BaseModel):
     input_price: Decimal  # Price per 1M input tokens in USD
     cached_input_price: Decimal | None = None  # Price per 1M cached input tokens in USD
     output_price: Decimal  # Price per 1M output tokens in USD
-    price_level: int | None = Field(
-        default=None, ge=1, le=5
-    )  # Price level rating from 1-5
+    price_level: int | None = Field(default=None, ge=1, le=5)  # Price level rating from 1-5
     context_length: int  # Maximum context length in tokens
     output_length: int  # Maximum output length in tokens
     intelligence: int = Field(ge=1, le=5)  # Intelligence rating from 1-5
@@ -384,15 +346,11 @@ class LLMModelInfo(BaseModel):
     reasoning_effort: str | None = (
         None  # Reasoning effort level: "xhigh", "high", "medium", "low", "minimal", "none", or None
     )
-    supports_temperature: bool = (
-        True  # Whether the model supports temperature parameter
-    )
+    supports_temperature: bool = True  # Whether the model supports temperature parameter
     supports_frequency_penalty: bool = (
         True  # Whether the model supports frequency_penalty parameter
     )
-    supports_presence_penalty: bool = (
-        True  # Whether the model supports presence_penalty parameter
-    )
+    supports_presence_penalty: bool = True  # Whether the model supports presence_penalty parameter
     timeout: int = 180  # Default timeout in seconds
     created_at: Annotated[
         datetime,
@@ -438,7 +396,7 @@ class LLMModelInfo(BaseModel):
             # If found in cache, deserialize and return
             try:
                 return LLMModelInfo.model_validate_json(cached_data)
-            except (json.JSONDecodeError, TypeError):
+            except json.JSONDecodeError, TypeError:
                 # If cache is corrupted, invalidate it
                 await redis.delete(cache_key)
 
@@ -509,8 +467,7 @@ class LLMModelInfo(BaseModel):
                 return await cls.get_all(session=db)
 
         models: dict[str, LLMModelInfo] = {
-            model_id: model.model_copy(deep=True)
-            for model_id, model in AVAILABLE_MODELS.items()
+            model_id: model.model_copy(deep=True) for model_id, model in AVAILABLE_MODELS.items()
         }
 
         result = await session.execute(select(LLMModelInfoTable))
@@ -531,9 +488,7 @@ class LLMModelInfo(BaseModel):
 
         # Determine effective price for cached input tokens
         effective_cached_price = (
-            self.cached_input_price
-            if self.cached_input_price is not None
-            else self.input_price
+            self.cached_input_price if self.cached_input_price is not None else self.input_price
         )
         # Clamp cached to total input (defensive against provider inconsistencies)
         effective_cached = min(cached_input_tokens, input_tokens)
@@ -541,22 +496,13 @@ class LLMModelInfo(BaseModel):
         non_cached_input = input_tokens - effective_cached
 
         input_cost = (
-            credit_per_usdc
-            * Decimal(non_cached_input)
-            * self.input_price
-            / Decimal(1000000)
+            credit_per_usdc * Decimal(non_cached_input) * self.input_price / Decimal(1000000)
         ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
         cached_input_cost = (
-            credit_per_usdc
-            * Decimal(effective_cached)
-            * effective_cached_price
-            / Decimal(1000000)
+            credit_per_usdc * Decimal(effective_cached) * effective_cached_price / Decimal(1000000)
         ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
         output_cost = (
-            credit_per_usdc
-            * Decimal(output_tokens)
-            * self.output_price
-            / Decimal(1000000)
+            credit_per_usdc * Decimal(output_tokens) * self.output_price / Decimal(1000000)
         ).quantize(FOURPLACES, rounding=ROUND_HALF_UP)
         return (input_cost + cached_input_cost + output_cost).quantize(
             FOURPLACES, rounding=ROUND_HALF_UP
@@ -639,9 +585,7 @@ class LLMModel(BaseModel):
     ) -> Decimal:
         """Calculate the cost for a given number of tokens."""
         info = await self.model_info()
-        return await info.calculate_cost(
-            input_tokens, output_tokens, cached_input_tokens
-        )
+        return await info.calculate_cost(input_tokens, output_tokens, cached_input_tokens)
 
 
 class OpenAILLM(LLMModel):
@@ -943,9 +887,7 @@ def _inject_cost_fields_into_chat_usage() -> None:
         ChatUsage.model_rebuild(force=True)
         _openrouter_usage_cost_fields_injected = True
     except Exception:
-        logger.warning(
-            "Failed to inject cost fields into OpenRouter ChatUsage", exc_info=True
-        )
+        logger.warning("Failed to inject cost fields into OpenRouter ChatUsage", exc_info=True)
 
 
 def _create_openrouter_with_server_tools(**kwargs: Any) -> BaseChatModel:

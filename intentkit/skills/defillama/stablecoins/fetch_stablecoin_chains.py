@@ -32,9 +32,7 @@ class ChainData(BaseModel):
     """Model representing stablecoin data for a single chain."""
 
     gecko_id: str | None = Field(None, description="CoinGecko ID")
-    totalCirculatingUSD: CirculatingUSD = Field(
-        ..., description="Circulating by peg type"
-    )
+    totalCirculatingUSD: CirculatingUSD = Field(..., description="Circulating by peg type")
     tokenSymbol: str | None = Field(None, description="Token symbol")
     name: str = Field(..., description="Chain name")
 
@@ -42,9 +40,7 @@ class ChainData(BaseModel):
 class FetchStablecoinChainsResponse(BaseModel):
     """Response schema for stablecoin chains data."""
 
-    chains: list[ChainData] = Field(
-        default_factory=list, description="Chains with stablecoin data"
-    )
+    chains: list[ChainData] = Field(default_factory=list, description="Chains with stablecoin data")
     error: str | None = Field(default=None, description="Error message")
 
 

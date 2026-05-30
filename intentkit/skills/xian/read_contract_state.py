@@ -21,9 +21,7 @@ class XianReadContractStateInput(BaseModel):
 
 class XianReadContractState(XianBaseTool):
     name: str = "xian_read_contract_state"
-    description: str = (
-        "Read a raw state value from a Xian contract variable and optional key path."
-    )
+    description: str = "Read a raw state value from a Xian contract variable and optional key path."
     args_schema: ArgsSchema | None = XianReadContractStateInput
 
     @override

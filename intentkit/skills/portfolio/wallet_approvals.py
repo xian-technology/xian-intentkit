@@ -63,9 +63,7 @@ class WalletApprovals(PortfolioBaseTool):
             Dict containing wallet approvals data
         """
         context = self.get_context()
-        logger.debug(
-            f"wallet_approvals.py: Fetching wallet approvals with context {context}"
-        )
+        logger.debug(f"wallet_approvals.py: Fetching wallet approvals with context {context}")
 
         # Build query parameters
         params = {
@@ -88,9 +86,7 @@ class WalletApprovals(PortfolioBaseTool):
         except ToolException:
             raise
         except Exception as exc:  # noqa: BLE001
-            logger.error(
-                "wallet_approvals.py: Error fetching wallet approvals", exc_info=exc
-            )
+            logger.error("wallet_approvals.py: Error fetching wallet approvals", exc_info=exc)
             raise ToolException(
                 "An unexpected error occurred while fetching wallet approvals."
             ) from exc

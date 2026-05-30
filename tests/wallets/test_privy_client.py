@@ -28,9 +28,7 @@ def _mock_async_client(
 class TestPrivyClient:
     @pytest.mark.asyncio
     async def test_create_key_quorum(self) -> None:
-        with patch(
-            "intentkit.wallets.privy_client.httpx.AsyncClient"
-        ) as mock_async_client_cls:
+        with patch("intentkit.wallets.privy_client.httpx.AsyncClient") as mock_async_client_cls:
             mock_client = _mock_async_client(
                 mock_async_client_cls,
                 response_json={"id": "kq_test"},
@@ -58,9 +56,7 @@ class TestPrivyClient:
 
     @pytest.mark.asyncio
     async def test_create_wallet_with_additional_signers(self) -> None:
-        with patch(
-            "intentkit.wallets.privy_client.httpx.AsyncClient"
-        ) as mock_async_client_cls:
+        with patch("intentkit.wallets.privy_client.httpx.AsyncClient") as mock_async_client_cls:
             mock_client = _mock_async_client(
                 mock_async_client_cls,
                 response_json={
@@ -87,9 +83,7 @@ class TestPrivyClient:
 
     @pytest.mark.asyncio
     async def test_create_wallet_with_owner_key_quorum(self) -> None:
-        with patch(
-            "intentkit.wallets.privy_client.httpx.AsyncClient"
-        ) as mock_async_client_cls:
+        with patch("intentkit.wallets.privy_client.httpx.AsyncClient") as mock_async_client_cls:
             mock_client = _mock_async_client(
                 mock_async_client_cls,
                 response_json={

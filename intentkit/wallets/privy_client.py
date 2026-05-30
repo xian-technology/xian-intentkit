@@ -45,9 +45,7 @@ class PrivyClient:
                 pem = privy_private_key_to_pem(raw_key)
                 key_obj = serialization.load_pem_private_key(pem, password=None)
                 if not isinstance(key_obj, ec.EllipticCurvePrivateKey):
-                    logger.warning(
-                        "Privy authorization key ignored (not EC private key)"
-                    )
+                    logger.warning("Privy authorization key ignored (not EC private key)")
                     continue
                 if getattr(key_obj.curve, "name", "") != "secp256r1":
                     logger.warning(
@@ -135,9 +133,7 @@ class PrivyClient:
         display_name: str | None = None,
     ) -> str:
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/key_quorums"
         payload: dict[str, Any] = {}
@@ -190,9 +186,7 @@ class PrivyClient:
         'privy-idempotency-key' HTTP header.
         """
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/wallets"
         payload: dict[str, Any] = {
@@ -266,9 +260,7 @@ class PrivyClient:
     async def get_wallet(self, wallet_id: str) -> PrivyWallet:
         """Get a specific wallet by ID."""
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/wallets/{wallet_id}"
         async with httpx.AsyncClient() as client:
@@ -300,9 +292,7 @@ class PrivyClient:
         personal_sign prefix: "\\x19Ethereum Signed Message:\\n" + len(message) + message
         """
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/wallets/{wallet_id}/rpc"
         payload = {
@@ -375,9 +365,7 @@ class PrivyClient:
         This is different from personal_sign which adds Ethereum's message prefix.
         """
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         # Privy expects the hash as a hex string with 0x prefix
         hash_hex = "0x" + hash_bytes.hex()
@@ -448,9 +436,7 @@ class PrivyClient:
     async def sign_typed_data(self, wallet_id: str, typed_data: dict[str, Any]) -> str:
         """Sign typed data (EIP-712) using the Privy server wallet."""
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/wallets/{wallet_id}/rpc"
         # Convert typed_data to Privy format (primaryType -> primary_type)
@@ -524,9 +510,7 @@ class PrivyClient:
     ) -> str:
         """Send a transaction using the Privy server wallet."""
         if not self.app_id or not self.app_secret:
-            raise IntentKitAPIError(
-                500, "PrivyConfigError", "Privy credentials missing"
-            )
+            raise IntentKitAPIError(500, "PrivyConfigError", "Privy credentials missing")
 
         url = f"{self.base_url}/wallets/{wallet_id}/rpc"
         payload = {
