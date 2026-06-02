@@ -892,7 +892,7 @@ async def stream_agent_raw(
             )
         )
         return
-    except (httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError):
+    except httpx.TimeoutException, httpcore.ReadTimeout, asyncio.TimeoutError:
         logger.error(
             f"Agent request timed out for {user_message.agent_id}",
             extra={"thread_id": thread_id},

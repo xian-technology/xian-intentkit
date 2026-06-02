@@ -396,7 +396,7 @@ class LLMModelInfo(BaseModel):
             # If found in cache, deserialize and return
             try:
                 return LLMModelInfo.model_validate_json(cached_data)
-            except (json.JSONDecodeError, TypeError):
+            except json.JSONDecodeError, TypeError:
                 # If cache is corrupted, invalidate it
                 await redis.delete(cache_key)
 

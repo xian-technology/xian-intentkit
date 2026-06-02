@@ -56,7 +56,7 @@ class TwitterSearchTweets(TwitterBaseTool):
                     saved_time = datetime.datetime.fromisoformat(last["timestamp"])
                     if (datetime.datetime.now(tz=datetime.timezone.utc) - saved_time).days > 6:
                         since_id = None
-                except (ValueError, TypeError):
+                except ValueError, TypeError:
                     since_id = None
 
             tweets = cast(

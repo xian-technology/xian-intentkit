@@ -106,7 +106,7 @@ class IntentKitSkill(BaseTool, metaclass=ABCMeta):
         try:
             max_requests = int(limit)
             window_seconds = int(seconds)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             self.logger.info(
                 "Invalid user rate limit parameters for %s: limit=%r, seconds=%r",
                 key,
@@ -181,7 +181,7 @@ class IntentKitSkill(BaseTool, metaclass=ABCMeta):
         try:
             max_requests = int(limit)
             window_seconds = int(seconds)
-        except (TypeError, ValueError):
+        except TypeError, ValueError:
             self.logger.info(
                 "Invalid global rate limit parameters for %s: limit=%r, seconds=%r",
                 key,
