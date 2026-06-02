@@ -10,6 +10,7 @@ import time
 import webbrowser
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+from decimal import Decimal
 from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import quote
@@ -84,6 +85,7 @@ class LocalnetConfig:
 @dataclass(frozen=True)
 class DexContracts:
     token_contract: str
+    lp_token_contract: str
     pairs_contract: str
     dex_contract: str
     helper_contract: str
@@ -310,6 +312,13 @@ def deadline_value(*, seconds_from_now: int):
     return to_contract_time(datetime.now(UTC) + timedelta(seconds=seconds_from_now))
 
 
+def contract_number(value: int | float | str | Decimal) -> int | Decimal:
+    parsed = Decimal(str(value)).normalize()
+    if parsed == parsed.to_integral():
+        return int(parsed)
+    return parsed
+
+
 def _read_file(path: Path) -> str:
     if not path.exists():
         raise LiveWorkflowError(f"Missing source file: {path}")
@@ -337,6 +346,10 @@ def render_helper_contract(*, dex_contract: str, pairs_contract: str) -> str:
     source = source.replace('DEX_CONTRACT = "con_dex"', f'DEX_CONTRACT = "{dex_contract}"', 1)
     source = source.replace('DEX_PAIRS = "con_pairs"', f'DEX_PAIRS = "{pairs_contract}"', 1)
     return source
+
+
+def read_lp_token_template() -> str:
+    return _read_file(_dex_source_path("lp_token_template", "con_lp_token.s.py"))
 
 
 def read_token_fixture() -> str:
@@ -372,14 +385,15 @@ async def submit_contract(
     constructor_args: dict[str, Any] | None = None,
     stamps: int,
 ) -> None:
-    result = await client.submit_contract(
+    result = await client.deploy_contract(
         name=name,
-        code=code,
+        source=code,
         args=constructor_args,
-        stamps=stamps,
+        chi=stamps,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
+        lint=False,
     )
     if not _submission_succeeded(result):
         raise LiveWorkflowError(
@@ -399,7 +413,7 @@ async def send_tx_or_raise(
         contract=contract,
         function=function,
         kwargs=kwargs,
-        stamps=stamps,
+        chi=stamps,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -422,7 +436,7 @@ async def approve_or_raise(
         contract=spender,
         token=token,
         amount=amount,
-        stamps=TOKEN_TX_STAMPS,
+        chi=TOKEN_TX_STAMPS,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -455,6 +469,7 @@ async def deploy_live_dex(
     liquidity_token: float,
 ) -> DexContracts:
     token_contract = f"con_ixtrade_{suffix}"
+    lp_token_contract = f"con_ixlp_{suffix}"
     pairs_contract = f"con_ixpairs_{suffix}"
     dex_contract = f"con_ixdex_{suffix}"
     helper_contract = f"con_ixhelper_{suffix}"
@@ -465,7 +480,9 @@ async def deploy_live_dex(
         code=read_token_fixture(),
         constructor_args={
             "owner": founder_address,
-            "supply": max(liquidity_token * 100, 100000.0),
+            "supply": contract_number(
+                max(Decimal(str(liquidity_token)) * Decimal("100"), Decimal("100000"))
+            ),
             "name": "IntentKit Trade Token",
             "symbol": "IKT",
         },
@@ -492,6 +509,18 @@ async def deploy_live_dex(
         ),
         stamps=HELPER_DEPLOY_STAMPS,
     )
+    await submit_contract(
+        client,
+        name=lp_token_contract,
+        code=read_lp_token_template(),
+        constructor_args={
+            "token_name": f"IntentKit LP {suffix}",
+            "token_symbol": "IKT-LP",
+            "operator_address": founder_address,
+            "minter_address": pairs_contract,
+        },
+        stamps=TOKEN_DEPLOY_STAMPS,
+    )
 
     await approve_or_raise(
         client,
@@ -513,12 +542,13 @@ async def deploy_live_dex(
         kwargs={
             "tokenA": "currency",
             "tokenB": token_contract,
-            "amountADesired": liquidity_currency,
-            "amountBDesired": liquidity_token,
-            "amountAMin": liquidity_currency * 0.95,
-            "amountBMin": liquidity_token * 0.95,
+            "amountADesired": contract_number(liquidity_currency),
+            "amountBDesired": contract_number(liquidity_token),
+            "amountAMin": contract_number(Decimal(str(liquidity_currency)) * Decimal("0.95")),
+            "amountBMin": contract_number(Decimal(str(liquidity_token)) * Decimal("0.95")),
             "to": founder_address,
             "deadline": deadline_value(seconds_from_now=300),
+            "lpToken": lp_token_contract,
         },
         stamps=DEX_TX_STAMPS,
     )
@@ -530,6 +560,7 @@ async def deploy_live_dex(
 
     return DexContracts(
         token_contract=token_contract,
+        lp_token_contract=lp_token_contract,
         pairs_contract=pairs_contract,
         dex_contract=dex_contract,
         helper_contract=helper_contract,
@@ -848,7 +879,7 @@ async def fund_agent_wallet(
         amount=amount,
         to_address=wallet_address,
         token="currency",
-        stamps=TOKEN_TX_STAMPS,
+        chi=TOKEN_TX_STAMPS,
         mode="commit",
         wait_for_tx=True,
         timeout_seconds=WAIT_TIMEOUT_SECONDS,
@@ -893,8 +924,8 @@ async def trigger_price_move(
         contract=dex.dex_contract,
         function="swapExactTokenForToken",
         kwargs={
-            "amountIn": amount,
-            "amountOutMin": 0.0001,
+            "amountIn": contract_number(amount),
+            "amountOutMin": contract_number("0.0001"),
             "pair": dex.pair_id,
             "src": "currency",
             "to": founder_address,

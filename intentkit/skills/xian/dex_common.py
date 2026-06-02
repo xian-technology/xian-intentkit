@@ -61,11 +61,11 @@ def decimal_from_value(value: object) -> Decimal:
         raise ToolException(f"Could not parse numeric value: {value!r}") from exc
 
 
-def decimal_to_contract_number(value: Decimal) -> int | float:
+def decimal_to_contract_number(value: Decimal) -> int | Decimal:
     normalized = value.normalize()
     if normalized == normalized.to_integral():
         return int(normalized)
-    return float(normalized)
+    return normalized
 
 
 def canonical_tokens(token_a: str, token_b: str) -> tuple[str, str]:

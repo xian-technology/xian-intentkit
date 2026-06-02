@@ -154,7 +154,7 @@ class XianDexTrade(XianBaseTool):
                 "buy_token": buy_token,
                 "sell_token": sell_token,
                 "amount": decimal_to_contract_number(quote.requested_amount),
-                "slippage": float(slippage),
+                "slippage": decimal_to_contract_number(Decimal(str(slippage))),
                 "deadline": build_deadline(deadline_minutes),
             }
             trade_submission = await provider.send_contract_transaction(

@@ -82,6 +82,44 @@ async def test_xian_wallet_provider_get_balance(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_xian_wallet_provider_maps_stamps_to_chi(monkeypatch):
+    _mock_xian_env(monkeypatch)
+    wallet_data = create_xian_wallet("xian-localnet")
+    provider = get_wallet_provider(wallet_data)
+
+    with patch("intentkit.wallets.xian.XianAsync") as mock_client_cls:
+        mock_client = AsyncMock()
+        mock_client.send = AsyncMock(return_value=SimpleNamespace(tx_hash="send-123"))
+        mock_client.approve = AsyncMock(return_value=SimpleNamespace(tx_hash="approve-123"))
+        mock_client.send_tx = AsyncMock(return_value=SimpleNamespace(tx_hash="tx-123"))
+        mock_client_cls.return_value.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client_cls.return_value.__aexit__ = AsyncMock(return_value=None)
+
+        await provider.transfer(
+            token="currency",
+            to_address="recipient",
+            amount="1.5",
+            stamps=111,
+        )
+        await provider.approve(
+            token="currency",
+            spender="con_dex_helper",
+            amount="2.5",
+            stamps=222,
+        )
+        await provider.send_contract_transaction(
+            contract="con_dex_helper",
+            function="sell",
+            kwargs={"amount": "3.5"},
+            stamps=333,
+        )
+
+    assert mock_client.send.await_args.kwargs["chi"] == 111
+    assert mock_client.approve.await_args.kwargs["chi"] == 222
+    assert mock_client.send_tx.await_args.kwargs["chi"] == 333
+
+
+@pytest.mark.asyncio
 async def test_xian_wallet_provider_normalizes_indexed_tx_hash(monkeypatch):
     _mock_xian_env(monkeypatch)
     wallet_data = create_xian_wallet("xian-localnet")

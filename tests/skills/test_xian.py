@@ -1,3 +1,4 @@
+from decimal import Decimal
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -280,18 +281,22 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
             side="buy",
             buy_token="con_token",
             sell_token="currency",
-            amount="50",
+            amount="50.5",
+            slippage=0.5,
         )
 
     provider.approve.assert_awaited_once()
     provider.send_contract_transaction.assert_awaited_once()
     approve_amount = provider.approve.await_args.kwargs["amount"]
-    assert approve_amount > 110
+    assert approve_amount > Decimal("110")
+    assert not isinstance(approve_amount, float)
     trade_kwargs = provider.send_contract_transaction.await_args.kwargs["kwargs"]
     assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex_helper"
     assert provider.send_contract_transaction.await_args.kwargs["function"] == "buy"
     assert trade_kwargs["buy_token"] == "con_token"
     assert trade_kwargs["sell_token"] == "currency"
+    assert trade_kwargs["amount"] == Decimal("50.5")
+    assert trade_kwargs["slippage"] == Decimal("0.5")
     assert isinstance(trade_kwargs["deadline"], dict)
     assert "__time__" in trade_kwargs["deadline"]
     assert "approve-123" in result
