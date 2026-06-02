@@ -24,6 +24,7 @@ def test_load_social_config_defaults_to_linked_account(monkeypatch):
 def test_build_agent_payload_uses_linked_account_mode():
     dex = DexContracts(
         token_contract="con_token",
+        lp_token_contract="con_lp_token",
         pairs_contract="con_pairs_test",
         dex_contract="con_dex_test",
         helper_contract="con_dex_helper_test",
@@ -51,6 +52,7 @@ def test_build_agent_payload_uses_linked_account_mode():
 def test_build_agent_payload_uses_self_key_mode():
     dex = DexContracts(
         token_contract="con_token",
+        lp_token_contract="con_lp_token",
         pairs_contract="con_pairs_test",
         dex_contract="con_dex_test",
         helper_contract="con_dex_helper_test",
