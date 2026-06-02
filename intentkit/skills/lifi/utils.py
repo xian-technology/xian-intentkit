@@ -139,7 +139,7 @@ def format_amount(amount: str, decimals: int) -> str:
             return f"{amount_float:.6f}"
         else:
             return f"{amount_float:.8f}"
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return str(amount)
 
 
@@ -198,7 +198,7 @@ def handle_api_response(
             error_data = response.json()
             error_message = error_data.get("message", response.text)
             return None, f"Invalid request: {error_message}"
-        except ValueError, TypeError, AttributeError:
+        except (ValueError, TypeError, AttributeError):
             return None, f"Invalid request: {response.text}"
     elif response.status_code == 404:
         return (
@@ -330,7 +330,7 @@ def convert_amount_to_wei(amount: str, token_symbol: str = "ETH") -> str:
             rounding=ROUND_DOWN,
         )
         return str(int(scaled_amount))
-    except InvalidOperation, ValueError, TypeError:
+    except (InvalidOperation, ValueError, TypeError):
         # If conversion fails, fall back to the original value to avoid
         # accidentally submitting an incorrect amount.
         return normalized_amount
@@ -404,7 +404,7 @@ def _convert_hex_or_decimal(value: Any) -> int | None:
             return int(stripped, 16)
         try:
             return int(Decimal(stripped))
-        except InvalidOperation, ValueError:
+        except (InvalidOperation, ValueError):
             return None
 
     return None
@@ -636,7 +636,7 @@ def get_api_error_message(response: httpx.Response) -> str:
     try:
         error_data = response.json()
         return error_data.get("message", response.text)
-    except ValueError, TypeError, AttributeError:
+    except (ValueError, TypeError, AttributeError):
         return response.text
 
 

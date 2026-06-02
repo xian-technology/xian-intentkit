@@ -91,7 +91,7 @@ def decode_payment_response_header(
     """Decode the base64-encoded payment response header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_response_header))
-    except json.JSONDecodeError, ValueError:
+    except (json.JSONDecodeError, ValueError):
         return None
 
 
@@ -101,7 +101,7 @@ def decode_payment_required_header(
     """Decode the base64-encoded payment required header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_required_header))
-    except json.JSONDecodeError, ValueError:
+    except (json.JSONDecodeError, ValueError):
         return None
 
 
@@ -120,7 +120,7 @@ def decode_payment_signature_header(
     """Decode the base64-encoded payment signature header into JSON."""
     try:
         return json.loads(base64.b64decode(payment_signature_header))
-    except json.JSONDecodeError, ValueError:
+    except (json.JSONDecodeError, ValueError):
         return None
 
 
@@ -288,7 +288,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
             agent_id = context.agent_id
             network_id = agent.network_id if agent else None
             wallet_provider = agent.wallet_provider if agent else None
-        except AttributeError, ValueError:
+        except (AttributeError, ValueError):
             agent_id = "unknown"
             network_id = None
             wallet_provider = None
@@ -715,7 +715,7 @@ class X402BaseSkill(IntentKitOnChainSkill):
 
             try:
                 amount = int(amount) if amount is not None else 0
-            except TypeError, ValueError:
+            except (TypeError, ValueError):
                 amount = 0
 
             asset = asset or "unknown"

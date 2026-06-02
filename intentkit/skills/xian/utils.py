@@ -15,7 +15,7 @@ def format_xian_amount(value: Any) -> str:
         return format(normalized, "f").rstrip("0").rstrip(".") or "0"
     try:
         decimal_value = Decimal(str(value))
-    except InvalidOperation, ValueError, TypeError:
+    except (InvalidOperation, ValueError, TypeError):
         return str(value)
     normalized = decimal_value.normalize()
     return format(normalized, "f").rstrip("0").rstrip(".") or "0"
