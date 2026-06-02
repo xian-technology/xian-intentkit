@@ -1,4 +1,5 @@
 import base64
+from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -12,6 +13,8 @@ from intentkit.core.xian_event_triggers import (
     iter_contract_events_from_tx_event,
 )
 from intentkit.models.agent.autonomous import (
+    AgentAutonomous,
+    AgentAutonomousTriggerType,
     XianDexPriceChangeTrigger,
     XianEventTrigger,
 )
@@ -90,6 +93,29 @@ def _task(*, cooldown_seconds: int = 0, filters: dict[str, str] | None = None):
     )
 
 
+def _agent_with_task(*, enabled: bool = True):
+    return SimpleNamespace(
+        id="agent-1",
+        owner="owner-1",
+        name="Agent One",
+        network_id="xian-localnet",
+        autonomous=[
+            AgentAutonomous(
+                id="task-1",
+                prompt="Act on the event",
+                enabled=enabled,
+                has_memory=False,
+                trigger_type=AgentAutonomousTriggerType.XIAN_EVENT,
+                xian_event=XianEventTrigger(
+                    contract="currency",
+                    event="Transfer",
+                    filters={"to": "alice"},
+                ),
+            )
+        ],
+    )
+
+
 def test_iter_contract_events_from_tx_event_decodes_payload():
     event_name = base64.b64encode(b"Transfer").decode()
     contract_key = base64.b64encode(b"contract").decode()
@@ -110,6 +136,35 @@ def test_iter_contract_events_from_tx_event_decodes_payload():
     }
 
     assert list(iter_contract_events_from_tx_event(tx_event)) == [("currency", "Transfer")]
+
+
+@pytest.mark.asyncio
+async def test_refresh_rebuilds_active_tasks_and_drops_disabled_tasks(monkeypatch):
+    redis = FakeRedis()
+    service = XianEventTriggerService(redis, batch_limit=10, poll_interval_seconds=1.0)
+    seeded: list[str] = []
+    sync_listeners = AsyncMock()
+
+    async def fake_seed_cursor(task):
+        seeded.append(task.runtime_id)
+        await redis.set(task.cursor_key, 99)
+
+    monkeypatch.setattr(service, "_seed_cursor", fake_seed_cursor)
+    monkeypatch.setattr(service, "_sync_network_listeners", sync_listeners)
+
+    await service.refresh([_agent_with_task()])
+    await service.refresh([_agent_with_task()])
+
+    assert list(service._tasks) == ["agent-1-task-1"]
+    assert service._tasks_by_source[("xian-localnet", "currency", "Transfer")] == {"agent-1-task-1"}
+    assert seeded == ["agent-1-task-1"]
+    assert sync_listeners.await_count == 2
+
+    await service.refresh([_agent_with_task(enabled=False)])
+
+    assert service._tasks == {}
+    assert service._tasks_by_source == {}
+    assert sync_listeners.await_count == 3
 
 
 @pytest.mark.asyncio
