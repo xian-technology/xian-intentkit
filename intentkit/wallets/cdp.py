@@ -67,7 +67,7 @@ class CdpWalletProvider:
         value = tx_params.get("value", Wei(0))
         try:
             value_int = int(value)
-        except TypeError, ValueError:
+        except (TypeError, ValueError):
             value_int = 0
 
         request = TransactionRequestEIP1559(

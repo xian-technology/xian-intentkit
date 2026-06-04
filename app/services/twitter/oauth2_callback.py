@@ -40,7 +40,7 @@ def is_valid_redirect_url(url: str) -> bool:
         base = urlparse(config.app_base_url)
         # Redirect URI must share the same scheme and host as APP_BASE_URL
         return result.scheme == base.scheme and result.netloc == base.netloc
-    except ValueError, AttributeError, TypeError:
+    except (ValueError, AttributeError, TypeError):
         return False
 
 

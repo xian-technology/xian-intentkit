@@ -94,7 +94,7 @@ class WalletFixer:
                 try:
                     wallet_data = json.loads(agent.cdp_wallet_data)
                     wallet_address = wallet_data.get("default_address_id")
-                except json.JSONDecodeError, AttributeError:
+                except (json.JSONDecodeError, AttributeError):
                     pass
 
             if not wallet_address:
