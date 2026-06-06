@@ -23,9 +23,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_DIR = SCRIPT_DIR.parent.parent
 WORKSPACE_DIR = REPO_DIR.parent
 DEFAULT_NETWORK_JSON = WORKSPACE_DIR / "xian-stack" / ".localnet" / "network.json"
-DEFAULT_DEX_BUNDLE_PATH = (
-    WORKSPACE_DIR / "xian-configs" / "contract-packs" / "dex" / "contract-bundle.json"
-)
+DEFAULT_DEX_BUNDLE_PATH = WORKSPACE_DIR / "xian-dex" / "contract-bundle.json"
 TOKEN_FIXTURE = WORKSPACE_DIR / "xian-stack" / "workloads" / "dex_mixed" / "token_fixture.py"
 
 TOKEN_DEPLOY_STAMPS = 200_000
