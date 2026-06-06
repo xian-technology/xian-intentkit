@@ -298,7 +298,9 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
     assert not isinstance(approve_amount, float)
     trade_kwargs = provider.send_contract_transaction.await_args.kwargs["kwargs"]
     assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex"
-    assert provider.send_contract_transaction.await_args.kwargs["function"] == "swapExactTokenForToken"
+    assert (
+        provider.send_contract_transaction.await_args.kwargs["function"] == "swapExactTokenForToken"
+    )
     assert trade_kwargs["amountIn"] > Decimal("110")
     assert trade_kwargs["amountOutMin"] == Decimal("50.2475")
     assert trade_kwargs["pair"] == 11

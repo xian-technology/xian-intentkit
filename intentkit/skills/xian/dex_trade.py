@@ -143,10 +143,7 @@ class XianDexTrade(XianBaseTool):
                 )
                 sections.append(
                     render_submission(
-                        (
-                            f"Submitted Xian DEX router approval for "
-                            f"{dex_contract} on {sell_token}."
-                        ),
+                        (f"Submitted Xian DEX router approval for {dex_contract} on {sell_token}."),
                         approval_submission,
                     )
                 )
