@@ -15,6 +15,7 @@ from intentkit.skills.xian.dex_common import (
     build_deadline,
     decimal_from_value,
     decimal_to_contract_number,
+    direct_swap_function,
     parse_positive_decimal,
     quote_trade,
     render_quote,
@@ -46,12 +47,12 @@ class XianDexTradeInput(BaseModel):
         default=5,
         ge=1,
         le=1440,
-        description="Minutes from now before the helper trade expires.",
+        description="Minutes from now before the router trade expires.",
     )
     auto_approve: bool = Field(
         default=True,
         description=(
-            "Automatically approve the DEX helper to spend the sell token when "
+            "Automatically approve the DEX router to spend the sell token when "
             "allowance is insufficient."
         ),
     )
@@ -69,7 +70,10 @@ class XianDexTradeInput(BaseModel):
     )
     dex_helper_contract: str = Field(
         default=DEFAULT_DEX_HELPER_CONTRACT,
-        description="DEX helper contract name for single-pair execution.",
+        description=(
+            "Deprecated. Single-pair execution now uses dex_contract directly "
+            "to reduce fee overhead."
+        ),
     )
     pairs_contract: str = Field(
         default=DEFAULT_DEX_PAIRS_CONTRACT,
@@ -80,9 +84,9 @@ class XianDexTradeInput(BaseModel):
 class XianDexTrade(XianBaseTool):
     name: str = "xian_dex_trade"
     description: str = (
-        "Execute a single-pair trade on the Xian DEX through con_dex_helper. "
+        "Execute a single-pair trade on the Xian DEX through the con_dex router. "
         "Quotes the trade first, checks allowance, optionally approves, then "
-        "submits the buy or sell transaction."
+        "submits a direct router swap transaction."
     )
     args_schema: ArgsSchema | None = XianDexTradeInput
 
@@ -117,25 +121,22 @@ class XianDexTrade(XianBaseTool):
 
             allowance_required = quote.max_input if side == "buy" else quote.estimated_input
             allowance_current = decimal_from_value(
-                await provider.get_allowance(
-                    token=sell_token,
-                    spender=dex_helper_contract,
-                )
+                await provider.get_allowance(token=sell_token, spender=dex_contract)
             )
 
-            sections = [render_quote(quote, helper_contract=dex_helper_contract)]
+            sections = [render_quote(quote, router_contract=dex_contract)]
 
             if allowance_current < allowance_required:
                 if not auto_approve:
                     raise ToolException(
-                        "Allowance to the DEX helper is insufficient. "
+                        "Allowance to the DEX router is insufficient. "
                         f"Current allowance: {format_xian_amount(allowance_current)}. "
                         f"Required: {format_xian_amount(allowance_required)}."
                     )
 
                 approval_submission = await provider.approve(
                     token=sell_token,
-                    spender=dex_helper_contract,
+                    spender=dex_contract,
                     amount=decimal_to_contract_number(allowance_required),
                     mode=mode,
                     wait_for_tx=wait_for_tx,
@@ -143,23 +144,26 @@ class XianDexTrade(XianBaseTool):
                 sections.append(
                     render_submission(
                         (
-                            f"Submitted Xian DEX helper approval for "
-                            f"{dex_helper_contract} on {sell_token}."
+                            f"Submitted Xian DEX router approval for "
+                            f"{dex_contract} on {sell_token}."
                         ),
                         approval_submission,
                     )
                 )
 
+            amount_in = quote.max_input if side == "buy" else quote.estimated_input
             trade_kwargs = {
-                "buy_token": buy_token,
-                "sell_token": sell_token,
-                "amount": decimal_to_contract_number(quote.requested_amount),
-                "slippage": decimal_to_contract_number(Decimal(str(slippage))),
+                "amountIn": decimal_to_contract_number(amount_in),
+                "amountOutMin": decimal_to_contract_number(quote.min_output),
+                "pair": quote.pair_id,
+                "src": sell_token,
+                "to": provider.address,
                 "deadline": build_deadline(deadline_minutes),
             }
+            swap_function = direct_swap_function(quote)
             trade_submission = await provider.send_contract_transaction(
-                contract=dex_helper_contract,
-                function=side,
+                contract=dex_contract,
+                function=swap_function,
                 kwargs=trade_kwargs,
                 mode=mode,
                 wait_for_tx=wait_for_tx,
@@ -167,7 +171,7 @@ class XianDexTrade(XianBaseTool):
             sections.append(
                 render_submission(
                     (
-                        f"Submitted Xian DEX {side} trade on {dex_helper_contract} "
+                        f"Submitted Xian DEX {side} trade on {dex_contract} "
                         f"for pair {quote.pair_id}."
                     ),
                     trade_submission,

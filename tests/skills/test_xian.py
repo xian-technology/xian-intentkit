@@ -186,6 +186,8 @@ async def test_xian_dex_quote_sell(monkeypatch):
             (provider.address,),
         ):
             return None
+        if contract == "con_dex" and variable == "fee_on_transfer_tokens":
+            return None
         raise AssertionError(f"unexpected get_state: {contract}.{variable} {keys}")
 
     provider.get_state = AsyncMock(side_effect=get_state)
@@ -209,7 +211,8 @@ async def test_xian_dex_quote_sell(monkeypatch):
     assert "Pair: 7" in result
     assert "Expected output:" in result
     assert "Minimum output with slippage:" in result
-    assert "Approval target for execution: con_dex_helper" in result
+    assert "Router execution path: con_dex.swapExactTokenForToken(...)" in result
+    assert "Approval target for execution: con_dex" in result
     provider.call_contract.assert_not_awaited()
 
 
@@ -243,6 +246,8 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
             "zero_fee_signers",
             (provider.address,),
         ):
+            return None
+        if contract == "con_dex" and variable == "fee_on_transfer_tokens":
             return None
         raise AssertionError(f"unexpected get_state: {contract}.{variable} {keys}")
 
@@ -287,16 +292,18 @@ async def test_xian_dex_trade_buy_with_auto_approve(monkeypatch):
 
     provider.approve.assert_awaited_once()
     provider.send_contract_transaction.assert_awaited_once()
+    assert provider.approve.await_args.kwargs["spender"] == "con_dex"
     approve_amount = provider.approve.await_args.kwargs["amount"]
     assert approve_amount > Decimal("110")
     assert not isinstance(approve_amount, float)
     trade_kwargs = provider.send_contract_transaction.await_args.kwargs["kwargs"]
-    assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex_helper"
-    assert provider.send_contract_transaction.await_args.kwargs["function"] == "buy"
-    assert trade_kwargs["buy_token"] == "con_token"
-    assert trade_kwargs["sell_token"] == "currency"
-    assert trade_kwargs["amount"] == Decimal("50.5")
-    assert trade_kwargs["slippage"] == Decimal("0.5")
+    assert provider.send_contract_transaction.await_args.kwargs["contract"] == "con_dex"
+    assert provider.send_contract_transaction.await_args.kwargs["function"] == "swapExactTokenForToken"
+    assert trade_kwargs["amountIn"] > Decimal("110")
+    assert trade_kwargs["amountOutMin"] == Decimal("50.2475")
+    assert trade_kwargs["pair"] == 11
+    assert trade_kwargs["src"] == "currency"
+    assert trade_kwargs["to"] == provider.address
     assert isinstance(trade_kwargs["deadline"], dict)
     assert "__time__" in trade_kwargs["deadline"]
     assert "approve-123" in result
@@ -321,7 +328,36 @@ async def test_xian_dex_trade_requires_allowance_when_auto_approve_disabled(
             return 40
         raise AssertionError(f"unexpected call: {contract}.{function} {kwargs}")
 
-    provider.get_state = AsyncMock(return_value=5)
+    async def get_state(contract: str, variable: str, *keys):
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "toks_to_pair",
+            ("con_token", "currency"),
+        ):
+            return 5
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (5, "reserve0"),
+        ):
+            return 500
+        if (contract, variable, keys) == (
+            "con_pairs",
+            "pairs",
+            (5, "reserve1"),
+        ):
+            return 1000
+        if (contract, variable, keys) == (
+            "con_dex",
+            "zero_fee_signers",
+            (provider.address,),
+        ):
+            return None
+        if contract == "con_dex" and variable == "fee_on_transfer_tokens":
+            return None
+        raise AssertionError(f"unexpected get_state: {contract}.{variable} {keys}")
+
+    provider.get_state = AsyncMock(side_effect=get_state)
     provider.call_contract = AsyncMock(side_effect=call_contract)
     provider.get_allowance = AsyncMock(return_value=0)
 
@@ -332,7 +368,7 @@ async def test_xian_dex_trade_requires_allowance_when_auto_approve_disabled(
             new=AsyncMock(return_value=provider),
         ),
     ):
-        with pytest.raises(Exception, match="Allowance to the DEX helper is insufficient"):
+        with pytest.raises(Exception, match="Allowance to the DEX router is insufficient"):
             await skill._arun(
                 side="sell",
                 buy_token="con_token",

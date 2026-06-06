@@ -26,6 +26,7 @@ class PairContext:
     reserve_buy: Decimal
     reserve_sell: Decimal
     fee_bps: int
+    fee_on_transfer: bool
 
 
 @dataclass(frozen=True)
@@ -40,6 +41,7 @@ class DexQuote:
     expected_output: Decimal
     max_input: Decimal
     min_output: Decimal
+    fee_on_transfer: bool
 
 
 def parse_positive_decimal(value: str, *, field_name: str) -> Decimal:
@@ -102,6 +104,20 @@ async def resolve_pair_context(
         provider.address,
     )
     fee_bps = ZERO_TRADE_FEE_BPS if bool(zero_fee) else DEFAULT_TRADE_FEE_BPS
+    sell_fee_on_transfer = bool(
+        await provider.get_state(
+            dex_contract,
+            "fee_on_transfer_tokens",
+            sell_token,
+        )
+    )
+    buy_fee_on_transfer = bool(
+        await provider.get_state(
+            dex_contract,
+            "fee_on_transfer_tokens",
+            buy_token,
+        )
+    )
 
     if token0 == buy_token:
         reserve_buy = reserve0
@@ -117,6 +133,7 @@ async def resolve_pair_context(
         reserve_buy=reserve_buy,
         reserve_sell=reserve_sell,
         fee_bps=fee_bps,
+        fee_on_transfer=sell_fee_on_transfer or buy_fee_on_transfer,
     )
 
 
@@ -151,7 +168,8 @@ async def quote_trade(
         estimated_input = (context.reserve_sell * amount) / (
             (context.reserve_buy - amount) * fee_multiplier
         )
-        # Match con_dex_helper.buy(...) behavior: slippage expansion plus tiny buffer.
+        # Preserve buy-side semantics with the exact-input router call by using
+        # the helper's former slippage expansion plus tiny buffer.
         max_input = estimated_input * slippage_factor * Decimal("1.0001")
         return DexQuote(
             side=side,
@@ -164,6 +182,7 @@ async def quote_trade(
             expected_output=amount,
             max_input=max_input,
             min_output=amount * min_output_factor,
+            fee_on_transfer=context.fee_on_transfer,
         )
 
     fee_multiplier = Decimal(10000 - context.fee_bps) / Decimal(10000)
@@ -184,10 +203,18 @@ async def quote_trade(
         expected_output=expected_output,
         max_input=amount,
         min_output=expected_output * min_output_factor,
+        fee_on_transfer=context.fee_on_transfer,
     )
 
 
-def render_quote(quote: DexQuote, *, helper_contract: str) -> str:
+def direct_swap_function(quote: DexQuote) -> str:
+    if quote.fee_on_transfer:
+        return "swapExactTokenForTokenSupportingFeeOnTransferTokens"
+    return "swapExactTokenForToken"
+
+
+def render_quote(quote: DexQuote, *, router_contract: str) -> str:
+    swap_function = direct_swap_function(quote)
     lines = [
         f"Xian DEX quote ({quote.side})",
         f"Pair: {quote.pair_id}",
@@ -201,8 +228,8 @@ def render_quote(quote: DexQuote, *, helper_contract: str) -> str:
                 f"Target output: {format_xian_amount(quote.expected_output)}",
                 f"Estimated input: {format_xian_amount(quote.estimated_input)}",
                 f"Max input with slippage buffer: {format_xian_amount(quote.max_input)}",
-                f"Helper execution path: {helper_contract}.buy(...)",
-                f"Approval target for execution: {helper_contract}",
+                f"Router execution path: {router_contract}.{swap_function}(...)",
+                f"Approval target for execution: {router_contract}",
             ]
         )
     else:
@@ -211,8 +238,8 @@ def render_quote(quote: DexQuote, *, helper_contract: str) -> str:
                 f"Input amount: {format_xian_amount(quote.estimated_input)}",
                 f"Expected output: {format_xian_amount(quote.expected_output)}",
                 f"Minimum output with slippage: {format_xian_amount(quote.min_output)}",
-                f"Helper execution path: {helper_contract}.sell(...)",
-                f"Approval target for execution: {helper_contract}",
+                f"Router execution path: {router_contract}.{swap_function}(...)",
+                f"Approval target for execution: {router_contract}",
             ]
         )
     return "\n".join(lines)

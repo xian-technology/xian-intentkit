@@ -99,6 +99,8 @@ class FakeDexProvider:
             return 500
         if contract == "con_dex" and variable == "zero_fee_signers":
             return False
+        if contract == "con_dex" and variable == "fee_on_transfer_tokens":
+            return False
         raise AssertionError(f"unexpected state lookup: {contract}.{variable} {keys}")
 
     async def call_contract(

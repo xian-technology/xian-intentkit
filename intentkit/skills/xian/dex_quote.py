@@ -44,7 +44,10 @@ class XianDexQuoteInput(BaseModel):
     )
     dex_helper_contract: str = Field(
         default=DEFAULT_DEX_HELPER_CONTRACT,
-        description="DEX helper contract name for single-pair execution.",
+        description=(
+            "Deprecated. Single-pair execution now uses the router contract "
+            "directly to reduce fee overhead."
+        ),
     )
     pairs_contract: str = Field(
         default=DEFAULT_DEX_PAIRS_CONTRACT,
@@ -55,8 +58,8 @@ class XianDexQuoteInput(BaseModel):
 class XianDexQuote(XianBaseTool):
     name: str = "xian_dex_quote"
     description: str = (
-        "Quote a single-pair trade on the Xian DEX using the current con_dex and "
-        "con_dex_helper contracts. Returns pair ID, fee, and execution bounds."
+        "Quote a single-pair trade on the Xian DEX using the current con_dex "
+        "router. Returns pair ID, fee, and direct execution bounds."
     )
     args_schema: ArgsSchema | None = XianDexQuoteInput
 
@@ -84,7 +87,7 @@ class XianDexQuote(XianBaseTool):
                 dex_contract=dex_contract,
                 pairs_contract=pairs_contract,
             )
-            return render_quote(quote, helper_contract=dex_helper_contract)
+            return render_quote(quote, router_contract=dex_contract)
         except ToolException:
             raise
         except Exception as exc:
