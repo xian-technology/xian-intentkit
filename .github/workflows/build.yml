@@ -98,8 +98,7 @@ jobs:
             RELEASE=${{ github.event.release.tag_name || 'latest'}}
           build-contexts: |
             xian_py=../xian-py
-            xian_accounts=../xian-contracting/packages/xian-accounts
-            xian_runtime_types=../xian-contracting/packages/xian-runtime-types
+            xian_contracting=../xian-contracting
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
