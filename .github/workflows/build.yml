@@ -7,7 +7,7 @@ on:
 jobs:
   publish-package:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'release' }}
+    if: ${{ github.event_name == 'release' && github.event.action == 'released' }}
     permissions:
       contents: read
       id-token: write
@@ -28,7 +28,7 @@ jobs:
         run: |
           VERSION=${{ github.event.release.tag_name }}
           VERSION_NO_V=${VERSION#v}
-          echo "version=${VERSION_NO_V}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION_NO_V}" >> "${GITHUB_OUTPUT}"
 
       - name: Update version in pyproject.toml
         run: |
@@ -49,6 +49,9 @@ jobs:
 
   docker:
     runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
     permissions:
       contents: read
       packages: write
@@ -68,7 +71,6 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            crestal/intentkit
             ghcr.io/${{ github.repository }}
           # generate Docker tags based on the following events/attributes
           tags: |
@@ -81,12 +83,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-        with:
-          username: crestal
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
@@ -192,7 +188,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=intentkit-wechat
 
       - name: Build Success Notification
-        if: ${{ success() }}
+        if: ${{ success() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -205,10 +201,10 @@ jobs:
             *Status:* Completed
             *Branch:* `${{ github.ref }}`
             *Author:* ${{ github.actor }}
-            *Image:* [Docker Hub](https://hub.docker.com/r/crestal/intentkit/tags)
+            *Image:* [GHCR](${{ github.server_url }}/${{ github.repository }}/pkgs/container/xian-intentkit)
 
       - name: Build Failure Notification
-        if: ${{ failure() }}
+        if: ${{ failure() && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
         uses: appleboy/telegram-action@master
         with:
           to: ${{ secrets.TELEGRAM_CHAT_ID }}
