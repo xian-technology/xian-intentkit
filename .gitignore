@@ -189,3 +189,4 @@ rustfs_data
 .worktrees/
 
 .next
+graphify-out/
